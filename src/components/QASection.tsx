@@ -1,0 +1,168 @@
+'use client';
+import { useState } from 'react';
+import { useQuestions, usePostQuestion, useUpvoteQuestion, usePostAnswer } from '@/hooks/useEvents';
+import { useAuthStore } from '@/store/auth.store';
+import { ChevronUp, MessageSquare, Send } from 'lucide-react';
+import { format } from 'date-fns';
+import toast from 'react-hot-toast';
+
+interface Props {
+  eventId: string;
+  eventRole: string;
+}
+
+export function QASection({ eventId, eventRole }: Props) {
+  const [filter, setFilter] = useState<string>('');
+  const [newQuestion, setNewQuestion] = useState('');
+  const [expandedQuestion, setExpandedQuestion] = useState<string | null>(null);
+  const [answerTexts, setAnswerTexts] = useState<Record<string, string>>({});
+
+  const { data: questions, isLoading } = useQuestions(eventId, filter);
+  const postQuestion = usePostQuestion(eventId);
+  const upvote = useUpvoteQuestion(eventId);
+  const { user } = useAuthStore();
+
+  const canAnswer = ['owner', 'staff'].includes(eventRole);
+
+  const handlePostQuestion = async () => {
+    if (!newQuestion.trim()) return;
+    try {
+      await postQuestion.mutateAsync(newQuestion.trim());
+      setNewQuestion('');
+      toast.success('Question posted!');
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Failed to post question');
+    }
+  };
+
+  const handleUpvote = async (questionId: string) => {
+    if (!user) { toast.error('Login to upvote'); return; }
+    await upvote.mutateAsync(questionId);
+  };
+
+  return (
+    <div className="mt-8">
+      <h2 className="text-xl font-bold mb-4">Q&amp;A</h2>
+
+      <div className="flex gap-2 mb-4">
+        {['', 'answered', 'unanswered'].map(f => (
+          <button key={f} onClick={() => setFilter(f)}
+            className={`text-sm px-3 py-1 rounded-full border ${filter === f ? 'bg-indigo-600 text-white border-indigo-600' : 'hover:bg-gray-50'}`}>
+            {f === '' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
+          </button>
+        ))}
+      </div>
+
+      {user && eventRole !== 'visitor' && (
+        <div className="flex gap-2 mb-6">
+          <input value={newQuestion} onChange={e => setNewQuestion(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') handlePostQuestion(); }}
+            placeholder="Ask a question..."
+            className="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          <button onClick={handlePostQuestion} disabled={postQuestion.isPending}
+            className="bg-indigo-600 text-white px-3 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50">
+            <Send size={16} />
+          </button>
+        </div>
+      )}
+
+      {isLoading ? (
+        <div className="space-y-3">{[...Array(3)].map((_, i) => <div key={i} className="h-20 bg-gray-100 rounded-lg animate-pulse" />)}</div>
+      ) : questions?.length === 0 ? (
+        <p className="text-gray-500 text-sm">No questions yet.</p>
+      ) : (
+        <div className="space-y-3">
+          {questions?.map((q: any) => (
+            <QuestionItem key={q.question_id} question={q} canAnswer={canAnswer} eventId={eventId}
+              isExpanded={expandedQuestion === q.question_id}
+              onToggle={() => setExpandedQuestion(expandedQuestion === q.question_id ? null : q.question_id)}
+              onUpvote={() => handleUpvote(q.question_id)}
+              answerText={answerTexts[q.question_id] || ''}
+              onAnswerChange={(val: string) => setAnswerTexts(prev => ({ ...prev, [q.question_id]: val }))}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function QuestionItem({ question, canAnswer, eventId, isExpanded, onToggle, onUpvote, answerText, onAnswerChange }: any) {
+  const postAnswer = usePostAnswer(eventId, question.question_id);
+
+  const handleAnswer = async () => {
+    if (!answerText.trim()) return;
+    try {
+      await postAnswer.mutateAsync(answerText.trim());
+      onAnswerChange('');
+      toast.success('Answer posted!');
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Failed to post answer');
+    }
+  };
+
+  return (
+    <div className="border rounded-lg p-4">
+      <div className="flex gap-3">
+        <button onClick={onUpvote}
+          className="flex flex-col items-center gap-0.5 text-gray-500 hover:text-indigo-600 min-w-[32px]">
+          <ChevronUp size={16} />
+          <span className="text-xs font-medium">{question.upvotes}</span>
+        </button>
+        <div className="flex-1">
+          <p className="text-gray-900 text-sm">{question.content}</p>
+          <div className="flex items-center gap-3 mt-1">
+            <span className="text-xs text-gray-500">{question.asker_name} · {format(new Date(question.created_at), 'MMM d')}</span>
+            {question.is_answered && <span className="text-xs text-green-600 font-medium">Answered</span>}
+            <button onClick={onToggle} className="flex items-center gap-1 text-xs text-gray-500 hover:text-indigo-600">
+              <MessageSquare size={12} /> {question.answer_count} answers
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {isExpanded && (
+        <div className="mt-3 pl-10">
+          <AnswerList questionId={question.question_id} eventId={eventId} />
+          {canAnswer && (
+            <div className="flex gap-2 mt-3">
+              <input value={answerText} onChange={e => onAnswerChange(e.target.value)}
+                placeholder="Write an answer..."
+                className="flex-1 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              <button onClick={handleAnswer} disabled={postAnswer.isPending}
+                className="bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-indigo-700 disabled:opacity-50">
+                Answer
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AnswerList({ questionId, eventId }: { questionId: string; eventId: string }) {
+  const { useQuery } = require('@tanstack/react-query');
+  const api = require('@/lib/api').default;
+
+  const { data: answers } = useQuery({
+    queryKey: ['answers', questionId],
+    queryFn: async () => {
+      const { data } = await api.get(`/events/${eventId}/questions/${questionId}/answers`);
+      return data;
+    },
+  });
+
+  if (!answers?.length) return <p className="text-xs text-gray-400">No answers yet.</p>;
+
+  return (
+    <div className="space-y-2">
+      {answers.map((a: any) => (
+        <div key={a.answer_id} className="bg-green-50 rounded-lg p-3">
+          <p className="text-sm text-gray-800">{a.content}</p>
+          <p className="text-xs text-gray-500 mt-1">{a.answerer_name} · {format(new Date(a.created_at), 'MMM d')}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
