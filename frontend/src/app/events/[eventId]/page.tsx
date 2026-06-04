@@ -1,9 +1,9 @@
 'use client';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useEvent, useRegisterForEvent, useUpdateEvent, useDeleteEvent } from '@/hooks/useEvents';
 import { useAuthStore } from '@/store/auth.store';
 import { format } from 'date-fns';
-import { Calendar, MapPin, Users, Pencil, Trash2, Globe, CheckCircle2, ArrowLeft, Plus, X } from 'lucide-react';
+import { Calendar, MapPin, Users, Pencil, Trash2, Globe, CheckCircle2, ArrowLeft, Plus, X, Lock, Clock } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { EVENT_TYPES } from '@/lib/utils';
@@ -28,6 +28,8 @@ const inputClass = 'w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm
 
 export default function EventDetailPage() {
   const { eventId } = useParams<{ eventId: string }>();
+  const searchParams = useSearchParams();
+  const inviteCodeParam = searchParams.get('code');
   const { data: event, isLoading } = useEvent(eventId);
   const { user } = useAuthStore();
   const router = useRouter();
@@ -62,6 +64,11 @@ export default function EventDetailPage() {
   const colors = TYPE_COLORS[event.type] || { bg: 'bg-gray-100', text: 'text-gray-700' };
   const totalAttendees = event.registration_counts?.reduce((sum: number, r: any) => sum + parseInt(r.count), 0) || 0;
   const isHackathon = event.type === 'hackathon' || event.type === 'competition';
+  const accessType = event.access_type || 'public';
+  const isApproval = accessType === 'approval';
+  const isInviteOnly = accessType === 'invite_only';
+  const hasValidInvite = isInviteOnly && inviteCodeParam === event.invite_code;
+  const canRegister = !isInviteOnly || hasValidInvite;
 
   const addMember = () => {
     const m = memberInput.trim();
@@ -72,8 +79,10 @@ export default function EventDetailPage() {
   const handleRegister = async () => {
     if (!user) { router.push('/login'); return; }
     try {
-      await registerMutation.mutateAsync(undefined);
-      toast.success('Registered!');
+      const res: any = await registerMutation.mutateAsync(
+        isInviteOnly ? { invite_code: inviteCodeParam || '' } : undefined
+      );
+      toast.success(res?.status === 'pending' ? 'Request sent — waiting for approval' : 'Registered!');
     } catch (err: any) {
       toast.error(err.response?.data?.error || 'Registration failed');
     }
@@ -83,8 +92,10 @@ export default function EventDetailPage() {
     if (!user) { router.push('/login'); return; }
     if (!teamName.trim()) { toast.error('Enter a team name'); return; }
     try {
-      await registerMutation.mutateAsync({ team_name: teamName.trim(), team_members: members });
-      toast.success('Team registered!');
+      const payload: any = { team_name: teamName.trim(), team_members: members };
+      if (isInviteOnly) payload.invite_code = inviteCodeParam || '';
+      const res: any = await registerMutation.mutateAsync(payload);
+      toast.success(res?.status === 'pending' ? 'Request sent — waiting for approval' : 'Team registered!');
       setShowTeamForm(false);
     } catch (err: any) {
       toast.error(err.response?.data?.error || 'Registration failed');
@@ -202,31 +213,50 @@ export default function EventDetailPage() {
       {/* Registration block */}
       {event.status === 'published' && !user && (
         <div className="mb-8">
-          <Link href="/login" className="inline-block bg-blue-800 text-white px-6 py-3 rounded-lg hover:bg-blue-900 transition-colors font-medium text-sm">
-            Login to register
-          </Link>
+          {isInviteOnly && !hasValidInvite ? (
+            <div className="flex items-center gap-2 text-sm text-gray-500 border border-gray-200 rounded-lg px-4 py-3 w-fit">
+              <Lock size={14} /> This event is invite-only. You need a valid invite link.
+            </div>
+          ) : (
+            <Link href="/login" className="inline-block bg-blue-800 text-white px-6 py-3 rounded-lg hover:bg-blue-900 transition-colors font-medium text-sm">
+              Login to register
+            </Link>
+          )}
         </div>
       )}
 
       {event.status === 'published' && user && !canEdit && (
         <div className="mb-8">
-          {isHackathon && !showTeamForm && (
+          {isInviteOnly && !hasValidInvite ? (
+            <div className="flex items-center gap-2 text-sm text-gray-500 border border-gray-200 rounded-lg px-4 py-3 w-fit">
+              <Lock size={14} /> This event is invite-only. You need a valid invite link.
+            </div>
+          ) : isApproval && event.viewer_role === 'visitor' && !isHackathon ? (
+            <button
+              onClick={handleRegister}
+              disabled={registerMutation.isPending}
+              className="flex items-center gap-2 bg-blue-800 text-white px-6 py-3 rounded-lg hover:bg-blue-900 disabled:opacity-50 transition-colors font-medium text-sm"
+            >
+              <Clock size={14} />
+              {registerMutation.isPending ? 'Sending...' : 'Request to join'}
+            </button>
+          ) : isHackathon && !showTeamForm && canRegister ? (
             <div className="flex gap-3 flex-wrap">
               <button
                 onClick={handleRegister}
                 disabled={registerMutation.isPending}
                 className="bg-blue-800 text-white px-5 py-2.5 rounded-lg hover:bg-blue-900 disabled:opacity-50 transition-colors font-medium text-sm"
               >
-                {registerMutation.isPending ? 'Registering...' : 'Register solo'}
+                {registerMutation.isPending ? 'Registering...' : isApproval ? 'Request to join (solo)' : 'Register solo'}
               </button>
               <button
                 onClick={() => setShowTeamForm(true)}
                 className="flex items-center gap-1.5 border border-blue-800 text-blue-800 px-5 py-2.5 rounded-lg hover:bg-blue-50 transition-colors font-medium text-sm"
               >
-                <Users size={14} /> Register as team
+                <Users size={14} /> {isApproval ? 'Request as team' : 'Register as team'}
               </button>
             </div>
-          )}
+          ) : null}
 
           {isHackathon && showTeamForm && (
             <div className="border border-gray-200 rounded-xl p-5 max-w-md bg-gray-50">
@@ -289,7 +319,7 @@ export default function EventDetailPage() {
             </div>
           )}
 
-          {!isHackathon && (
+          {!isHackathon && canRegister && !isApproval && (
             <button
               onClick={handleRegister}
               disabled={registerMutation.isPending}
@@ -303,7 +333,12 @@ export default function EventDetailPage() {
 
       {canEdit && (
         <div className="mb-6">
-          <AttendeesPanel eventId={eventId} />
+          <AttendeesPanel
+            eventId={eventId}
+            isOwner={isOwner}
+            accessType={accessType}
+            inviteCode={event.invite_code}
+          />
         </div>
       )}
 

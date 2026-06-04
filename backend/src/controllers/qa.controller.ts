@@ -28,12 +28,15 @@ export async function postQuestion(req: AuthRequest & { event?: any }, res: Resp
     const { content } = req.body;
     if (!content?.trim()) return res.status(400).json({ error: 'content required' });
 
-    // Must be registered for event
-    const reg = await query(
-      'SELECT 1 FROM registrations WHERE event_id=$1 AND user_id=$2',
-      [req.event.event_id, req.user!.userId]
-    );
-    if (!reg.rows.length) return res.status(403).json({ error: 'Must be registered to ask questions' });
+    // Must be registered (approved) or owner/staff
+    const isOwnerOrStaff = ['owner', 'staff'].includes((req as any).eventRole);
+    if (!isOwnerOrStaff) {
+      const reg = await query(
+        "SELECT 1 FROM registrations WHERE event_id=$1 AND user_id=$2 AND (status IS NULL OR status='approved')",
+        [req.event.event_id, req.user!.userId]
+      );
+      if (!reg.rows.length) return res.status(403).json({ error: 'Must be registered to ask questions' });
+    }
 
     const { rows } = await query(
       'INSERT INTO questions (question_id, event_id, asked_by, content) VALUES ($1,$2,$3,$4) RETURNING *',

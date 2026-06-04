@@ -24,7 +24,13 @@ export async function resolveEventRole(req: AuthRequest & { eventRole?: string; 
   }
 
   const staff = await query('SELECT 1 FROM event_staff WHERE event_id=$1 AND user_id=$2', [eventId, userId]);
-  req.eventRole = staff.rows.length ? 'staff' : 'visitor';
+  if (staff.rows.length) { req.eventRole = 'staff'; return next(); }
+
+  const reg = await query(
+    "SELECT 1 FROM registrations WHERE event_id=$1 AND user_id=$2 AND (status IS NULL OR status='approved')",
+    [eventId, userId]
+  );
+  req.eventRole = reg.rows.length ? 'attendee' : 'visitor';
   next();
 }
 

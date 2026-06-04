@@ -15,6 +15,7 @@ const schema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters'),
   description: z.string().optional(),
   type: z.string().min(1, 'Select event type'),
+  access_type: z.enum(['public', 'invite_only', 'approval']).default('public'),
   date: z.string().optional(),
   end_date: z.string().optional(),
   location: z.string().optional(),
@@ -35,7 +36,7 @@ export default function CreateEventPage() {
 
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<Form>({
     resolver: zodResolver(schema),
-    defaultValues: { extra_fields: {} },
+    defaultValues: { extra_fields: {}, access_type: 'public' },
   });
 
   const selectedType = watch('type');
@@ -120,6 +121,19 @@ export default function CreateEventPage() {
             {EVENT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
           </select>
           {errors.type && <p className="text-red-500 text-xs mt-1">{errors.type.message}</p>}
+        </div>
+
+        <div>
+          <label className={labelClass}>Who can join?</label>
+          <select {...register('access_type')} className={inputClass}>
+            <option value="public">Public — anyone can register</option>
+            <option value="approval">Approval required — you approve each request</option>
+            <option value="invite_only">Invite only — only people with the link</option>
+          </select>
+          <p className="text-xs text-gray-400 mt-1">
+            {watch('access_type') === 'invite_only' && 'A unique invite link will be generated after creation.'}
+            {watch('access_type') === 'approval' && 'Registrants send a request — you approve or reject from the event page.'}
+          </p>
         </div>
 
         <div>

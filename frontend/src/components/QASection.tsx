@@ -24,6 +24,7 @@ export function QASection({ eventId, eventRole }: Props) {
   const upvote = useUpvoteQuestion(eventId);
   const { user } = useAuthStore();
 
+  const canAsk = user && ['owner', 'staff', 'attendee'].includes(eventRole);
   const canAnswer = ['owner', 'staff'].includes(eventRole);
 
   const handlePostQuestion = async () => {
@@ -57,7 +58,7 @@ export function QASection({ eventId, eventRole }: Props) {
         ))}
       </div>
 
-      {user && eventRole !== 'visitor' && (
+      {canAsk && (
         <div className="flex gap-2 mb-6">
           <input value={newQuestion} onChange={e => setNewQuestion(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter') handlePostQuestion(); }}

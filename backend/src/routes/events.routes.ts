@@ -3,7 +3,8 @@ import { authenticate, optionalAuth } from '../middleware/auth';
 import { resolveEventRole, requireOwner, requireStaffOrOwner } from '../middleware/eventRole';
 import {
   createEvent, getEvents, getEvent, updateEvent, deleteEvent,
-  inviteStaff, removeStaff, registerForEvent, unregisterFromEvent, getAttendees
+  inviteStaff, removeStaff, registerForEvent, unregisterFromEvent, getAttendees,
+  getPendingRequests, reviewRegistration, regenerateInviteCode
 } from '../controllers/events.controller';
 import { createTeam, getTeams, joinTeam, leaveTeam } from '../controllers/teams.controller';
 import { getQuestions, postQuestion, upvoteQuestion, getAnswers, postAnswer } from '../controllers/qa.controller';
@@ -31,6 +32,9 @@ router.delete('/:eventId/staff/:userId', authenticate, requireOwner, removeStaff
 router.post('/:eventId/register', authenticate, registerForEvent);
 router.delete('/:eventId/register', authenticate, unregisterFromEvent);
 router.get('/:eventId/attendees', optionalAuth, getAttendees);
+router.get('/:eventId/pending', authenticate, requireOwner, getPendingRequests);
+router.patch('/:eventId/registrations/:userId', authenticate, requireOwner, reviewRegistration);
+router.post('/:eventId/invite-code/regenerate', authenticate, requireOwner, regenerateInviteCode);
 
 // Teams
 router.post('/:eventId/teams', authenticate, createTeam);
