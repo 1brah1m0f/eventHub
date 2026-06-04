@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Calendar, Users, MessageSquare, Layers, ArrowRight, CheckCircle } from 'lucide-react';
+import { LandingRedirect } from '@/components/LandingRedirect';
 
 const FEATURES = [
   {
@@ -35,6 +36,7 @@ const TYPES = ['Hackathon', 'Conference', 'Bootcamp', 'Meetup', 'Workshop', 'Dem
 export default function HomePage() {
   return (
     <div className="bg-white">
+      <LandingRedirect />
       {/* Hero */}
       <section className="min-h-[100dvh] bg-gradient-to-br from-blue-950 via-blue-900 to-slate-900 text-white flex items-center px-4 py-20">
         <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
