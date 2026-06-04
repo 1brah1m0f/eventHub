@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import api from '@/lib/api';
 
 export function useEvents(params?: Record<string, string>) {
@@ -8,6 +8,7 @@ export function useEvents(params?: Record<string, string>) {
       const { data } = await api.get('/events', { params });
       return data;
     },
+    placeholderData: keepPreviousData,
   });
 }
 
