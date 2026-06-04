@@ -3,12 +3,13 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEvent, useRegisterForEvent, useUpdateEvent, useDeleteEvent } from '@/hooks/useEvents';
 import { useAuthStore } from '@/store/auth.store';
 import { format } from 'date-fns';
-import { Calendar, MapPin, Users, Pencil, Trash2, Globe, CheckCircle2, ArrowLeft } from 'lucide-react';
+import { Calendar, MapPin, Users, Pencil, Trash2, Globe, CheckCircle2, ArrowLeft, Plus, X } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { EVENT_TYPES } from '@/lib/utils';
 import { QASection } from '@/components/QASection';
 import { StaffManagement } from '@/components/StaffManagement';
+import { useState } from 'react';
 
 const TYPE_COLORS: Record<string, { bg: string; text: string }> = {
   hackathon:   { bg: 'bg-purple-100', text: 'text-purple-700' },
@@ -22,6 +23,8 @@ const TYPE_COLORS: Record<string, { bg: string; text: string }> = {
   seminar:     { bg: 'bg-teal-100',   text: 'text-teal-700'   },
 };
 
+const inputClass = 'w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white';
+
 export default function EventDetailPage() {
   const { eventId } = useParams<{ eventId: string }>();
   const { data: event, isLoading } = useEvent(eventId);
@@ -30,6 +33,11 @@ export default function EventDetailPage() {
   const registerMutation = useRegisterForEvent(eventId);
   const updateEvent = useUpdateEvent(eventId);
   const deleteEvent = useDeleteEvent();
+
+  const [showTeamForm, setShowTeamForm] = useState(false);
+  const [teamName, setTeamName] = useState('');
+  const [memberInput, setMemberInput] = useState('');
+  const [members, setMembers] = useState<string[]>([]);
 
   if (isLoading) return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-4 animate-pulse">
@@ -52,12 +60,31 @@ export default function EventDetailPage() {
   const typeLabel = EVENT_TYPES.find(t => t.value === event.type)?.label || event.type;
   const colors = TYPE_COLORS[event.type] || { bg: 'bg-gray-100', text: 'text-gray-700' };
   const totalAttendees = event.registration_counts?.reduce((sum: number, r: any) => sum + parseInt(r.count), 0) || 0;
+  const isHackathon = event.type === 'hackathon' || event.type === 'competition';
+
+  const addMember = () => {
+    const m = memberInput.trim();
+    if (m && !members.includes(m) && members.length < 4) setMembers(prev => [...prev, m]);
+    setMemberInput('');
+  };
 
   const handleRegister = async () => {
     if (!user) { router.push('/login'); return; }
     try {
       await registerMutation.mutateAsync(undefined);
-      toast.success('Registered successfully!');
+      toast.success('Registered!');
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Registration failed');
+    }
+  };
+
+  const handleTeamRegister = async () => {
+    if (!user) { router.push('/login'); return; }
+    if (!teamName.trim()) { toast.error('Enter a team name'); return; }
+    try {
+      await registerMutation.mutateAsync({ team_name: teamName.trim(), team_members: members });
+      toast.success('Team registered!');
+      setShowTeamForm(false);
     } catch (err: any) {
       toast.error(err.response?.data?.error || 'Registration failed');
     }
@@ -85,19 +112,16 @@ export default function EventDetailPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      {/* Back */}
       <Link href="/events" className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-5 w-fit">
         <ArrowLeft size={14} /> Back to events
       </Link>
 
-      {/* Cover */}
       {event.cover_image ? (
         <img src={event.cover_image} alt={event.title} className="w-full h-64 object-cover rounded-xl mb-6" />
       ) : (
         <div className="w-full h-48 bg-gradient-to-br from-blue-900 to-blue-700 rounded-xl mb-6" />
       )}
 
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2 flex-wrap">
@@ -119,8 +143,7 @@ export default function EventDetailPage() {
           )}
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0 flex-wrap">
           {isOwner && event.status === 'draft' && (
             <button
               onClick={handlePublish}
@@ -149,13 +172,12 @@ export default function EventDetailPage() {
         </div>
       </div>
 
-      {/* Meta */}
       <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-6 pb-6 border-b border-gray-100">
         {event.date && (
           <span className="flex items-center gap-2">
             <Calendar size={14} className="text-blue-700 shrink-0" />
             {format(new Date(event.date), 'MMM d, yyyy · HH:mm')}
-            {event.end_date && ` - ${format(new Date(event.end_date), 'MMM d, yyyy')}`}
+            {event.end_date && ` → ${format(new Date(event.end_date), 'MMM d, yyyy')}`}
           </span>
         )}
         {event.location && (
@@ -170,45 +192,120 @@ export default function EventDetailPage() {
         </span>
       </div>
 
-      {/* Description */}
       {event.description && (
         <div className="mb-8">
           <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{event.description}</p>
         </div>
       )}
 
-      {/* Register button */}
-      {event.status === 'published' && user && !canEdit && (
-        <div className="mb-8">
-          <button
-            onClick={handleRegister}
-            disabled={registerMutation.isPending}
-            className="bg-blue-800 text-white px-6 py-3 rounded-lg hover:bg-blue-900 disabled:opacity-50 transition-colors font-medium text-sm"
-          >
-            {registerMutation.isPending ? 'Registering...' : 'Register for this event'}
-          </button>
-        </div>
-      )}
-
+      {/* Registration block */}
       {event.status === 'published' && !user && (
         <div className="mb-8">
-          <Link
-            href="/login"
-            className="inline-block bg-blue-800 text-white px-6 py-3 rounded-lg hover:bg-blue-900 transition-colors font-medium text-sm"
-          >
+          <Link href="/login" className="inline-block bg-blue-800 text-white px-6 py-3 rounded-lg hover:bg-blue-900 transition-colors font-medium text-sm">
             Login to register
           </Link>
         </div>
       )}
 
-      {/* Staff management */}
+      {event.status === 'published' && user && !canEdit && (
+        <div className="mb-8">
+          {isHackathon && !showTeamForm && (
+            <div className="flex gap-3 flex-wrap">
+              <button
+                onClick={handleRegister}
+                disabled={registerMutation.isPending}
+                className="bg-blue-800 text-white px-5 py-2.5 rounded-lg hover:bg-blue-900 disabled:opacity-50 transition-colors font-medium text-sm"
+              >
+                {registerMutation.isPending ? 'Registering...' : 'Register solo'}
+              </button>
+              <button
+                onClick={() => setShowTeamForm(true)}
+                className="flex items-center gap-1.5 border border-blue-800 text-blue-800 px-5 py-2.5 rounded-lg hover:bg-blue-50 transition-colors font-medium text-sm"
+              >
+                <Users size={14} /> Register as team
+              </button>
+            </div>
+          )}
+
+          {isHackathon && showTeamForm && (
+            <div className="border border-gray-200 rounded-xl p-5 max-w-md bg-gray-50">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-gray-900 text-sm">Team Registration</h3>
+                <button onClick={() => setShowTeamForm(false)} className="text-gray-400 hover:text-gray-600">
+                  <X size={16} />
+                </button>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Team name *</label>
+                  <input
+                    value={teamName}
+                    onChange={e => setTeamName(e.target.value)}
+                    className={inputClass}
+                    placeholder="e.g. ByteForce"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Team members <span className="text-gray-400">(max 4, optional)</span></label>
+                  <div className="flex flex-wrap gap-1.5 mb-2">
+                    {members.map(m => (
+                      <span key={m} className="flex items-center gap-1 text-xs bg-blue-50 text-blue-800 border border-blue-100 px-2 py-0.5 rounded-md">
+                        {m}
+                        <button type="button" onClick={() => setMembers(p => p.filter(x => x !== m))} className="text-blue-400 hover:text-red-500">
+                          <X size={10} />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                  {members.length < 4 && (
+                    <div className="flex gap-2">
+                      <input
+                        value={memberInput}
+                        onChange={e => setMemberInput(e.target.value)}
+                        onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addMember())}
+                        className={inputClass}
+                        placeholder="Member name, press Enter"
+                      />
+                      <button type="button" onClick={addMember} className="px-3 border border-gray-300 rounded-lg hover:bg-white text-gray-600 transition-colors">
+                        <Plus size={14} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <div className="flex gap-2 pt-1">
+                  <button
+                    onClick={handleTeamRegister}
+                    disabled={registerMutation.isPending}
+                    className="bg-blue-800 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-900 disabled:opacity-50 transition-colors"
+                  >
+                    {registerMutation.isPending ? 'Registering...' : 'Register team'}
+                  </button>
+                  <button onClick={() => setShowTeamForm(false)} className="px-4 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-white transition-colors">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {!isHackathon && (
+            <button
+              onClick={handleRegister}
+              disabled={registerMutation.isPending}
+              className="bg-blue-800 text-white px-6 py-3 rounded-lg hover:bg-blue-900 disabled:opacity-50 transition-colors font-medium text-sm"
+            >
+              {registerMutation.isPending ? 'Registering...' : 'Register for this event'}
+            </button>
+          )}
+        </div>
+      )}
+
       {isOwner && (
         <div className="mb-8">
           <StaffManagement eventId={eventId} staff={event.staff || []} />
         </div>
       )}
 
-      {/* Q&A */}
       <QASection eventId={eventId} eventRole={event.viewer_role} />
     </div>
   );

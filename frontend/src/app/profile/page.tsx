@@ -2,13 +2,13 @@
 import { useAuthStore } from '@/store/auth.store';
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { useMyEvents, useMyRegistrations, useUpdateProfile } from '@/hooks/useProfile';
+import { useMyEvents, useMyRegistrations, useMyStaffEvents, useUpdateProfile } from '@/hooks/useProfile';
 import { EventCard } from '@/components/EventCard';
 import { ExternalLink, Pencil, X, Check, Plus, Camera } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '@/lib/api';
 
-type Tab = 'my-events' | 'registered' | 'edit';
+type Tab = 'my-events' | 'staff' | 'registered' | 'edit';
 
 const inputClass = 'w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white';
 const labelClass = 'block text-sm font-medium text-gray-700 mb-1.5';
@@ -23,6 +23,7 @@ export default function ProfilePage() {
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const { data: myEvents, isLoading: eventsLoading } = useMyEvents();
+  const { data: staffEvents, isLoading: staffLoading } = useMyStaffEvents();
   const { data: registrations, isLoading: regsLoading } = useMyRegistrations();
   const updateProfile = useUpdateProfile();
 
@@ -92,8 +93,8 @@ export default function ProfilePage() {
 
   const TABS: { id: Tab; label: string; count?: number }[] = [
     { id: 'my-events', label: 'My Events', count: myEvents?.length },
+    { id: 'staff', label: 'Staff', count: staffEvents?.length },
     { id: 'registered', label: 'Registered', count: registrations?.length },
-    { id: 'edit', label: 'Edit Profile' },
   ];
 
   return (
@@ -202,6 +203,25 @@ export default function ProfilePage() {
                 </div>
               )}
             </>
+          )}
+        </div>
+      )}
+
+      {/* Staff Events */}
+      {tab === 'staff' && (
+        <div className="space-y-4">
+          {staffLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[...Array(3)].map((_, i) => <div key={i} className="h-56 bg-gray-100 rounded-xl animate-pulse" />)}
+            </div>
+          ) : staffEvents?.length ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {staffEvents.map((e: any) => <EventCard key={e.event_id} event={e} />)}
+            </div>
+          ) : (
+            <div className="text-center py-16 text-gray-400">
+              <p>Not a staff member on any events</p>
+            </div>
           )}
         </div>
       )}

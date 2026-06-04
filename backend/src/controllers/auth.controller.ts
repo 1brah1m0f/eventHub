@@ -112,6 +112,23 @@ export async function myRegistrations(req: Request & { user?: any }, res: Respon
   }
 }
 
+export async function myStaffEvents(req: Request & { user?: any }, res: Response) {
+  try {
+    const { rows } = await query(
+      `SELECT e.*, u.name as owner_name,
+        (SELECT COUNT(*) FROM registrations r WHERE r.event_id = e.event_id) as attendee_count
+       FROM event_staff es
+       JOIN events e ON es.event_id = e.event_id
+       LEFT JOIN users u ON e.created_by = u.user_id
+       WHERE es.user_id=$1 ORDER BY e.date DESC`,
+      [req.user!.userId]
+    );
+    res.json(rows);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
 function signToken(userId: string, email: string) {
   return jwt.sign({ userId, email }, process.env.JWT_SECRET!, { expiresIn: '7d' });
 }

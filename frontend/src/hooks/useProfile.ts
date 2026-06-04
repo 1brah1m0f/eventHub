@@ -15,6 +15,13 @@ export function useMyRegistrations() {
   });
 }
 
+export function useMyStaffEvents() {
+  return useQuery({
+    queryKey: ['my-staff-events'],
+    queryFn: () => api.get('/auth/me/staff-events').then(r => r.data),
+  });
+}
+
 export function useUpdateProfile() {
   const qc = useQueryClient();
   return useMutation({

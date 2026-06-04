@@ -133,10 +133,12 @@ export async function removeStaff(req: Request & { event?: any }, res: Response)
 
 export async function registerForEvent(req: AuthRequest & { event?: any }, res: Response) {
   try {
-    const { role = 'attendee' } = req.body;
+    const { role = 'attendee', team_name, team_members } = req.body;
     await query(
-      'INSERT INTO registrations (registration_id, event_id, user_id, role) VALUES ($1,$2,$3,$4) ON CONFLICT DO NOTHING',
-      [uuidv4(), req.event.event_id, req.user!.userId, role]
+      `INSERT INTO registrations (registration_id, event_id, user_id, role, team_name, team_members)
+       VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT (event_id, user_id) DO NOTHING`,
+      [uuidv4(), req.event.event_id, req.user!.userId, role,
+       team_name || null, team_members ? JSON.stringify(team_members) : null]
     );
     res.json({ message: 'Registered' });
   } catch (err: any) {

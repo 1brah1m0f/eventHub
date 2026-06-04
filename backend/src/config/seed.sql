@@ -1,3 +1,7 @@
+-- Run this first in Supabase SQL Editor to add team columns:
+-- ALTER TABLE registrations ADD COLUMN IF NOT EXISTS team_name text;
+-- ALTER TABLE registrations ADD COLUMN IF NOT EXISTS team_members jsonb;
+
 -- Seed data: 8 users + 9 events
 -- All users password: password123
 

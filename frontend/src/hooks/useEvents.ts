@@ -53,7 +53,8 @@ export function useDeleteEvent() {
 export function useRegisterForEvent(eventId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (role: string | undefined) => api.post(`/events/${eventId}/register`, { role }).then(r => r.data),
+    mutationFn: (payload: { role?: string; team_name?: string; team_members?: string[] } | undefined) =>
+      api.post(`/events/${eventId}/register`, payload || {}).then(r => r.data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['event', eventId] }),
   });
 }
