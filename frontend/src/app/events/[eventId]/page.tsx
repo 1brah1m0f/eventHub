@@ -9,6 +9,7 @@ import toast from 'react-hot-toast';
 import { EVENT_TYPES } from '@/lib/utils';
 import { QASection } from '@/components/QASection';
 import { StaffManagement } from '@/components/StaffManagement';
+import { AttendeesPanel } from '@/components/AttendeesPanel';
 import { useState } from 'react';
 
 const TYPE_COLORS: Record<string, { bg: string; text: string }> = {
@@ -297,6 +298,12 @@ export default function EventDetailPage() {
               {registerMutation.isPending ? 'Registering...' : 'Register for this event'}
             </button>
           )}
+        </div>
+      )}
+
+      {canEdit && (
+        <div className="mb-6">
+          <AttendeesPanel eventId={eventId} />
         </div>
       )}
 

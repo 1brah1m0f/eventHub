@@ -111,6 +111,10 @@ export async function inviteStaff(req: Request & { event?: any }, res: Response)
     const { rows: users } = await query('SELECT user_id FROM users WHERE email=$1', [email]);
     if (!users.length) return res.status(404).json({ error: 'User not found' });
 
+    if (users[0].user_id === req.event.created_by) {
+      return res.status(400).json({ error: 'You are the owner — cannot add yourself as staff' });
+    }
+
     await query(
       'INSERT INTO event_staff (id, event_id, user_id) VALUES ($1,$2,$3) ON CONFLICT DO NOTHING',
       [uuidv4(), req.event.event_id, users[0].user_id]
@@ -158,7 +162,7 @@ export async function unregisterFromEvent(req: AuthRequest & { event?: any }, re
 export async function getAttendees(req: Request & { event?: any }, res: Response) {
   try {
     const { rows } = await query(
-      `SELECT u.user_id, u.name, u.email, u.avatar_url, u.bio, u.skills, r.role, r.registered_at
+      `SELECT u.user_id, u.name, u.email, u.avatar_url, r.role, r.registered_at, r.team_name, r.team_members
        FROM registrations r JOIN users u ON r.user_id = u.user_id WHERE r.event_id=$1 ORDER BY r.registered_at`,
       [req.event.event_id]
     );

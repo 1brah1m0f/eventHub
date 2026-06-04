@@ -59,6 +59,17 @@ export function useRegisterForEvent(eventId: string) {
   });
 }
 
+export function useAttendees(eventId: string) {
+  return useQuery({
+    queryKey: ['attendees', eventId],
+    queryFn: async () => {
+      const { data } = await api.get(`/events/${eventId}/attendees`);
+      return data;
+    },
+    enabled: !!eventId,
+  });
+}
+
 export function useQuestions(eventId: string, filter?: string) {
   return useQuery({
     queryKey: ['questions', eventId, filter],
