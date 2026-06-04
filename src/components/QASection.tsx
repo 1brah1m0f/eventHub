@@ -1,7 +1,9 @@
 'use client';
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useQuestions, usePostQuestion, useUpvoteQuestion, usePostAnswer } from '@/hooks/useEvents';
 import { useAuthStore } from '@/store/auth.store';
+import api from '@/lib/api';
 import { ChevronUp, MessageSquare, Send } from 'lucide-react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
@@ -142,9 +144,6 @@ function QuestionItem({ question, canAnswer, eventId, isExpanded, onToggle, onUp
 }
 
 function AnswerList({ questionId, eventId }: { questionId: string; eventId: string }) {
-  const { useQuery } = require('@tanstack/react-query');
-  const api = require('@/lib/api').default;
-
   const { data: answers } = useQuery({
     queryKey: ['answers', questionId],
     queryFn: async () => {
