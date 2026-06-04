@@ -1,10 +1,10 @@
 'use client';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useQuestions, usePostQuestion, useUpvoteQuestion, usePostAnswer } from '@/hooks/useEvents';
+import { useQuestions, usePostQuestion, useUpvoteQuestion, usePostAnswer, useEditQuestion, useDeleteQuestion } from '@/hooks/useEvents';
 import { useAuthStore } from '@/store/auth.store';
 import api from '@/lib/api';
-import { ChevronUp, MessageSquare, Send } from 'lucide-react';
+import { ChevronUp, MessageSquare, Send, Pencil, Trash2, Check, X } from 'lucide-react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 
@@ -25,7 +25,8 @@ export function QASection({ eventId, eventRole }: Props) {
   const { user } = useAuthStore();
 
   const canAsk = user && ['owner', 'staff', 'attendee'].includes(eventRole);
-  const canAnswer = ['owner', 'staff'].includes(eventRole);
+  const canAnswer = user && ['owner', 'staff', 'attendee'].includes(eventRole);
+  const canModerate = ['owner', 'staff'].includes(eventRole);
 
   const handlePostQuestion = async () => {
     if (!newQuestion.trim()) return;
@@ -80,7 +81,8 @@ export function QASection({ eventId, eventRole }: Props) {
       ) : (
         <div className="space-y-3">
           {questions?.map((q: any) => (
-            <QuestionItem key={q.question_id} question={q} canAnswer={canAnswer} eventId={eventId}
+            <QuestionItem key={q.question_id} question={q} canAnswer={!!canAnswer} canModerate={canModerate}
+              currentUserId={user?.user_id} eventId={eventId}
               isExpanded={expandedQuestion === q.question_id}
               onToggle={() => setExpandedQuestion(expandedQuestion === q.question_id ? null : q.question_id)}
               onUpvote={() => handleUpvote(q.question_id)}
@@ -94,8 +96,37 @@ export function QASection({ eventId, eventRole }: Props) {
   );
 }
 
-function QuestionItem({ question, canAnswer, eventId, isExpanded, onToggle, onUpvote, answerText, onAnswerChange }: any) {
+function QuestionItem({ question, canAnswer, canModerate, currentUserId, eventId, isExpanded, onToggle, onUpvote, answerText, onAnswerChange }: any) {
   const postAnswer = usePostAnswer(eventId, question.question_id);
+  const editQuestion = useEditQuestion(eventId, question.question_id);
+  const deleteQuestion = useDeleteQuestion(eventId, question.question_id);
+  const [editing, setEditing] = useState(false);
+  const [editText, setEditText] = useState(question.content);
+
+  const isAuthor = currentUserId && question.asked_by === currentUserId;
+  const canEdit = isAuthor;
+  const canDelete = isAuthor || canModerate;
+
+  const handleSaveEdit = async () => {
+    if (!editText.trim()) return;
+    try {
+      await editQuestion.mutateAsync(editText.trim());
+      setEditing(false);
+      toast.success('Question updated');
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Failed to edit');
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm('Delete this question?')) return;
+    try {
+      await deleteQuestion.mutateAsync();
+      toast.success('Deleted');
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Failed to delete');
+    }
+  };
 
   const handleAnswer = async () => {
     if (!answerText.trim()) return;
@@ -117,13 +148,44 @@ function QuestionItem({ question, canAnswer, eventId, isExpanded, onToggle, onUp
           <span className="text-xs font-medium">{question.upvotes}</span>
         </button>
         <div className="flex-1">
-          <p className="text-gray-900 text-sm">{question.content}</p>
-          <div className="flex items-center gap-3 mt-1">
+          {editing ? (
+            <div className="flex gap-2">
+              <input
+                value={editText}
+                onChange={e => setEditText(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleSaveEdit()}
+                className="flex-1 border rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700"
+                autoFocus
+              />
+              <button onClick={handleSaveEdit} disabled={editQuestion.isPending}
+                className="p-1 text-emerald-600 hover:bg-emerald-50 rounded transition-colors">
+                <Check size={15} />
+              </button>
+              <button onClick={() => { setEditing(false); setEditText(question.content); }}
+                className="p-1 text-gray-400 hover:bg-gray-100 rounded transition-colors">
+                <X size={15} />
+              </button>
+            </div>
+          ) : (
+            <p className="text-gray-900 text-sm">{question.content}</p>
+          )}
+          <div className="flex items-center gap-3 mt-1 flex-wrap">
             <span className="text-xs text-gray-500">{question.asker_name} · {format(new Date(question.created_at), 'MMM d')}</span>
             {question.is_answered && <span className="text-xs text-green-600 font-medium">Answered</span>}
             <button onClick={onToggle} className="flex items-center gap-1 text-xs text-gray-500 hover:text-blue-700 transition-colors">
               <MessageSquare size={12} /> {question.answer_count} answers
             </button>
+            {canEdit && !editing && (
+              <button onClick={() => setEditing(true)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-blue-700 transition-colors">
+                <Pencil size={11} /> Edit
+              </button>
+            )}
+            {canDelete && !editing && (
+              <button onClick={handleDelete} disabled={deleteQuestion.isPending}
+                className="flex items-center gap-1 text-xs text-gray-400 hover:text-red-500 transition-colors">
+                <Trash2 size={11} /> Delete
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -134,6 +196,7 @@ function QuestionItem({ question, canAnswer, eventId, isExpanded, onToggle, onUp
           {canAnswer && (
             <div className="flex gap-2 mt-3">
               <input value={answerText} onChange={e => onAnswerChange(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleAnswer()}
                 placeholder="Write an answer..."
                 className="flex-1 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700" />
               <button onClick={handleAnswer} disabled={postAnswer.isPending}

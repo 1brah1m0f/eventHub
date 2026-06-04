@@ -16,7 +16,7 @@ const schema = z.object({
   description: z.string().optional(),
   type: z.string().min(1, 'Select event type'),
   access_type: z.enum(['public', 'invite_only', 'approval']),
-  date: z.string().optional(),
+  date: z.string().optional().refine(v => !v || new Date(v) > new Date(), { message: 'Date must be in the future' }),
   end_date: z.string().optional(),
   location: z.string().optional(),
   extra_fields: z.record(z.string(), z.any()).optional(),
@@ -150,7 +150,8 @@ export default function CreateEventPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className={labelClass}>Start Date & Time</label>
-            <input {...register('date')} type="datetime-local" className={inputClass} />
+            <input {...register('date')} type="datetime-local" className={inputClass}
+            min={new Date(Date.now() + 60_000).toISOString().slice(0, 16)} />
           </div>
           <div>
             <label className={labelClass}>End Date & Time</label>

@@ -72,6 +72,44 @@ export async function upvoteQuestion(req: AuthRequest, res: Response) {
   }
 }
 
+export async function editQuestion(req: AuthRequest, res: Response) {
+  try {
+    const { questionId } = req.params;
+    const { content } = req.body;
+    if (!content?.trim()) return res.status(400).json({ error: 'content required' });
+
+    const { rows } = await query('SELECT asked_by FROM questions WHERE question_id=$1', [questionId]);
+    if (!rows.length) return res.status(404).json({ error: 'Question not found' });
+    if (rows[0].asked_by !== req.user!.userId) return res.status(403).json({ error: 'Not your question' });
+
+    const { rows: updated } = await query(
+      'UPDATE questions SET content=$1 WHERE question_id=$2 RETURNING *',
+      [content.trim(), questionId]
+    );
+    res.json(updated[0]);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
+export async function deleteQuestion(req: AuthRequest & { eventRole?: string }, res: Response) {
+  try {
+    const { questionId } = req.params;
+    const { rows } = await query('SELECT asked_by FROM questions WHERE question_id=$1', [questionId]);
+    if (!rows.length) return res.status(404).json({ error: 'Question not found' });
+
+    const isOwnerOrStaff = ['owner', 'staff'].includes(req.eventRole!);
+    if (rows[0].asked_by !== req.user!.userId && !isOwnerOrStaff) {
+      return res.status(403).json({ error: 'Not allowed' });
+    }
+
+    await query('DELETE FROM questions WHERE question_id=$1', [questionId]);
+    res.json({ message: 'Deleted' });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
 export async function getAnswers(req: Request, res: Response) {
   try {
     const { questionId } = req.params;
@@ -93,20 +131,9 @@ export async function postAnswer(req: AuthRequest & { event?: any; eventRole?: s
     const { content } = req.body;
     if (!content?.trim()) return res.status(400).json({ error: 'content required' });
 
-    // Only owner, staff, or mentors can answer
     const userId = req.user!.userId;
-    const isOwnerOrStaff = ['owner', 'staff'].includes(req.eventRole!);
-
-    let canAnswer = isOwnerOrStaff;
-    if (!canAnswer) {
-      const mentor = await query(
-        "SELECT 1 FROM registrations WHERE event_id=$1 AND user_id=$2 AND role='mentor'",
-        [req.event.event_id, userId]
-      );
-      canAnswer = mentor.rows.length > 0;
-    }
-
-    if (!canAnswer) return res.status(403).json({ error: 'Only owner, staff, or mentors can answer' });
+    const isOwnerOrStaff = ['owner', 'staff', 'attendee'].includes(req.eventRole!);
+    if (!isOwnerOrStaff) return res.status(403).json({ error: 'Must be registered to answer' });
 
     const { rows } = await query(
       'INSERT INTO answers (answer_id, question_id, answered_by, content) VALUES ($1,$2,$3,$4) RETURNING *',

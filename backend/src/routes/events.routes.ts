@@ -7,7 +7,7 @@ import {
   getPendingRequests, reviewRegistration, regenerateInviteCode
 } from '../controllers/events.controller';
 import { createTeam, getTeams, joinTeam, leaveTeam } from '../controllers/teams.controller';
-import { getQuestions, postQuestion, upvoteQuestion, getAnswers, postAnswer } from '../controllers/qa.controller';
+import { getQuestions, postQuestion, upvoteQuestion, getAnswers, postAnswer, editQuestion, deleteQuestion } from '../controllers/qa.controller';
 
 const router = Router();
 
@@ -46,6 +46,8 @@ router.delete('/:eventId/teams/:teamId/leave', authenticate, leaveTeam);
 router.get('/:eventId/questions', optionalAuth, getQuestions);
 router.post('/:eventId/questions', authenticate, postQuestion);
 router.post('/:eventId/questions/:questionId/upvote', authenticate, upvoteQuestion);
+router.patch('/:eventId/questions/:questionId', authenticate, editQuestion);
+router.delete('/:eventId/questions/:questionId', authenticate, deleteQuestion);
 router.get('/:eventId/questions/:questionId/answers', optionalAuth, getAnswers);
 router.post('/:eventId/questions/:questionId/answers', authenticate, postAnswer);
 

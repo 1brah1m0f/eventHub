@@ -105,3 +105,20 @@ export function usePostAnswer(eventId: string, questionId: string) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['questions', eventId] }),
   });
 }
+
+export function useEditQuestion(eventId: string, questionId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (content: string) =>
+      api.patch(`/events/${eventId}/questions/${questionId}`, { content }).then(r => r.data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['questions', eventId] }),
+  });
+}
+
+export function useDeleteQuestion(eventId: string, questionId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => api.delete(`/events/${eventId}/questions/${questionId}`).then(r => r.data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['questions', eventId] }),
+  });
+}
