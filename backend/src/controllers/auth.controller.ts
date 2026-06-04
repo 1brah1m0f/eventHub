@@ -80,6 +80,38 @@ export async function updateProfile(req: Request & { user?: any }, res: Response
   }
 }
 
+export async function myEvents(req: Request & { user?: any }, res: Response) {
+  try {
+    const { rows } = await query(
+      `SELECT e.*,
+        (SELECT COUNT(*) FROM registrations r WHERE r.event_id = e.event_id) as attendee_count
+       FROM events e WHERE e.created_by=$1 ORDER BY e.created_at DESC`,
+      [req.user!.userId]
+    );
+    res.json(rows);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
+export async function myRegistrations(req: Request & { user?: any }, res: Response) {
+  try {
+    const { rows } = await query(
+      `SELECT e.*, reg.role as registration_role, reg.registered_at,
+        u.name as owner_name,
+        (SELECT COUNT(*) FROM registrations r WHERE r.event_id = e.event_id) as attendee_count
+       FROM registrations reg
+       JOIN events e ON reg.event_id = e.event_id
+       LEFT JOIN users u ON e.created_by = u.user_id
+       WHERE reg.user_id=$1 ORDER BY e.date DESC`,
+      [req.user!.userId]
+    );
+    res.json(rows);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
 function signToken(userId: string, email: string) {
   return jwt.sign({ userId, email }, process.env.JWT_SECRET!, { expiresIn: '7d' });
 }

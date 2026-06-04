@@ -6,16 +6,19 @@ import { useAuthStore } from '@/store/auth.store';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
+import { Calendar } from 'lucide-react';
 
 const schema = z.object({
-  name: z.string().min(2),
-  email: z.string().email(),
-  password: z.string().min(6),
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  email: z.string().email('Enter a valid email'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
   bio: z.string().optional(),
-  linkedin_url: z.string().url().optional().or(z.literal('')),
+  linkedin_url: z.string().url('Enter a valid URL').optional().or(z.literal('')),
 });
 
 type Form = z.infer<typeof schema>;
+
+const inputClass = 'w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-transparent bg-white';
 
 export default function RegisterPage() {
   const { register: registerUser, isLoading } = useAuthStore();
@@ -32,36 +35,56 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-gradient-to-br from-blue-950 to-blue-900">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
+    <div className="min-h-[100dvh] flex items-center justify-center px-4 py-10 bg-gray-50">
+      <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-blue-900">Create account</h1>
-          <p className="text-gray-500 text-sm mt-1">Join thousands of event organizers</p>
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Calendar size={22} className="text-blue-800" />
+            <span className="text-xl font-bold text-gray-900">EventHub</span>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900">Create account</h1>
+          <p className="text-gray-500 text-sm mt-1">Join the community</p>
         </div>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {[
-            { name: 'name', label: 'Full Name', type: 'text' },
-            { name: 'email', label: 'Email', type: 'email' },
-            { name: 'password', label: 'Password', type: 'password' },
-            { name: 'bio', label: 'Bio (optional)', type: 'text' },
-            { name: 'linkedin_url', label: 'LinkedIn URL (optional)', type: 'url' },
-          ].map(({ name, label, type }) => (
-            <div key={name}>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
-              <input {...register(name as any)} type={type}
-                className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700" />
-              {(errors as any)[name] && (
-                <p className="text-red-500 text-xs mt-1">{(errors as any)[name]?.message}</p>
-              )}
+
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Full Name</label>
+              <input {...register('name')} type="text" className={inputClass} placeholder="Your name" />
+              {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
             </div>
-          ))}
-          <button type="submit" disabled={isLoading}
-            className="w-full bg-blue-800 text-white py-2.5 rounded-lg font-medium hover:bg-blue-900 disabled:opacity-50 transition-colors">
-            {isLoading ? 'Creating account...' : 'Create Account'}
-          </button>
-        </form>
-        <p className="text-sm text-center mt-5 text-gray-500">
-          Already have an account? <Link href="/login" className="text-blue-800 font-medium hover:underline">Login</Link>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+              <input {...register('email')} type="email" className={inputClass} placeholder="you@example.com" />
+              {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
+              <input {...register('password')} type="password" className={inputClass} placeholder="Min 6 characters" />
+              {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Bio <span className="text-gray-400 font-normal">(optional)</span></label>
+              <textarea {...register('bio')} rows={2} className={inputClass} placeholder="A short intro about yourself" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">LinkedIn URL <span className="text-gray-400 font-normal">(optional)</span></label>
+              <input {...register('linkedin_url')} type="url" className={inputClass} placeholder="https://linkedin.com/in/..." />
+              {errors.linkedin_url && <p className="text-red-500 text-xs mt-1">{errors.linkedin_url.message}</p>}
+            </div>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-blue-800 text-white py-2.5 rounded-lg font-medium hover:bg-blue-900 disabled:opacity-50 transition-colors text-sm"
+            >
+              {isLoading ? 'Creating account...' : 'Create account'}
+            </button>
+          </form>
+        </div>
+
+        <p className="text-sm text-center mt-4 text-gray-500">
+          Already have an account?{' '}
+          <Link href="/login" className="text-blue-800 font-medium hover:underline">Sign in</Link>
         </p>
       </div>
     </div>
