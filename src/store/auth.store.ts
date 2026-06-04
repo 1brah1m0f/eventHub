@@ -20,6 +20,7 @@ interface AuthState {
   register: (data: RegisterData) => Promise<void>;
   logout: () => void;
   fetchMe: () => Promise<void>;
+  mockLogin: () => void;
 }
 
 interface RegisterData {
@@ -65,6 +66,19 @@ export const useAuthStore = create<AuthState>()(
       logout: () => {
         localStorage.removeItem('token');
         set({ user: null, token: null });
+      },
+
+      mockLogin: () => {
+        const mockUser: User = {
+          user_id: 'mock-user-1',
+          name: 'Dev User',
+          email: 'dev@eventhub.local',
+          bio: 'Frontend developer',
+          skills: ['React', 'TypeScript'],
+        };
+        const mockToken = 'mock-token-dev';
+        localStorage.setItem('token', mockToken);
+        set({ user: mockUser, token: mockToken });
       },
 
       fetchMe: async () => {

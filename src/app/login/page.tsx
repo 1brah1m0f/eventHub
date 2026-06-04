@@ -8,14 +8,14 @@ import Link from 'next/link';
 import toast from 'react-hot-toast';
 
 const schema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
+  email: z.string().min(1),
+  password: z.string().optional(),
 });
 
 type Form = z.infer<typeof schema>;
 
 export default function LoginPage() {
-  const { login, isLoading } = useAuthStore();
+  const { login, isLoading, mockLogin } = useAuthStore();
   const router = useRouter();
   const { register, handleSubmit, formState: { errors } } = useForm<Form>({ resolver: zodResolver(schema) });
 
@@ -53,6 +53,15 @@ export default function LoginPage() {
             {isLoading ? 'Logging in...' : 'Login'}
           </button>
         </form>
+        <div className="mt-4 pt-4 border-t border-gray-100">
+          <button
+            type="button"
+            onClick={() => { mockLogin(); router.push('/events'); }}
+            className="w-full bg-gray-100 text-gray-600 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+          >
+            Mock Login (dev only)
+          </button>
+        </div>
         <p className="text-sm text-center mt-5 text-gray-500">
           No account? <Link href="/register" className="text-blue-800 font-medium hover:underline">Register</Link>
         </p>
