@@ -5,14 +5,14 @@ import { AuthRequest } from '../middleware/auth';
 
 export async function createEvent(req: AuthRequest, res: Response) {
   try {
-    const { title, description, type, date, end_date, location, agenda, resources, extra_fields } = req.body;
+    const { title, description, type, date, end_date, location, cover_image, agenda, resources, extra_fields } = req.body;
     if (!title || !type) return res.status(400).json({ error: 'title and type required' });
 
     const { rows } = await query(
-      `INSERT INTO events (event_id, title, description, type, date, end_date, location, agenda, resources, extra_fields, created_by, status)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,'draft')
+      `INSERT INTO events (event_id, title, description, type, date, end_date, location, cover_image, agenda, resources, extra_fields, created_by, status)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,'draft')
        RETURNING *`,
-      [uuidv4(), title, description, type, date, end_date, location,
+      [uuidv4(), title, description, type, date, end_date, location, cover_image || null,
        agenda ? JSON.stringify(agenda) : null,
        resources ? JSON.stringify(resources) : null,
        extra_fields ? JSON.stringify(extra_fields) : null,
