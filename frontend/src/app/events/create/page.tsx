@@ -15,7 +15,7 @@ const schema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters'),
   description: z.string().optional(),
   type: z.string().min(1, 'Select event type'),
-  access_type: z.enum(['public', 'invite_only', 'approval']).default('public'),
+  access_type: z.enum(['public', 'invite_only', 'approval']),
   date: z.string().optional(),
   end_date: z.string().optional(),
   location: z.string().optional(),
