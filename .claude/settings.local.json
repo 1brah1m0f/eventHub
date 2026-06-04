@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx skills *)",
+      "Bash(npx create-next-app@latest frontend --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-git)",
+      "Bash(mkdir backend *)",
+      "Bash(npm init *)",
+      "Bash(claude mcp *)",
+      "Bash(dir /s /b \"C:\\\\Users\\\\sixii\\\\OneDrive\\\\Desktop\\\\EventHub\\\\frontend\\\\src\")"
+    ]
+  }
+}
