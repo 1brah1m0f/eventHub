@@ -10,8 +10,10 @@ if (allowSelfSigned) {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 }
 
+const connectionString = process.env.DATABASE_URL?.replace(/[?&]sslmode=[^&]*/g, '');
+
 export const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString,
   ssl: { rejectUnauthorized: false },
 });
 
