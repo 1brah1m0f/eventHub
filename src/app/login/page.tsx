@@ -29,27 +29,32 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="w-full max-w-md bg-white rounded-xl shadow-sm border p-8">
-        <h1 className="text-2xl font-bold mb-6">Welcome back</h1>
+    <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-blue-950 to-blue-900">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-bold text-blue-900">Welcome back</h1>
+          <p className="text-gray-500 text-sm mt-1">Sign in to your EventHub account</p>
+        </div>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input {...register('email')} type="email" className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            <input {...register('email')} type="email"
+              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700" />
             {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-            <input {...register('password')} type="password" className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            <input {...register('password')} type="password"
+              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700" />
             {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
           </div>
           <button type="submit" disabled={isLoading}
-            className="w-full bg-indigo-600 text-white py-2 rounded-lg font-medium hover:bg-indigo-700 disabled:opacity-50">
+            className="w-full bg-blue-800 text-white py-2.5 rounded-lg font-medium hover:bg-blue-900 disabled:opacity-50 transition-colors">
             {isLoading ? 'Logging in...' : 'Login'}
           </button>
         </form>
-        <p className="text-sm text-center mt-4 text-gray-500">
-          No account? <Link href="/register" className="text-indigo-600 hover:underline">Register</Link>
+        <p className="text-sm text-center mt-5 text-gray-500">
+          No account? <Link href="/register" className="text-blue-800 font-medium hover:underline">Register</Link>
         </p>
       </div>
     </div>

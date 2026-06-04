@@ -27,16 +27,16 @@ export function StaffManagement({ eventId, staff }: Props) {
   });
 
   return (
-    <div className="bg-white border rounded-xl p-5 mb-6">
+    <div className="bg-white border rounded-2xl p-5 mb-6 shadow-sm">
       <h3 className="font-semibold text-gray-900 mb-3">Staff Management</h3>
 
       <div className="flex gap-2 mb-4">
         <input value={email} onChange={e => setEmail(e.target.value)}
           placeholder="Invite by email..."
           onKeyDown={e => { if (e.key === 'Enter') invite.mutate(email); }}
-          className="flex-1 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          className="flex-1 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700" />
         <button onClick={() => invite.mutate(email)} disabled={invite.isPending || !email}
-          className="flex items-center gap-1 bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-indigo-700 disabled:opacity-50">
+          className="flex items-center gap-1 bg-blue-800 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-blue-900 disabled:opacity-50 transition-colors">
           <UserPlus size={14} /> Invite
         </button>
       </div>
@@ -51,14 +51,14 @@ export function StaffManagement({ eventId, staff }: Props) {
                 {s.avatar_url ? (
                   <img src={s.avatar_url} className="w-7 h-7 rounded-full object-cover" alt={s.name} />
                 ) : (
-                  <div className="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-medium text-indigo-700">
+                  <div className="w-7 h-7 rounded-full bg-blue-900 flex items-center justify-center text-xs font-medium text-white">
                     {s.name[0]}
                   </div>
                 )}
-                <span className="text-sm">{s.name}</span>
+                <span className="text-sm font-medium">{s.name}</span>
                 <span className="text-xs text-gray-400">{s.email}</span>
               </div>
-              <button onClick={() => remove.mutate(s.user_id)} className="text-gray-400 hover:text-red-500">
+              <button onClick={() => remove.mutate(s.user_id)} className="text-gray-400 hover:text-red-500 transition-colors">
                 <X size={14} />
               </button>
             </div>

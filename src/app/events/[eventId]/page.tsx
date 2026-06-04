@@ -18,7 +18,11 @@ export default function EventDetailPage() {
   const updateEvent = useUpdateEvent(eventId);
   const deleteEvent = useDeleteEvent();
 
-  if (isLoading) return <div className="max-w-4xl mx-auto px-4 py-8 animate-pulse"><div className="h-64 bg-gray-100 rounded-xl" /></div>;
+  if (isLoading) return (
+    <div className="max-w-4xl mx-auto px-4 py-8 animate-pulse">
+      <div className="h-64 bg-gray-100 rounded-2xl" />
+    </div>
+  );
   if (!event) return <div className="text-center py-20 text-gray-500">Event not found</div>;
 
   const isOwner = event.viewer_role === 'owner';
@@ -58,30 +62,33 @@ export default function EventDetailPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       {event.cover_image ? (
-        <img src={event.cover_image} alt={event.title} className="w-full h-64 object-cover rounded-xl mb-6" />
+        <img src={event.cover_image} alt={event.title} className="w-full h-64 object-cover rounded-2xl mb-6" />
       ) : (
-        <div className="w-full h-48 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-xl mb-6" />
+        <div className="w-full h-48 bg-gradient-to-br from-blue-900 to-blue-700 rounded-2xl mb-6" />
       )}
 
       <div className="flex items-start justify-between mb-4">
         <div>
-          <span className="text-xs font-medium bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full">{typeLabel}</span>
+          <span className="text-xs font-medium bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">{typeLabel}</span>
           <h1 className="text-3xl font-bold text-gray-900 mt-2">{event.title}</h1>
           <p className="text-gray-500 mt-1">by {event.owner_name}</p>
         </div>
         <div className="flex gap-2">
           {isOwner && event.status === 'draft' && (
-            <button onClick={handlePublish} className="text-sm bg-green-600 text-white px-3 py-1.5 rounded-md hover:bg-green-700">
+            <button onClick={handlePublish}
+              className="text-sm bg-green-600 text-white px-3 py-1.5 rounded-md hover:bg-green-700 transition-colors">
               Publish
             </button>
           )}
           {canEdit && (
-            <a href={`/events/${eventId}/edit`} className="flex items-center gap-1 text-sm border px-3 py-1.5 rounded-md hover:bg-gray-50">
+            <a href={`/events/${eventId}/edit`}
+              className="flex items-center gap-1 text-sm border px-3 py-1.5 rounded-md hover:bg-gray-50 transition-colors">
               <Settings size={14} /> Edit
             </a>
           )}
           {isOwner && (
-            <button onClick={handleDelete} className="flex items-center gap-1 text-sm text-red-600 border border-red-200 px-3 py-1.5 rounded-md hover:bg-red-50">
+            <button onClick={handleDelete}
+              className="flex items-center gap-1 text-sm text-red-600 border border-red-200 px-3 py-1.5 rounded-md hover:bg-red-50 transition-colors">
               <Trash2 size={14} /> Delete
             </button>
           )}
@@ -90,13 +97,18 @@ export default function EventDetailPage() {
 
       <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-6">
         {event.date && (
-          <span className="flex items-center gap-1"><Calendar size={14} /> {format(new Date(event.date), 'MMM d, yyyy HH:mm')}</span>
+          <span className="flex items-center gap-1.5">
+            <Calendar size={14} className="text-blue-700" />
+            {format(new Date(event.date), 'MMM d, yyyy HH:mm')}
+          </span>
         )}
         {event.location && (
-          <span className="flex items-center gap-1"><MapPin size={14} /> {event.location}</span>
+          <span className="flex items-center gap-1.5">
+            <MapPin size={14} className="text-blue-700" /> {event.location}
+          </span>
         )}
-        <span className="flex items-center gap-1">
-          <Users size={14} />
+        <span className="flex items-center gap-1.5">
+          <Users size={14} className="text-blue-700" />
           {event.registration_counts?.reduce((sum: number, r: any) => sum + parseInt(r.count), 0) || 0} registered
         </span>
       </div>
@@ -109,7 +121,7 @@ export default function EventDetailPage() {
 
       {user && !canEdit && event.status === 'published' && (
         <button onClick={handleRegister} disabled={register.isPending}
-          className="mb-8 bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50">
+          className="mb-8 bg-blue-800 text-white px-6 py-2.5 rounded-lg hover:bg-blue-900 disabled:opacity-50 transition-colors font-medium">
           {register.isPending ? 'Registering...' : 'Register for Event'}
         </button>
       )}

@@ -32,9 +32,12 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md bg-white rounded-xl shadow-sm border p-8">
-        <h1 className="text-2xl font-bold mb-6">Create account</h1>
+    <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-gradient-to-br from-blue-950 to-blue-900">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-bold text-blue-900">Create account</h1>
+          <p className="text-gray-500 text-sm mt-1">Join thousands of event organizers</p>
+        </div>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {[
             { name: 'name', label: 'Full Name', type: 'text' },
@@ -46,19 +49,19 @@ export default function RegisterPage() {
             <div key={name}>
               <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
               <input {...register(name as any)} type={type}
-                className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700" />
               {(errors as any)[name] && (
                 <p className="text-red-500 text-xs mt-1">{(errors as any)[name]?.message}</p>
               )}
             </div>
           ))}
           <button type="submit" disabled={isLoading}
-            className="w-full bg-indigo-600 text-white py-2 rounded-lg font-medium hover:bg-indigo-700 disabled:opacity-50">
+            className="w-full bg-blue-800 text-white py-2.5 rounded-lg font-medium hover:bg-blue-900 disabled:opacity-50 transition-colors">
             {isLoading ? 'Creating account...' : 'Create Account'}
           </button>
         </form>
-        <p className="text-sm text-center mt-4 text-gray-500">
-          Already have an account? <Link href="/login" className="text-indigo-600 hover:underline">Login</Link>
+        <p className="text-sm text-center mt-5 text-gray-500">
+          Already have an account? <Link href="/login" className="text-blue-800 font-medium hover:underline">Login</Link>
         </p>
       </div>
     </div>
