@@ -9,7 +9,7 @@ import toast from 'react-hot-toast';
 
 const schema = z.object({
   email: z.string().min(1),
-  password: z.string().optional(),
+  password: z.string().min(1),
 });
 
 type Form = z.infer<typeof schema>;
