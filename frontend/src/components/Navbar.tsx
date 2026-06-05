@@ -67,6 +67,14 @@ export function Navbar() {
           <div className="hidden sm:flex items-center gap-1">
             <Link href="/events" className={navLinkCls}>{t('home')}</Link>
 
+            <button
+              onClick={toggleDarkMode}
+              aria-label="Toggle dark mode"
+              className="flex items-center justify-center w-8 h-8 rounded-md text-blue-300 hover:text-white hover:bg-blue-800/50 transition-colors"
+            >
+              {darkMode ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
+
             {user && (
               <>
                 {/* Organizations dropdown */}
@@ -126,21 +134,6 @@ export function Navbar() {
                       <div className="border-t border-gray-100 my-1" />
                       <div className="px-3 py-2">
                         <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-2.5">{t('settings')}</p>
-
-                        {/* Dark mode toggle */}
-                        <div className="flex items-center justify-between mb-2.5">
-                          <span className="flex items-center gap-2 text-sm text-gray-700">
-                            {darkMode ? <Moon size={13} className="text-blue-400" /> : <Sun size={13} className="text-yellow-500" />}
-                            {t('darkMode')}
-                          </span>
-                          <button
-                            onClick={toggleDarkMode}
-                            className={`relative w-9 h-5 rounded-full transition-colors shrink-0 ${darkMode ? 'bg-blue-600' : 'bg-gray-300'}`}
-                            aria-label="Toggle dark mode"
-                          >
-                            <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${darkMode ? 'translate-x-4' : 'translate-x-0.5'}`} />
-                          </button>
-                        </div>
 
                         {/* Language */}
                         <div className="flex items-center justify-between">
