@@ -9,6 +9,8 @@ interface User {
   bio?: string;
   skills?: string[];
   linkedin_url?: string;
+  x_url?: string;
+  instagram_url?: string;
   avatar_url?: string;
 }
 
