@@ -1,6 +1,6 @@
 'use client';
 import { useAuthStore } from '@/store/auth.store';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useMyEvents, useMyRegistrations, useMyStaffEvents, useUpdateProfile } from '@/hooks/useProfile';
 import { EventCard } from '@/components/EventCard';
@@ -13,7 +13,7 @@ type Tab = 'my-events' | 'staff' | 'registered' | 'edit';
 const inputClass = 'w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white';
 const labelClass = 'block text-sm font-medium text-gray-700 mb-1.5';
 
-export default function ProfilePage() {
+function ProfileContent() {
   const { user, fetchMe, logout, _hasHydrated } = useAuthStore();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -322,5 +322,13 @@ export default function ProfilePage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={<div className="max-w-5xl mx-auto px-4 py-8 animate-pulse"><div className="h-40 bg-gray-100 rounded-xl" /></div>}>
+      <ProfileContent />
+    </Suspense>
   );
 }
