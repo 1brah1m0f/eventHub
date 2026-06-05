@@ -81,10 +81,11 @@ export function Navbar() {
                 <div
                   className="relative"
                   ref={orgDropdown.ref}
-                  onMouseEnter={() => orgDropdown.setOpen(true)}
-                  onMouseLeave={() => orgDropdown.setOpen(false)}
                 >
-                  <button className={`${navLinkCls} flex items-center gap-1`}>
+                  <button
+                    onClick={() => { orgDropdown.setOpen(o => !o); profileDropdown.setOpen(false); }}
+                    className={`${navLinkCls} flex items-center gap-1`}
+                  >
                     {t('organizations')}
                   </button>
 
