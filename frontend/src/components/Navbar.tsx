@@ -96,7 +96,6 @@ export function Navbar() {
                         <Users size={15} className="text-violet-600" /> Staff Events
                       </Link>
                     </div>
-                  )}
                 </div>
 
                 {/* Profile dropdown */}
