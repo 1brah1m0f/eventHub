@@ -85,10 +85,10 @@ export function Navbar() {
                         <Plus size={15} className="text-emerald-600" /> New Event
                       </Link>
                       <div className="border-t border-gray-100 my-1" />
-                      <Link href="/profile?tab=my-events" onClick={close} className={linkCls}>
+                      <Link href="/my-events" onClick={close} className={linkCls}>
                         <Star size={15} className="text-orange-500" /> My Events
                       </Link>
-                      <Link href="/profile?tab=staff" onClick={close} className={linkCls}>
+                      <Link href="/staff-events" onClick={close} className={linkCls}>
                         <Users size={15} className="text-violet-600" /> Staff Events
                       </Link>
                     </div>
@@ -113,10 +113,10 @@ export function Navbar() {
 
                   {profileDropdown.open && (
                     <div className="absolute top-full mt-1.5 right-0 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1.5 z-50">
-                      <Link href="/profile?tab=registered" onClick={close} className={linkCls}>
+                      <Link href="/registered-events" onClick={close} className={linkCls}>
                         <ClipboardList size={15} className="text-blue-700" /> Registered Events
                       </Link>
-                      <Link href="/profile?tab=edit" onClick={close} className={linkCls}>
+                      <Link href="/profile" onClick={close} className={linkCls}>
                         <Pencil size={15} className="text-gray-500" /> Edit Profile
                       </Link>
                       <div className="border-t border-gray-100 my-1" />
@@ -170,18 +170,18 @@ export function Navbar() {
                 <Link href="/events/create" onClick={close} className="flex items-center gap-2 text-sm text-white bg-blue-600 hover:bg-blue-500 px-3 py-2.5 rounded-md transition-colors">
                   <Plus size={14} /> New Event
                 </Link>
-                <Link href="/profile?tab=my-events" onClick={close} className="flex items-center gap-2 text-sm text-blue-300 hover:text-white px-3 py-2.5 rounded-md hover:bg-blue-800/50 transition-colors">
+                <Link href="/my-events" onClick={close} className="flex items-center gap-2 text-sm text-blue-300 hover:text-white px-3 py-2.5 rounded-md hover:bg-blue-800/50 transition-colors">
                   <Star size={14} /> My Events
                 </Link>
-                <Link href="/profile?tab=staff" onClick={close} className="flex items-center gap-2 text-sm text-blue-300 hover:text-white px-3 py-2.5 rounded-md hover:bg-blue-800/50 transition-colors">
+                <Link href="/staff-events" onClick={close} className="flex items-center gap-2 text-sm text-blue-300 hover:text-white px-3 py-2.5 rounded-md hover:bg-blue-800/50 transition-colors">
                   <Users size={14} /> Staff Events
                 </Link>
 
                 <div className="text-xs text-blue-600 font-semibold uppercase tracking-wider px-3 pt-3 pb-1">{user.name}</div>
-                <Link href="/profile?tab=registered" onClick={close} className="flex items-center gap-2 text-sm text-blue-300 hover:text-white px-3 py-2.5 rounded-md hover:bg-blue-800/50 transition-colors">
+                <Link href="/registered-events" onClick={close} className="flex items-center gap-2 text-sm text-blue-300 hover:text-white px-3 py-2.5 rounded-md hover:bg-blue-800/50 transition-colors">
                   <ClipboardList size={14} /> Registered Events
                 </Link>
-                <Link href="/profile?tab=edit" onClick={close} className="flex items-center gap-2 text-sm text-blue-300 hover:text-white px-3 py-2.5 rounded-md hover:bg-blue-800/50 transition-colors">
+                <Link href="/profile" onClick={close} className="flex items-center gap-2 text-sm text-blue-300 hover:text-white px-3 py-2.5 rounded-md hover:bg-blue-800/50 transition-colors">
                   <Pencil size={14} /> Edit Profile
                 </Link>
                 <button onClick={handleLogout} className="flex items-center gap-2 w-full text-sm text-red-400 hover:text-red-300 px-3 py-2.5 rounded-md hover:bg-blue-800/50 transition-colors">
