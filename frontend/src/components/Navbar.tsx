@@ -67,17 +67,21 @@ export function Navbar() {
             {user && (
               <>
                 {/* Organizations dropdown */}
-                <div className="relative" ref={orgDropdown.ref}>
+                <div
+                  className="relative"
+                  ref={orgDropdown.ref}
+                  onMouseEnter={() => orgDropdown.setOpen(true)}
+                  onMouseLeave={() => orgDropdown.setOpen(false)}
+                >
                   <button
-                    onClick={() => { orgDropdown.setOpen(o => !o); profileDropdown.setOpen(false); }}
                     className={`${navLinkCls} flex items-center gap-1`}
                   >
                     Organizations
-                    <ChevronDown size={13} className={`transition-transform ${orgDropdown.open ? 'rotate-180' : ''}`} />
                   </button>
 
-                  {orgDropdown.open && (
-                    <div className="absolute top-full mt-1.5 left-0 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1.5 z-50">
+                  <div className={`absolute top-full left-0 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1.5 z-50 transition-all duration-200 origin-top ${
+                    orgDropdown.open ? 'opacity-100 scale-y-100 translate-y-1.5 pointer-events-auto' : 'opacity-0 scale-y-95 translate-y-0 pointer-events-none'
+                  }`}>
                       <Link href="/dashboard" onClick={close} className={linkCls}>
                         <BarChart2 size={15} className="text-blue-700" /> Statistics
                       </Link>
@@ -107,7 +111,6 @@ export function Navbar() {
                         : user.name?.[0]?.toUpperCase()
                       }
                     </div>
-                    <ChevronDown size={13} className={`transition-transform ${profileDropdown.open ? 'rotate-180' : ''}`} />
                   </button>
 
                   {profileDropdown.open && (

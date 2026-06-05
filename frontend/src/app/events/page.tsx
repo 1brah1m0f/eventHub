@@ -36,10 +36,6 @@ export default function EventsPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
 
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Events</h1>
-      </div>
 
       {/* Search + filter */}
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
