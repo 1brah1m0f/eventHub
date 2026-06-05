@@ -65,8 +65,6 @@ export function Navbar() {
 
           {/* Desktop nav */}
           <div className="hidden sm:flex items-center gap-1">
-            <Link href="/events" className={navLinkCls}>{t('home')}</Link>
-
             <button
               onClick={toggleDarkMode}
               aria-label="Toggle dark mode"
@@ -74,6 +72,8 @@ export function Navbar() {
             >
               {darkMode ? <Sun size={16} /> : <Moon size={16} />}
             </button>
+
+            <Link href="/events" className={navLinkCls}>{t('home')}</Link>
 
             {user && (
               <>
