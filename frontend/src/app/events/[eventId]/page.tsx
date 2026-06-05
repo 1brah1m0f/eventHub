@@ -3,7 +3,7 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useEvent, useRegisterForEvent, useUpdateEvent, useDeleteEvent } from '@/hooks/useEvents';
 import { useAuthStore } from '@/store/auth.store';
 import { format } from 'date-fns';
-import { Calendar, MapPin, Users, Pencil, Trash2, Globe, CheckCircle2, ArrowLeft, Plus, X, Lock, Clock } from 'lucide-react';
+import { Calendar, MapPin, Users, Pencil, Trash2, Globe, CheckCircle2, ArrowLeft, Plus, X, Lock, Clock, Share2, Link2, Check } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { EVENT_TYPES } from '@/lib/utils';
@@ -11,6 +11,7 @@ import { QASection } from '@/components/QASection';
 import { StaffManagement } from '@/components/StaffManagement';
 import { AttendeesPanel } from '@/components/AttendeesPanel';
 import { ShareButtons } from '@/components/ShareButtons';
+import { EventCarousel } from '@/components/EventCarousel';
 import { useState } from 'react';
 
 const TYPE_COLORS: Record<string, { bg: string; text: string }> = {
@@ -129,7 +130,9 @@ export default function EventDetailPage() {
         <ArrowLeft size={14} /> Back to events
       </Link>
 
-      {event.cover_image ? (
+      {Array.isArray(event.images) && event.images.length > 0 ? (
+        <EventCarousel images={event.images} title={event.title} />
+      ) : event.cover_image ? (
         <img src={event.cover_image} alt={event.title} className="w-full h-64 object-cover rounded-xl mb-6" />
       ) : (
         <div className="w-full h-48 bg-gradient-to-br from-blue-900 to-blue-700 rounded-xl mb-6" />
