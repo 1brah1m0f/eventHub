@@ -14,6 +14,7 @@ import { useState, useRef, useEffect } from 'react';
 function useDropdown() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -23,7 +24,14 @@ function useDropdown() {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  return { open, setOpen, ref };
+  const delayClose = () => {
+    closeTimer.current = setTimeout(() => setOpen(false), 150);
+  };
+  const cancelClose = () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+  };
+
+  return { open, setOpen, ref, delayClose, cancelClose };
 }
 
 const linkCls = 'flex items-center gap-2.5 text-sm text-gray-700 hover:text-blue-800 hover:bg-blue-50 px-3 py-2 rounded-lg transition-colors';
@@ -81,11 +89,10 @@ export function Navbar() {
                 <div
                   className="relative"
                   ref={orgDropdown.ref}
+                  onMouseEnter={() => { orgDropdown.cancelClose(); orgDropdown.setOpen(true); }}
+                  onMouseLeave={() => orgDropdown.delayClose()}
                 >
-                  <button
-                    onClick={() => { orgDropdown.setOpen(o => !o); profileDropdown.setOpen(false); }}
-                    className={`${navLinkCls} flex items-center gap-1`}
-                  >
+                  <button className={`${navLinkCls} flex items-center gap-1`}>
                     {t('organizations')}
                   </button>
 
