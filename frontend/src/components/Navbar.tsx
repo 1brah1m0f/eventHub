@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { useAuthStore } from '@/store/auth.store';
 import { useRouter, usePathname } from 'next/navigation';
-import { LogOut, Plus, User, Calendar, Menu, X } from 'lucide-react';
+import { LogOut, Plus, User, Calendar, Menu, X, LayoutDashboard } from 'lucide-react';
 import { useState } from 'react';
 
 export function Navbar() {
@@ -38,6 +38,13 @@ export function Navbar() {
             </Link>
             {user ? (
               <>
+                <Link
+                  href="/dashboard"
+                  className="flex items-center gap-1.5 text-sm text-blue-300 hover:text-white px-3 py-1.5 rounded-md hover:bg-blue-800/50 transition-colors"
+                >
+                  <LayoutDashboard size={14} />
+                  Dashboard
+                </Link>
                 <Link
                   href="/events/create"
                   className="flex items-center gap-1.5 text-sm bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-md transition-colors ml-1"
@@ -95,6 +102,9 @@ export function Navbar() {
             </Link>
             {user ? (
               <>
+                <Link href="/dashboard" onClick={close} className="flex items-center gap-2 text-sm text-blue-300 hover:text-white px-3 py-2.5 rounded-md hover:bg-blue-800/50 transition-colors">
+                  <LayoutDashboard size={14} /> Dashboard
+                </Link>
                 <Link href="/events/create" onClick={close} className="flex items-center gap-2 text-sm text-white bg-blue-600 hover:bg-blue-500 px-3 py-2.5 rounded-md transition-colors">
                   <Plus size={14} /> New Event
                 </Link>
