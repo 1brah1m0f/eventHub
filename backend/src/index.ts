@@ -8,6 +8,7 @@ import authRoutes from './routes/auth.routes';
 import eventRoutes from './routes/events.routes';
 import uploadRoute from './routes/upload.route';
 import dashboardRoutes from './routes/dashboard.routes';
+import teamRoutes from './routes/teams.routes';
 import { pool } from './config/db';
 
 dotenv.config();
@@ -26,6 +27,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/upload', uploadRoute);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/teams', teamRoutes);
 
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error(err);

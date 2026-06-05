@@ -3,9 +3,10 @@ import { useAuthStore } from '@/store/auth.store';
 import { useEffect, useState, useRef, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUpdateProfile } from '@/hooks/useProfile';
-import { ExternalLink, X, Check, Plus, Camera } from 'lucide-react';
+import { X, Check, Plus, Camera } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '@/lib/api';
+import { TeamsSection } from '@/components/TeamsSection';
 
 const inputClass = 'w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white';
 const labelClass = 'block text-sm font-medium text-gray-700 mb-1.5';
@@ -113,7 +114,7 @@ function ProfileContent() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-0">
         {/* Avatar */}
         <div className="flex items-start gap-5 mb-6">
           <div className="relative shrink-0">
@@ -220,6 +221,8 @@ function ProfileContent() {
           </div>
         </div>
       </div>
+
+      <TeamsSection />
     </div>
   );
 }
