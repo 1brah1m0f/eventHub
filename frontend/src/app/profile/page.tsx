@@ -1,7 +1,7 @@
 'use client';
 import { useAuthStore } from '@/store/auth.store';
 import { useEffect, useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useMyEvents, useMyRegistrations, useMyStaffEvents, useUpdateProfile } from '@/hooks/useProfile';
 import { EventCard } from '@/components/EventCard';
 import { ExternalLink, Pencil, X, Check, Plus, Camera } from 'lucide-react';
@@ -16,7 +16,8 @@ const labelClass = 'block text-sm font-medium text-gray-700 mb-1.5';
 export default function ProfilePage() {
   const { user, fetchMe, logout, _hasHydrated } = useAuthStore();
   const router = useRouter();
-  const [tab, setTab] = useState<Tab>('my-events');
+  const searchParams = useSearchParams();
+  const [tab, setTab] = useState<Tab>((searchParams.get('tab') as Tab) || 'my-events');
   const [skillInput, setSkillInput] = useState('');
   const [form, setForm] = useState({ name: '', bio: '', linkedin_url: '', skills: [] as string[] });
   const [avatarUploading, setAvatarUploading] = useState(false);
