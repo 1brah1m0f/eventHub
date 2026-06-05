@@ -101,13 +101,12 @@ export function Navbar() {
                     onClick={() => { profileDropdown.setOpen(o => !o); orgDropdown.setOpen(false); }}
                     className="flex items-center gap-1.5 text-sm text-blue-300 hover:text-white px-2 py-1.5 rounded-md hover:bg-blue-800/50 transition-colors"
                   >
-                    <div className="w-6 h-6 rounded-full bg-blue-700 flex items-center justify-center text-xs font-bold text-white overflow-hidden shrink-0">
+                    <div className="w-7 h-7 rounded-full bg-blue-700 flex items-center justify-center text-xs font-bold text-white overflow-hidden shrink-0">
                       {user.avatar_url
                         ? <img src={user.avatar_url} alt={user.name} className="w-full h-full object-cover" />
                         : user.name?.[0]?.toUpperCase()
                       }
                     </div>
-                    <span className="max-w-[100px] truncate">{user.name}</span>
                     <ChevronDown size={13} className={`transition-transform ${profileDropdown.open ? 'rotate-180' : ''}`} />
                   </button>
 

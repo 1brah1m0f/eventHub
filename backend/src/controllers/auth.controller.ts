@@ -55,7 +55,7 @@ export async function login(req: Request, res: Response) {
 export async function me(req: Request & { user?: any }, res: Response) {
   try {
     const { rows } = await query(
-      'SELECT user_id, name, email, bio, skills, linkedin_url, avatar_url, created_at FROM users WHERE user_id=$1',
+      'SELECT user_id, name, email, bio, skills, linkedin_url, x_url, instagram_url, avatar_url, created_at FROM users WHERE user_id=$1',
       [req.user!.userId]
     );
     if (!rows.length) return res.status(404).json({ error: 'User not found' });
@@ -67,12 +67,15 @@ export async function me(req: Request & { user?: any }, res: Response) {
 
 export async function updateProfile(req: Request & { user?: any }, res: Response) {
   try {
-    const { name, bio, skills, linkedin_url } = req.body;
+    const { name, bio, skills, linkedin_url, x_url, instagram_url, avatar_url } = req.body;
     const { rows } = await query(
-      `UPDATE users SET name=COALESCE($1,name), bio=COALESCE($2,bio), skills=COALESCE($3,skills),
-       linkedin_url=COALESCE($4,linkedin_url) WHERE user_id=$5
-       RETURNING user_id, name, email, bio, skills, linkedin_url, avatar_url`,
-      [name, bio, skills, linkedin_url, req.user!.userId]
+      `UPDATE users SET
+         name=COALESCE($1,name), bio=COALESCE($2,bio), skills=COALESCE($3,skills),
+         linkedin_url=$4, x_url=$5, instagram_url=$6,
+         avatar_url=COALESCE($7,avatar_url)
+       WHERE user_id=$8
+       RETURNING user_id, name, email, bio, skills, linkedin_url, x_url, instagram_url, avatar_url`,
+      [name, bio, skills, linkedin_url ?? null, x_url ?? null, instagram_url ?? null, avatar_url, req.user!.userId]
     );
     res.json(rows[0]);
   } catch (err: any) {

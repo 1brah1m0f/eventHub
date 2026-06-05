@@ -5,7 +5,7 @@ import { AuthRequest } from '../middleware/auth';
 
 export async function createEvent(req: AuthRequest, res: Response) {
   try {
-    const { title, description, type, date, end_date, location, cover_image, agenda, resources, extra_fields, access_type = 'public', images } = req.body;
+    const { title, description, type, date, end_date, location, cover_image, agenda, resources, extra_fields, access_type = 'public', images, social_links } = req.body;
     if (!title || !type) return res.status(400).json({ error: 'title and type required' });
 
     const validAccess = ['public', 'invite_only', 'approval'];
@@ -14,14 +14,15 @@ export async function createEvent(req: AuthRequest, res: Response) {
     const invite_code = access_type === 'invite_only' ? uuidv4() : null;
 
     const { rows } = await query(
-      `INSERT INTO events (event_id, title, description, type, date, end_date, location, cover_image, agenda, resources, extra_fields, images, created_by, status, access_type, invite_code)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'draft',$14,$15)
+      `INSERT INTO events (event_id, title, description, type, date, end_date, location, cover_image, agenda, resources, extra_fields, images, social_links, created_by, status, access_type, invite_code)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,'draft',$15,$16)
        RETURNING *`,
       [uuidv4(), title, description, type, date, end_date, location, cover_image || null,
        agenda ? JSON.stringify(agenda) : null,
        resources ? JSON.stringify(resources) : null,
        extra_fields ? JSON.stringify(extra_fields) : null,
        images ? JSON.stringify(images) : null,
+       social_links ? JSON.stringify(social_links) : null,
        req.user!.userId, access_type, invite_code]
     );
     res.status(201).json(rows[0]);
@@ -77,14 +78,14 @@ export async function getEvent(req: Request & { event?: any; eventRole?: string 
 export async function updateEvent(req: Request & { event?: any; user?: any }, res: Response) {
   try {
     const event = req.event;
-    const fields = ['title','description','type','date','end_date','location','cover_image','agenda','resources','extra_fields','images','status'];
+    const fields = ['title','description','type','date','end_date','location','cover_image','agenda','resources','extra_fields','images','social_links','status'];
     const updates: string[] = [];
     const params: any[] = [];
     let idx = 1;
 
     for (const f of fields) {
       if (req.body[f] !== undefined) {
-        const val = ['agenda','resources','extra_fields','images'].includes(f) ? JSON.stringify(req.body[f]) : req.body[f];
+        const val = ['agenda','resources','extra_fields','images','social_links'].includes(f) ? JSON.stringify(req.body[f]) : req.body[f];
         updates.push(`${f}=$${idx++}`);
         params.push(val);
       }

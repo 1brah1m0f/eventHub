@@ -37,22 +37,8 @@ export default function EventsPage() {
     <div className="max-w-7xl mx-auto px-4 py-8">
 
       {/* Header */}
-      <div className="flex items-start justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Events</h1>
-          <p className="text-gray-500 text-sm mt-0.5">
-            {isLoading ? 'Loading...' : `${events.length} event${events.length !== 1 ? 's' : ''}`}
-          </p>
-        </div>
-        {user && (
-          <Link
-            href="/events/create"
-            className="flex items-center gap-1.5 bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-900 transition-colors"
-          >
-            <Plus size={15} />
-            New Event
-          </Link>
-        )}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Events</h1>
       </div>
 
       {/* Search + filter */}
@@ -62,7 +48,7 @@ export default function EventsPage() {
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search events..."
+            placeholder="Search..."
             className="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
           />
         </div>
