@@ -54,7 +54,7 @@ export default function EventsPage() {
           <select
             value={type}
             onChange={e => setType(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
+            className="border border-gray-300 rounded-full px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
           >
             <option value="">{t('allTypes')}</option>
             {EVENT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
