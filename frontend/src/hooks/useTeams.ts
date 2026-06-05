@@ -59,3 +59,12 @@ export function useRegisterTeam() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['teams', 'my'] }),
   });
 }
+
+export function useUpdateMemberRole() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ teamId, userId, role }: { teamId: string; userId: string; role: string }) =>
+      api.patch(`/teams/${teamId}/members/${userId}/role`, { role }).then(r => r.data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['teams', 'my'] }),
+  });
+}

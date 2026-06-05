@@ -6,7 +6,7 @@ import { useT } from '@/lib/i18n';
 import { useRouter } from 'next/navigation';
 import {
   LogOut, Plus, Calendar, Menu, X,
-  BarChart2, Star, Users,
+  BarChart2, Star, Users, Shield,
   ClipboardList, Pencil, Sun, Moon, Globe,
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
@@ -111,6 +111,10 @@ export function Navbar() {
                     </Link>
                     <Link href="/staff-events" onClick={close} className={linkCls}>
                       <Users size={15} className="text-violet-600" /> {t('staffEvents')}
+                    </Link>
+                    <div className="border-t border-gray-100 my-1" />
+                    <Link href="/teams" onClick={close} className={linkCls}>
+                      <Shield size={15} className="text-blue-500" /> My Teams
                     </Link>
                   </div>
                 </div>
@@ -218,6 +222,9 @@ export function Navbar() {
                 </Link>
                 <Link href="/staff-events" onClick={close} className="flex items-center gap-2 text-sm text-blue-300 hover:text-white px-3 py-2.5 rounded-md hover:bg-blue-800/50 transition-colors">
                   <Users size={14} /> {t('staffEvents')}
+                </Link>
+                <Link href="/teams" onClick={close} className="flex items-center gap-2 text-sm text-blue-300 hover:text-white px-3 py-2.5 rounded-md hover:bg-blue-800/50 transition-colors">
+                  <Shield size={14} /> My Teams
                 </Link>
 
                 <div className="text-xs text-blue-600 font-semibold uppercase tracking-wider px-3 pt-3 pb-1">{user.name}</div>

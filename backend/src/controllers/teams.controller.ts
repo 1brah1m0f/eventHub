@@ -11,9 +11,18 @@ async function migrate() {
     CREATE TABLE IF NOT EXISTS team_members (
       team_id UUID REFERENCES teams(team_id) ON DELETE CASCADE,
       user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
-      role VARCHAR(20) DEFAULT 'member',
+      role VARCHAR(50) DEFAULT 'member',
       joined_at TIMESTAMPTZ DEFAULT NOW(),
       PRIMARY KEY (team_id, user_id)
+    )
+  `);
+  await query(`
+    CREATE TABLE IF NOT EXISTS team_registrations (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      team_id UUID REFERENCES teams(team_id) ON DELETE CASCADE,
+      event_id UUID REFERENCES events(event_id) ON DELETE CASCADE,
+      registered_at TIMESTAMPTZ DEFAULT NOW(),
+      UNIQUE(team_id, event_id)
     )
   `);
 }
@@ -53,13 +62,40 @@ export async function getMyTeams(req: AuthRequest, res: Response) {
         )
         FROM team_members tm2
         JOIN users u2 ON tm2.user_id = u2.user_id
-        WHERE tm2.team_id = t.team_id) as members
+        WHERE tm2.team_id = t.team_id) as members,
+        (SELECT json_agg(
+          json_build_object('event_id', e.event_id, 'title', e.title, 'date', e.date, 'location', e.location, 'cover_image', e.cover_image)
+          ORDER BY e.date ASC
+        )
+        FROM team_registrations tr
+        JOIN events e ON tr.event_id = e.event_id
+        WHERE tr.team_id = t.team_id) as hackathons
       FROM teams t
       JOIN team_members tm ON t.team_id = tm.team_id AND tm.user_id = $1
       LEFT JOIN users u ON t.leader_id = u.user_id
       ORDER BY t.created_at DESC
     `, [userId]);
     res.json(rows);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
+export async function updateMemberRole(req: AuthRequest, res: Response) {
+  try {
+    const { teamId, userId: targetId } = req.params;
+    const { role } = req.body;
+    const userId = req.user!.userId;
+
+    if (!role?.trim()) return res.status(400).json({ error: 'Role required' });
+
+    const { rows: [team] } = await query(`SELECT * FROM teams WHERE team_id = $1`, [teamId]);
+    if (!team) return res.status(404).json({ error: 'Team not found' });
+    if (team.leader_id !== userId) return res.status(403).json({ error: 'Only team leader can change roles' });
+    if (targetId === userId) return res.status(400).json({ error: 'Cannot change leader role' });
+
+    await query(`UPDATE team_members SET role = $1 WHERE team_id = $2 AND user_id = $3`, [role.trim(), teamId, targetId]);
+    res.json({ message: 'Role updated' });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
@@ -167,6 +203,11 @@ export async function registerTeamForEvent(req: AuthRequest, res: Response) {
         [uuidv4(), eventId, m.user_id]
       );
     }
+
+    await query(
+      `INSERT INTO team_registrations (id, team_id, event_id) VALUES ($1,$2,$3) ON CONFLICT DO NOTHING`,
+      [uuidv4(), teamId, eventId]
+    );
 
     res.json({ message: `Team registered! ${members.length} members added.`, count: members.length });
   } catch (err: any) {
