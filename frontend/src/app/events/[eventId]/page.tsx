@@ -10,6 +10,7 @@ import { EVENT_TYPES } from '@/lib/utils';
 import { QASection } from '@/components/QASection';
 import { StaffManagement } from '@/components/StaffManagement';
 import { AttendeesPanel } from '@/components/AttendeesPanel';
+import { ShareButtons } from '@/components/ShareButtons';
 import { useState } from 'react';
 
 const TYPE_COLORS: Record<string, { bg: string; text: string }> = {
@@ -182,6 +183,10 @@ export default function EventDetailPage() {
             </button>
           )}
         </div>
+      </div>
+
+      <div className="mb-4">
+        <ShareButtons title={event.title} />
       </div>
 
       <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-6 pb-6 border-b border-gray-100">
