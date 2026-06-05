@@ -210,6 +210,29 @@ export default function EventDetailPage() {
         </div>
       )}
 
+      {Array.isArray(event.agenda) && event.agenda.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-base font-semibold text-gray-900 mb-3">Agenda</h2>
+          <div className="space-y-0 border border-gray-100 rounded-xl overflow-hidden">
+            {event.agenda.map((item: any, i: number) => (
+              <div key={i} className="flex gap-4 px-4 py-3 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
+                {item.time && (
+                  <span className="text-xs font-mono text-blue-700 bg-blue-50 px-2 py-0.5 rounded shrink-0 self-start mt-0.5">
+                    {item.time}
+                  </span>
+                )}
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-gray-900">{item.title}</p>
+                  {item.description && (
+                    <p className="text-xs text-gray-500 mt-0.5">{item.description}</p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Registration block */}
       {event.status === 'published' && !user && (
         <div className="mb-8">

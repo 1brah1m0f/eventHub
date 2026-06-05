@@ -2,9 +2,10 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useEvent, useUpdateEvent } from '@/hooks/useEvents';
 import { useForm } from 'react-hook-form';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { DynamicEventFields } from '@/components/DynamicEventFields';
+import { AgendaEditor, AgendaItem } from '@/components/AgendaEditor';
 
 export default function EditEventPage() {
   const { eventId } = useParams<{ eventId: string }>();
@@ -13,25 +14,30 @@ export default function EditEventPage() {
   const router = useRouter();
 
   const { register, handleSubmit, setValue, watch, reset } = useForm<any>();
+  const [agenda, setAgenda] = useState<AgendaItem[]>([]);
 
   useEffect(() => {
-    if (event) reset({
-      title: event.title,
-      description: event.description,
-      type: event.type,
-      date: event.date ? new Date(event.date).toISOString().slice(0, 16) : '',
-      end_date: event.end_date ? new Date(event.end_date).toISOString().slice(0, 16) : '',
-      location: event.location,
-      status: event.status,
-      extra_fields: event.extra_fields || {},
-    });
+    if (event) {
+      reset({
+        title: event.title,
+        description: event.description,
+        type: event.type,
+        date: event.date ? new Date(event.date).toISOString().slice(0, 16) : '',
+        end_date: event.end_date ? new Date(event.end_date).toISOString().slice(0, 16) : '',
+        location: event.location,
+        status: event.status,
+        extra_fields: event.extra_fields || {},
+      });
+      setAgenda(Array.isArray(event.agenda) ? event.agenda : []);
+    }
   }, [event]);
 
   const selectedType = watch('type');
 
   const onSubmit = async (data: any) => {
     try {
-      await update.mutateAsync(data);
+      const filteredAgenda = agenda.filter(a => a.title.trim());
+      await update.mutateAsync({ ...data, agenda: filteredAgenda });
       toast.success('Event updated!');
       router.push(`/events/${eventId}`);
     } catch (err: any) {
@@ -93,6 +99,11 @@ export default function EditEventPage() {
             <option value="published">Published</option>
             <option value="finished">Finished</option>
           </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Agenda</label>
+          <AgendaEditor value={agenda} onChange={setAgenda} />
         </div>
 
         {selectedType && (

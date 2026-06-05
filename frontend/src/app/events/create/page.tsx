@@ -10,6 +10,7 @@ import { EVENT_TYPES, EVENT_TYPE_FIELDS } from '@/lib/utils';
 import { DynamicEventFields } from '@/components/DynamicEventFields';
 import api from '@/lib/api';
 import { Upload, X, ImageIcon } from 'lucide-react';
+import { AgendaEditor, AgendaItem } from '@/components/AgendaEditor';
 
 const schema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters'),
@@ -32,6 +33,7 @@ export default function CreateEventPage() {
   const { mutateAsync, isPending } = useCreateEvent();
   const [coverImage, setCoverImage] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [agenda, setAgenda] = useState<AgendaItem[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<Form>({
@@ -62,7 +64,8 @@ export default function CreateEventPage() {
 
   const onSubmit = async (data: Form) => {
     try {
-      const event = await mutateAsync({ ...data, cover_image: coverImage || undefined });
+      const filteredAgenda = agenda.filter(a => a.title.trim());
+      const event = await mutateAsync({ ...data, cover_image: coverImage || undefined, agenda: filteredAgenda.length ? filteredAgenda : undefined });
       toast.success('Event created!');
       router.push(`/events/${event.event_id}`);
     } catch (err: any) {
@@ -162,6 +165,11 @@ export default function CreateEventPage() {
         <div>
           <label className={labelClass}>Location</label>
           <input {...register('location')} className={inputClass} placeholder="City, Country or Online" />
+        </div>
+
+        <div>
+          <label className={labelClass}>Agenda</label>
+          <AgendaEditor value={agenda} onChange={setAgenda} />
         </div>
 
         {selectedType && EVENT_TYPE_FIELDS[selectedType] && (
