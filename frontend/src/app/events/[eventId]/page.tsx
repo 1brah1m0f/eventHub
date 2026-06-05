@@ -10,7 +10,6 @@ import { EVENT_TYPES } from '@/lib/utils';
 import { QASection } from '@/components/QASection';
 import { StaffManagement } from '@/components/StaffManagement';
 import { AttendeesPanel } from '@/components/AttendeesPanel';
-import { ShareButtons } from '@/components/ShareButtons';
 import { EventCarousel } from '@/components/EventCarousel';
 import { useState } from 'react';
 
@@ -43,6 +42,7 @@ export default function EventDetailPage() {
   const [teamName, setTeamName] = useState('');
   const [memberInput, setMemberInput] = useState('');
   const [members, setMembers] = useState<string[]>([]);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   if (isLoading) return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-4 animate-pulse">
@@ -124,33 +124,46 @@ export default function EventDetailPage() {
     }
   };
 
+  const handleShare = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      try { await navigator.share({ title: event.title, url }); } catch {}
+    } else {
+      await navigator.clipboard.writeText(url);
+      toast.success('Link copied!');
+    }
+  };
+
+  const handleCopyLink = async () => {
+    await navigator.clipboard.writeText(window.location.href);
+    setLinkCopied(true);
+    toast.success('Link copied!');
+    setTimeout(() => setLinkCopied(false), 2000);
+  };
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <Link href="/events" className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-5 w-fit">
+      <Link href="/events" className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-4 w-fit">
         <ArrowLeft size={14} /> Back to events
       </Link>
 
-      {Array.isArray(event.images) && event.images.length > 0 ? (
-        <EventCarousel images={event.images} title={event.title} />
-      ) : event.cover_image ? (
-        <img src={event.cover_image} alt={event.title} className="w-full h-64 object-cover rounded-xl mb-6" />
-      ) : (
-        <div className="w-full h-48 bg-gradient-to-br from-blue-900 to-blue-700 rounded-xl mb-6" />
-      )}
-
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
+      {/* Title + actions ABOVE the image */}
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-5">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-2 flex-wrap">
-            <span className={`text-xs font-semibold px-2 py-0.5 rounded-md ${colors.bg} ${colors.text}`}>
+          <div className="flex items-center gap-2 mb-2.5 flex-wrap">
+            <span className={`text-sm font-semibold px-3 py-1 rounded-lg ${colors.bg} ${colors.text}`}>
               {typeLabel}
             </span>
             {event.status === 'draft' && (
-              <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-md">Draft</span>
+              <span className="text-sm bg-gray-100 text-gray-500 px-3 py-1 rounded-lg">Draft</span>
             )}
             {event.status === 'published' && (
-              <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-md flex items-center gap-1">
-                <CheckCircle2 size={10} /> Published
+              <span className="text-sm bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg flex items-center gap-1.5">
+                <CheckCircle2 size={13} /> Published
               </span>
+            )}
+            {event.status === 'finished' && (
+              <span className="text-sm bg-gray-100 text-gray-500 px-3 py-1 rounded-lg">Finished</span>
             )}
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">{event.title}</h1>
@@ -188,8 +201,30 @@ export default function EventDetailPage() {
         </div>
       </div>
 
-      <div className="mb-4">
-        <ShareButtons title={event.title} />
+      {/* Image / Carousel below title */}
+      {Array.isArray(event.images) && event.images.length > 0 ? (
+        <EventCarousel images={event.images} title={event.title} />
+      ) : event.cover_image ? (
+        <img src={event.cover_image} alt={event.title} className="w-full h-64 object-cover rounded-xl mb-6" />
+      ) : (
+        <div className="w-full h-48 bg-gradient-to-br from-blue-900 to-blue-700 rounded-xl mb-6" />
+      )}
+
+      {/* Share */}
+      <div className="flex items-center gap-2 mb-5">
+        <button
+          onClick={handleShare}
+          className="flex items-center gap-1.5 text-sm text-gray-600 border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          <Share2 size={14} /> Share
+        </button>
+        <button
+          onClick={handleCopyLink}
+          className="flex items-center gap-1.5 text-sm text-gray-600 border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          {linkCopied ? <Check size={14} className="text-green-600" /> : <Link2 size={14} />}
+          {linkCopied ? 'Copied!' : 'Copy link'}
+        </button>
       </div>
 
       <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-6 pb-6 border-b border-gray-100">
