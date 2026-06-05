@@ -3,9 +3,9 @@ import { useState } from 'react';
 import { useEvents } from '@/hooks/useEvents';
 import { EventCard } from '@/components/EventCard';
 import { EVENT_TYPES } from '@/lib/utils';
-import { Search, Plus, SlidersHorizontal } from 'lucide-react';
-import Link from 'next/link';
+import { Search, SlidersHorizontal } from 'lucide-react';
 import { useAuthStore } from '@/store/auth.store';
+import { useT } from '@/lib/i18n';
 
 const MOCK_EVENTS = [
   { event_id: 'mock-1', title: 'TechHack Baku 2025', type: 'hackathon', date: '2026-09-15T09:00:00', location: 'Baku, Azerbaijan', description: 'Join 500+ developers for 48 hours of building. $15,000 prize pool. Mentors from Google, Microsoft, and regional startups.', attendee_count: 312, status: 'published' },
@@ -24,6 +24,7 @@ export default function EventsPage() {
   const [type, setType] = useState('');
   const { data: apiEvents, isLoading } = useEvents({ search, type });
   const { user } = useAuthStore();
+  const t = useT();
 
   const filtered = MOCK_EVENTS.filter(e => {
     const matchSearch = !search || e.title.toLowerCase().includes(search.toLowerCase()) || e.description.toLowerCase().includes(search.toLowerCase());
@@ -44,8 +45,8 @@ export default function EventsPage() {
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search..."
-            className="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
+            placeholder={t('search')}
+            className="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
           />
         </div>
         <div className="flex items-center gap-2">
@@ -55,7 +56,7 @@ export default function EventsPage() {
             onChange={e => setType(e.target.value)}
             className="border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
           >
-            <option value="">All types</option>
+            <option value="">{t('allTypes')}</option>
             {EVENT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
           </select>
         </div>
@@ -69,7 +70,7 @@ export default function EventsPage() {
             !type ? 'bg-blue-800 text-white border-blue-800' : 'text-gray-600 border-gray-200 hover:bg-gray-50'
           }`}
         >
-          All
+          {t('all')}
         </button>
         {EVENT_TYPES.map(t => (
           <button
@@ -95,8 +96,8 @@ export default function EventsPage() {
         </div>
       ) : events.length === 0 ? (
         <div className="text-center py-24">
-          <p className="text-gray-400 text-base">No events found</p>
-          <p className="text-gray-400 text-sm mt-1">Try a different search or filter</p>
+          <p className="text-gray-400 text-base">{t('noEventsFound')}</p>
+          <p className="text-gray-400 text-sm mt-1">{t('tryDifferent')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">

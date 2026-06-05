@@ -1,11 +1,13 @@
 'use client';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/auth.store';
-import { useRouter, usePathname } from 'next/navigation';
+import { useSettingsStore } from '@/store/settings.store';
+import { useT } from '@/lib/i18n';
+import { useRouter } from 'next/navigation';
 import {
   LogOut, Plus, Calendar, Menu, X,
-  LayoutDashboard, BarChart2, Star, Users, ChevronDown,
-  UserCircle, ClipboardList, Pencil,
+  BarChart2, Star, Users,
+  ClipboardList, Pencil, Sun, Moon, Globe,
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 
@@ -29,8 +31,9 @@ const navLinkCls = 'text-sm text-blue-300 hover:text-white px-3 py-1.5 rounded-m
 
 export function Navbar() {
   const { user, logout } = useAuthStore();
+  const { darkMode, toggleDarkMode, language, setLanguage } = useSettingsStore();
+  const t = useT();
   const router = useRouter();
-  const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const orgDropdown = useDropdown();
   const profileDropdown = useDropdown();
@@ -62,7 +65,7 @@ export function Navbar() {
 
           {/* Desktop nav */}
           <div className="hidden sm:flex items-center gap-1">
-            <Link href="/events" className={navLinkCls}>Home</Link>
+            <Link href="/events" className={navLinkCls}>{t('home')}</Link>
 
             {user && (
               <>
@@ -73,29 +76,27 @@ export function Navbar() {
                   onMouseEnter={() => orgDropdown.setOpen(true)}
                   onMouseLeave={() => orgDropdown.setOpen(false)}
                 >
-                  <button
-                    className={`${navLinkCls} flex items-center gap-1`}
-                  >
-                    Organizations
+                  <button className={`${navLinkCls} flex items-center gap-1`}>
+                    {t('organizations')}
                   </button>
 
                   <div className={`absolute top-full left-0 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1.5 z-50 transition-all duration-200 origin-top ${
                     orgDropdown.open ? 'opacity-100 scale-y-100 translate-y-1.5 pointer-events-auto' : 'opacity-0 scale-y-95 translate-y-0 pointer-events-none'
                   }`}>
-                      <Link href="/dashboard" onClick={close} className={linkCls}>
-                        <BarChart2 size={15} className="text-blue-700" /> Statistics
-                      </Link>
-                      <Link href="/events/create" onClick={close} className={linkCls}>
-                        <Plus size={15} className="text-emerald-600" /> New Event
-                      </Link>
-                      <div className="border-t border-gray-100 my-1" />
-                      <Link href="/my-events" onClick={close} className={linkCls}>
-                        <Star size={15} className="text-orange-500" /> My Events
-                      </Link>
-                      <Link href="/staff-events" onClick={close} className={linkCls}>
-                        <Users size={15} className="text-violet-600" /> Staff Events
-                      </Link>
-                    </div>
+                    <Link href="/dashboard" onClick={close} className={linkCls}>
+                      <BarChart2 size={15} className="text-blue-700" /> {t('statistics')}
+                    </Link>
+                    <Link href="/events/create" onClick={close} className={linkCls}>
+                      <Plus size={15} className="text-emerald-600" /> {t('newEvent')}
+                    </Link>
+                    <div className="border-t border-gray-100 my-1" />
+                    <Link href="/my-events" onClick={close} className={linkCls}>
+                      <Star size={15} className="text-orange-500" /> {t('myEvents')}
+                    </Link>
+                    <Link href="/staff-events" onClick={close} className={linkCls}>
+                      <Users size={15} className="text-violet-600" /> {t('staffEvents')}
+                    </Link>
+                  </div>
                 </div>
 
                 {/* Profile dropdown */}
@@ -113,16 +114,56 @@ export function Navbar() {
                   </button>
 
                   {profileDropdown.open && (
-                    <div className="absolute top-full mt-1.5 right-0 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1.5 z-50">
+                    <div className="absolute top-full mt-1.5 right-0 w-52 bg-white rounded-xl shadow-lg border border-gray-100 py-1.5 z-50">
                       <Link href="/registered-events" onClick={close} className={linkCls}>
-                        <ClipboardList size={15} className="text-blue-700" /> Registered Events
+                        <ClipboardList size={15} className="text-blue-700" /> {t('registeredEvents')}
                       </Link>
                       <Link href="/profile" onClick={close} className={linkCls}>
-                        <Pencil size={15} className="text-gray-500" /> Edit Profile
+                        <Pencil size={15} className="text-gray-500" /> {t('editProfile')}
                       </Link>
+
+                      {/* Settings */}
+                      <div className="border-t border-gray-100 my-1" />
+                      <div className="px-3 py-2">
+                        <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-2.5">{t('settings')}</p>
+
+                        {/* Dark mode toggle */}
+                        <div className="flex items-center justify-between mb-2.5">
+                          <span className="flex items-center gap-2 text-sm text-gray-700">
+                            {darkMode ? <Moon size={13} className="text-blue-400" /> : <Sun size={13} className="text-yellow-500" />}
+                            {t('darkMode')}
+                          </span>
+                          <button
+                            onClick={toggleDarkMode}
+                            className={`relative w-9 h-5 rounded-full transition-colors shrink-0 ${darkMode ? 'bg-blue-600' : 'bg-gray-300'}`}
+                            aria-label="Toggle dark mode"
+                          >
+                            <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${darkMode ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                          </button>
+                        </div>
+
+                        {/* Language */}
+                        <div className="flex items-center justify-between">
+                          <span className="flex items-center gap-2 text-sm text-gray-700">
+                            <Globe size={13} className="text-gray-500" />
+                            {t('language')}
+                          </span>
+                          <div className="flex gap-1">
+                            <button
+                              onClick={() => setLanguage('en')}
+                              className={`text-xs px-2 py-0.5 rounded font-medium transition-colors ${language === 'en' ? 'bg-blue-800 text-white' : 'text-gray-500 hover:bg-gray-100'}`}
+                            >EN</button>
+                            <button
+                              onClick={() => setLanguage('az')}
+                              className={`text-xs px-2 py-0.5 rounded font-medium transition-colors ${language === 'az' ? 'bg-blue-800 text-white' : 'text-gray-500 hover:bg-gray-100'}`}
+                            >AZ</button>
+                          </div>
+                        </div>
+                      </div>
+
                       <div className="border-t border-gray-100 my-1" />
                       <button onClick={handleLogout} className={`${linkCls} w-full text-red-500 hover:text-red-600 hover:bg-red-50`}>
-                        <LogOut size={15} /> Logout
+                        <LogOut size={15} /> {t('logout')}
                       </button>
                     </div>
                   )}
@@ -132,9 +173,9 @@ export function Navbar() {
 
             {!user && (
               <>
-                <Link href="/login" className={navLinkCls}>Login</Link>
+                <Link href="/login" className={navLinkCls}>{t('login')}</Link>
                 <Link href="/register" className="text-sm bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-md transition-colors ml-1">
-                  Sign up
+                  {t('signUp')}
                 </Link>
               </>
             )}
@@ -159,43 +200,68 @@ export function Navbar() {
             onClick={e => e.stopPropagation()}
           >
             <Link href="/events" onClick={close} className="block text-sm text-blue-300 hover:text-white px-3 py-2.5 rounded-md hover:bg-blue-800/50 transition-colors">
-              Home
+              {t('home')}
             </Link>
 
             {user ? (
               <>
-                <div className="text-xs text-blue-600 font-semibold uppercase tracking-wider px-3 pt-2 pb-1">Organizations</div>
+                <div className="text-xs text-blue-600 font-semibold uppercase tracking-wider px-3 pt-2 pb-1">{t('organizations')}</div>
                 <Link href="/dashboard" onClick={close} className="flex items-center gap-2 text-sm text-blue-300 hover:text-white px-3 py-2.5 rounded-md hover:bg-blue-800/50 transition-colors">
-                  <BarChart2 size={14} /> Statistics
+                  <BarChart2 size={14} /> {t('statistics')}
                 </Link>
                 <Link href="/events/create" onClick={close} className="flex items-center gap-2 text-sm text-white bg-blue-600 hover:bg-blue-500 px-3 py-2.5 rounded-md transition-colors">
-                  <Plus size={14} /> New Event
+                  <Plus size={14} /> {t('newEvent')}
                 </Link>
                 <Link href="/my-events" onClick={close} className="flex items-center gap-2 text-sm text-blue-300 hover:text-white px-3 py-2.5 rounded-md hover:bg-blue-800/50 transition-colors">
-                  <Star size={14} /> My Events
+                  <Star size={14} /> {t('myEvents')}
                 </Link>
                 <Link href="/staff-events" onClick={close} className="flex items-center gap-2 text-sm text-blue-300 hover:text-white px-3 py-2.5 rounded-md hover:bg-blue-800/50 transition-colors">
-                  <Users size={14} /> Staff Events
+                  <Users size={14} /> {t('staffEvents')}
                 </Link>
 
                 <div className="text-xs text-blue-600 font-semibold uppercase tracking-wider px-3 pt-3 pb-1">{user.name}</div>
                 <Link href="/registered-events" onClick={close} className="flex items-center gap-2 text-sm text-blue-300 hover:text-white px-3 py-2.5 rounded-md hover:bg-blue-800/50 transition-colors">
-                  <ClipboardList size={14} /> Registered Events
+                  <ClipboardList size={14} /> {t('registeredEvents')}
                 </Link>
                 <Link href="/profile" onClick={close} className="flex items-center gap-2 text-sm text-blue-300 hover:text-white px-3 py-2.5 rounded-md hover:bg-blue-800/50 transition-colors">
-                  <Pencil size={14} /> Edit Profile
+                  <Pencil size={14} /> {t('editProfile')}
                 </Link>
+
+                {/* Mobile settings */}
+                <div className="text-xs text-blue-600 font-semibold uppercase tracking-wider px-3 pt-3 pb-1">{t('settings')}</div>
+                <div className="flex items-center justify-between px-3 py-2">
+                  <span className="flex items-center gap-2 text-sm text-blue-300">
+                    {darkMode ? <Moon size={14} className="text-blue-400" /> : <Sun size={14} className="text-yellow-400" />}
+                    {t('darkMode')}
+                  </span>
+                  <button
+                    onClick={toggleDarkMode}
+                    className={`relative w-9 h-5 rounded-full transition-colors shrink-0 ${darkMode ? 'bg-blue-600' : 'bg-blue-900'}`}
+                  >
+                    <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${darkMode ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                  </button>
+                </div>
+                <div className="flex items-center justify-between px-3 py-2">
+                  <span className="flex items-center gap-2 text-sm text-blue-300">
+                    <Globe size={14} /> {t('language')}
+                  </span>
+                  <div className="flex gap-1">
+                    <button onClick={() => setLanguage('en')} className={`text-xs px-2 py-0.5 rounded font-medium ${language === 'en' ? 'bg-blue-600 text-white' : 'text-blue-400 hover:bg-blue-800'}`}>EN</button>
+                    <button onClick={() => setLanguage('az')} className={`text-xs px-2 py-0.5 rounded font-medium ${language === 'az' ? 'bg-blue-600 text-white' : 'text-blue-400 hover:bg-blue-800'}`}>AZ</button>
+                  </div>
+                </div>
+
                 <button onClick={handleLogout} className="flex items-center gap-2 w-full text-sm text-red-400 hover:text-red-300 px-3 py-2.5 rounded-md hover:bg-blue-800/50 transition-colors">
-                  <LogOut size={14} /> Logout
+                  <LogOut size={14} /> {t('logout')}
                 </button>
               </>
             ) : (
               <>
                 <Link href="/login" onClick={close} className="block text-sm text-blue-300 hover:text-white px-3 py-2.5 rounded-md hover:bg-blue-800/50 transition-colors">
-                  Login
+                  {t('login')}
                 </Link>
                 <Link href="/register" onClick={close} className="block text-sm text-white bg-blue-600 hover:bg-blue-500 px-3 py-2.5 rounded-md transition-colors">
-                  Sign up
+                  {t('signUp')}
                 </Link>
               </>
             )}
