@@ -1,6 +1,6 @@
 'use client';
 import { useState, useCallback } from 'react';
-import { APIProvider, Map, AdvancedMarker, MapMouseEvent } from '@vis.gl/react-google-maps';
+import { APIProvider, Map, Marker, MapMouseEvent } from '@vis.gl/react-google-maps';
 import { MapPin, X, Check } from 'lucide-react';
 
 export interface Coords { lat: number; lng: number; }
@@ -11,7 +11,6 @@ interface Props {
 }
 
 const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!;
-const MAP_ID = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID!;
 
 export function LocationPicker({ value, onChange }: Props) {
   const [open, setOpen] = useState(false);
@@ -72,16 +71,13 @@ export function LocationPicker({ value, onChange }: Props) {
             <div style={{ height: '420px' }}>
               <APIProvider apiKey={API_KEY}>
                 <Map
-                  mapId={MAP_ID}
                   defaultCenter={pending ?? { lat: 40.4093, lng: 49.8671 }}
                   defaultZoom={12}
                   onClick={handleMapClick}
                   style={{ width: '100%', height: '100%' }}
                   gestureHandling="greedy"
                 >
-                  {pending && (
-                    <AdvancedMarker position={pending} />
-                  )}
+                  {pending && <Marker position={pending} />}
                 </Map>
               </APIProvider>
             </div>
@@ -94,10 +90,9 @@ export function LocationPicker({ value, onChange }: Props) {
                 }
               </span>
               <div className="flex gap-2">
-                <button
-                  onClick={() => setOpen(false)}
-                  className="text-sm text-gray-500 hover:text-gray-700 px-3 py-1.5 border border-gray-200 rounded-lg transition-colors"
-                >Cancel</button>
+                <button onClick={() => setOpen(false)} className="text-sm text-gray-500 hover:text-gray-700 px-3 py-1.5 border border-gray-200 rounded-lg transition-colors">
+                  Cancel
+                </button>
                 <button
                   onClick={confirm}
                   disabled={!pending}
