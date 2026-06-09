@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { APIProvider, Map, AdvancedMarker, Pin, InfoWindow } from '@vis.gl/react-google-maps';
+import { APIProvider, Map, Marker, InfoWindow } from '@vis.gl/react-google-maps';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { Calendar, MapPin, Users } from 'lucide-react';
@@ -9,7 +9,6 @@ import Link from 'next/link';
 import { EVENT_TYPES } from '@/lib/utils';
 
 const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!;
-const MAP_ID = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID!;
 
 const TYPE_COLORS: Record<string, { bg: string; border: string }> = {
   hackathon:   { bg: '#7c3aed', border: '#5b21b6' },
