@@ -78,7 +78,6 @@ export default function MapPage() {
       <div className="flex-1 relative">
         <APIProvider apiKey={API_KEY}>
           <Map
-            mapId={MAP_ID}
             defaultCenter={{ lat: 40.4093, lng: 49.8671 }}
             defaultZoom={10}
             style={{ width: '100%', height: '100%' }}
@@ -86,18 +85,12 @@ export default function MapPage() {
             gestureHandling="greedy"
           >
             {(events as MapEvent[]).map(ev => (
-              <AdvancedMarker
+              <Marker
                 key={ev.event_id}
                 position={{ lat: ev.lat, lng: ev.lng }}
-                onClick={e => { e.stop(); setSelected(ev); }}
+                onClick={() => setSelected(ev)}
                 title={ev.title}
-              >
-                <Pin
-                  background={col(ev.type).bg}
-                  borderColor={col(ev.type).border}
-                  glyphColor="#ffffff"
-                />
-              </AdvancedMarker>
+              />
             ))}
 
             {selected && (
