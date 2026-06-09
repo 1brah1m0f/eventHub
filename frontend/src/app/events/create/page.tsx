@@ -11,6 +11,7 @@ import { DynamicEventFields } from '@/components/DynamicEventFields';
 import api from '@/lib/api';
 import { Upload, X, ImageIcon } from 'lucide-react';
 import { AgendaEditor, AgendaItem } from '@/components/AgendaEditor';
+import { LocationPicker, Coords } from '@/components/LocationPicker';
 
 const XIcon = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
@@ -51,6 +52,7 @@ export default function CreateEventPage() {
   const [uploading, setUploading] = useState(false);
   const [agenda, setAgenda] = useState<AgendaItem[]>([]);
   const [socialLinks, setSocialLinks] = useState({ linkedin: '', instagram: '', x: '' });
+  const [coords, setCoords] = useState<Coords | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<Form>({
@@ -84,7 +86,7 @@ export default function CreateEventPage() {
       const filteredAgenda = agenda.filter(a => a.title.trim());
       const sl = { linkedin: socialLinks.linkedin.trim(), instagram: socialLinks.instagram.trim(), x: socialLinks.x.trim() };
       const hasSocial = sl.linkedin || sl.instagram || sl.x;
-      const event = await mutateAsync({ ...data, cover_image: coverImage || undefined, agenda: filteredAgenda.length ? filteredAgenda : undefined, social_links: hasSocial ? sl : undefined });
+      const event = await mutateAsync({ ...data, cover_image: coverImage || undefined, agenda: filteredAgenda.length ? filteredAgenda : undefined, social_links: hasSocial ? sl : undefined, lat: coords?.lat, lng: coords?.lng });
       toast.success('Event created!');
       router.push(`/events/${event.event_id}`);
     } catch (err: any) {
@@ -184,6 +186,7 @@ export default function CreateEventPage() {
         <div>
           <label className={labelClass}>Location</label>
           <input {...register('location')} className={inputClass} placeholder="City, Country or Online" />
+          <LocationPicker value={coords} onChange={setCoords} />
         </div>
 
         <div>

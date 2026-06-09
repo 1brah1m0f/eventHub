@@ -3,9 +3,15 @@ import { v4 as uuidv4 } from 'uuid';
 import { query } from '../config/db';
 import { AuthRequest } from '../middleware/auth';
 
+async function ensureCoords() {
+  await query(`ALTER TABLE events ADD COLUMN IF NOT EXISTS lat DOUBLE PRECISION`);
+  await query(`ALTER TABLE events ADD COLUMN IF NOT EXISTS lng DOUBLE PRECISION`);
+}
+ensureCoords().catch(console.error);
+
 export async function createEvent(req: AuthRequest, res: Response) {
   try {
-    const { title, description, type, date, end_date, location, cover_image, agenda, resources, extra_fields, access_type = 'public', images, social_links } = req.body;
+    const { title, description, type, date, end_date, location, lat, lng, cover_image, agenda, resources, extra_fields, access_type = 'public', images, social_links } = req.body;
     if (!title || !type) return res.status(400).json({ error: 'title and type required' });
 
     const validAccess = ['public', 'invite_only', 'approval'];
@@ -14,10 +20,13 @@ export async function createEvent(req: AuthRequest, res: Response) {
     const invite_code = access_type === 'invite_only' ? uuidv4() : null;
 
     const { rows } = await query(
-      `INSERT INTO events (event_id, title, description, type, date, end_date, location, cover_image, agenda, resources, extra_fields, images, social_links, created_by, status, access_type, invite_code)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,'draft',$15,$16)
+      `INSERT INTO events (event_id, title, description, type, date, end_date, location, lat, lng, cover_image, agenda, resources, extra_fields, images, social_links, created_by, status, access_type, invite_code)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,'draft',$17,$18)
        RETURNING *`,
-      [uuidv4(), title, description, type, date, end_date, location, cover_image || null,
+      [uuidv4(), title, description, type, date, end_date, location,
+       lat != null ? parseFloat(lat) : null,
+       lng != null ? parseFloat(lng) : null,
+       cover_image || null,
        agenda ? JSON.stringify(agenda) : null,
        resources ? JSON.stringify(resources) : null,
        extra_fields ? JSON.stringify(extra_fields) : null,
@@ -26,6 +35,26 @@ export async function createEvent(req: AuthRequest, res: Response) {
        req.user!.userId, access_type, invite_code]
     );
     res.status(201).json(rows[0]);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
+export async function getMapEvents(req: Request, res: Response) {
+  try {
+    const { type } = req.query as any;
+    let sql = `
+      SELECT e.event_id, e.title, e.type, e.date, e.location, e.lat, e.lng, e.cover_image,
+        (SELECT COUNT(*) FROM registrations r WHERE r.event_id = e.event_id) as attendee_count
+      FROM events e
+      WHERE e.status = 'published' AND e.lat IS NOT NULL AND e.lng IS NOT NULL
+        AND (e.date IS NULL OR e.date > NOW())
+    `;
+    const params: any[] = [];
+    if (type) { sql += ` AND e.type = $1`; params.push(type); }
+    sql += ` ORDER BY e.date ASC`;
+    const { rows } = await query(sql, params);
+    res.json(rows);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
@@ -78,7 +107,7 @@ export async function getEvent(req: Request & { event?: any; eventRole?: string 
 export async function updateEvent(req: Request & { event?: any; user?: any }, res: Response) {
   try {
     const event = req.event;
-    const fields = ['title','description','type','date','end_date','location','cover_image','agenda','resources','extra_fields','images','social_links','status'];
+    const fields = ['title','description','type','date','end_date','location','lat','lng','cover_image','agenda','resources','extra_fields','images','social_links','status'];
     const updates: string[] = [];
     const params: any[] = [];
     let idx = 1;

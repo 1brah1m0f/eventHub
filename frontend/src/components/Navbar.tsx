@@ -6,7 +6,7 @@ import { useT } from '@/lib/i18n';
 import { useRouter } from 'next/navigation';
 import {
   LogOut, Plus, Calendar, Menu, X,
-  BarChart2, Star, Users, Shield,
+  BarChart2, Star, Users, Shield, Map,
   ClipboardList, Pencil, Sun, Moon, Globe,
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
@@ -82,6 +82,9 @@ export function Navbar() {
             </button>
 
             <Link href="/events" className={navLinkCls}>{t('home')}</Link>
+            <Link href="/map" className={`${navLinkCls} flex items-center gap-1.5`}>
+              <Map size={14} /> Map
+            </Link>
 
             {user && (
               <>
@@ -206,6 +209,9 @@ export function Navbar() {
           >
             <Link href="/events" onClick={close} className="block text-sm text-blue-300 hover:text-white px-3 py-2.5 rounded-md hover:bg-blue-800/50 transition-colors">
               {t('home')}
+            </Link>
+            <Link href="/map" onClick={close} className="flex items-center gap-2 text-sm text-blue-300 hover:text-white px-3 py-2.5 rounded-md hover:bg-blue-800/50 transition-colors">
+              <Map size={14} /> Map
             </Link>
 
             {user ? (

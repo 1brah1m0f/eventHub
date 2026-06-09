@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { authenticate, optionalAuth } from '../middleware/auth';
 import { resolveEventRole, requireOwner, requireStaffOrOwner } from '../middleware/eventRole';
 import {
-  createEvent, getEvents, getEvent, updateEvent, deleteEvent,
+  createEvent, getEvents, getMapEvents, getEvent, updateEvent, deleteEvent,
   inviteStaff, removeStaff, registerForEvent, unregisterFromEvent, getAttendees,
   getPendingRequests, reviewRegistration, regenerateInviteCode
 } from '../controllers/events.controller';
@@ -13,6 +13,7 @@ const router = Router();
 
 // Public event listing
 router.get('/', optionalAuth, getEvents);
+router.get('/map', getMapEvents);
 
 // Create event
 router.post('/', authenticate, createEvent);
