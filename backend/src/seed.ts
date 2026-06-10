@@ -277,6 +277,27 @@ async function seed() {
       } catch {}
     }
 
+    // Award achievements for finished competitive events (winner / runner-up / 3rd / finalists)
+    if (ev.status === 'finished' && ['hackathon', 'competition', 'demo_day'].includes(ev.type)) {
+      const winners = shuffle(regUsers).slice(0, 5);
+      const awards: { type: string; label?: string }[] = [
+        { type: 'winner' },
+        { type: 'runner_up' },
+        { type: 'third_place' },
+        { type: 'best_design', label: 'Best Design' },
+        { type: 'finalist' },
+      ];
+      for (let i = 0; i < Math.min(winners.length, awards.length); i++) {
+        try {
+          await query(
+            `INSERT INTO achievements (achievement_id, event_id, user_id, type, label, awarded_by)
+             VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT DO NOTHING`,
+            [uuidv4(), eventId, winners[i], awards[i].type, awards[i].label || null, ownerId]
+          );
+        } catch {}
+      }
+    }
+
     // Add Q&A questions for finished events
     if (ev.status === 'finished') {
       const questionTexts = [

@@ -4,7 +4,9 @@
       "Bash(node -e \"const p=require\\('lucide-react'\\); console.log\\(['Sparkles','ArrowRight','CheckCircle'].map\\(n=>n+':'+\\(typeof p[n]!=='undefined'\\)\\).join\\(' '\\)\\)\")",
       "Bash(ls -la .env*)",
       "Bash(ls -la \"c:/Users/sixii/OneDrive/Desktop/EventHub/.env\"*)",
-      "Bash(grep -rn \"GOOGLE_MAPS\" .env* \"c:/Users/sixii/OneDrive/Desktop/EventHub/backend/.env\")"
+      "Bash(grep -rn \"GOOGLE_MAPS\" .env* \"c:/Users/sixii/OneDrive/Desktop/EventHub/backend/.env\")",
+      "Bash(node -e \"const p=require\\('lucide-react'\\); console.log\\(['Trophy','Medal','Award','Star','Sparkles','Palette','Mic','CheckCircle2'].map\\(n=>n+':'+\\(n in p\\)\\).join\\(' '\\)\\)\")",
+      "Bash(node -e \"const p=require\\('lucide-react'\\); console.log\\(['Linkedin','CalendarDays','Megaphone','Award'].map\\(n=>n+':'+\\(n in p\\)\\).join\\(' '\\)\\)\")"
     ]
   },
   "enabledPlugins": {

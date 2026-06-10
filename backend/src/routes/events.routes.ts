@@ -8,6 +8,7 @@ import {
 } from '../controllers/events.controller';
 import { createTeam, getTeams, joinTeam, leaveTeam } from '../controllers/teams.controller';
 import { getQuestions, postQuestion, upvoteQuestion, getAnswers, postAnswer, editQuestion, deleteQuestion } from '../controllers/qa.controller';
+import { getEventAchievements, awardAchievement, deleteAchievement } from '../controllers/achievements.controller';
 
 const router = Router();
 
@@ -42,6 +43,11 @@ router.post('/:eventId/teams', authenticate, createTeam);
 router.get('/:eventId/teams', optionalAuth, getTeams);
 router.post('/:eventId/teams/:teamId/join', authenticate, joinTeam);
 router.delete('/:eventId/teams/:teamId/leave', authenticate, leaveTeam);
+
+// Achievements — anyone can view, only staff/owner award or remove
+router.get('/:eventId/achievements', optionalAuth, getEventAchievements);
+router.post('/:eventId/achievements', authenticate, requireStaffOrOwner, awardAchievement);
+router.delete('/:eventId/achievements/:achievementId', authenticate, requireStaffOrOwner, deleteAchievement);
 
 // Q&A
 router.get('/:eventId/questions', optionalAuth, getQuestions);

@@ -98,7 +98,18 @@ export async function getEvent(req: Request & { event?: any; eventRole?: string 
       `SELECT role, COUNT(*) as count FROM registrations WHERE event_id=$1 GROUP BY role`,
       [event.event_id]
     );
-    res.json({ ...event, staff, registration_counts: regCounts, viewer_role: req.eventRole });
+    const { rows: ownerRows } = await query(
+      `SELECT name, avatar_url FROM users WHERE user_id=$1`,
+      [event.created_by]
+    );
+    res.json({
+      ...event,
+      owner_name: ownerRows[0]?.name ?? null,
+      owner_avatar: ownerRows[0]?.avatar_url ?? null,
+      staff,
+      registration_counts: regCounts,
+      viewer_role: req.eventRole,
+    });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }

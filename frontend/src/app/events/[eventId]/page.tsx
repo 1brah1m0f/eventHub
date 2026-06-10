@@ -10,6 +10,7 @@ import { EVENT_TYPES } from '@/lib/utils';
 import { QASection } from '@/components/QASection';
 import { StaffManagement } from '@/components/StaffManagement';
 import { AttendeesPanel } from '@/components/AttendeesPanel';
+import { EventCommunity } from '@/components/EventCommunity';
 import { EventCarousel } from '@/components/EventCarousel';
 import { useState } from 'react';
 
@@ -185,7 +186,14 @@ export default function EventDetailPage() {
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 leading-tight tracking-tight">{event.title}</h1>
           {event.owner_name && (
-            <p className="text-gray-500 text-sm mt-2">Organized by <span className="font-medium text-gray-700">{event.owner_name}</span></p>
+            <p className="text-gray-500 text-sm mt-2">
+              Organized by{' '}
+              {event.created_by ? (
+                <Link href={`/users/${event.created_by}`} className="font-medium text-violet-700 hover:underline">{event.owner_name}</Link>
+              ) : (
+                <span className="font-medium text-gray-700">{event.owner_name}</span>
+              )}
+            </p>
           )}
         </div>
 
@@ -252,6 +260,11 @@ export default function EventDetailPage() {
               </div>
             </section>
           )}
+
+          {/* Public community + achievements (everyone). Staff can award badges here. */}
+          <section>
+            <EventCommunity eventId={eventId} canManage={canEdit} />
+          </section>
 
           {canEdit && (
             <section>

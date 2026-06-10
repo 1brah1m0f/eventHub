@@ -100,8 +100,22 @@ CREATE TABLE IF NOT EXISTS answers (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Achievements (badges awarded by event staff/owner — users cannot self-award)
+CREATE TABLE IF NOT EXISTS achievements (
+  achievement_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  event_id UUID REFERENCES events(event_id) ON DELETE CASCADE,
+  user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+  type VARCHAR(40) NOT NULL DEFAULT 'participant',
+  label VARCHAR(120),
+  team_name VARCHAR(255),
+  awarded_by UUID REFERENCES users(user_id) ON DELETE SET NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_events_created_by ON events(created_by);
+CREATE INDEX IF NOT EXISTS idx_achievements_user ON achievements(user_id);
+CREATE INDEX IF NOT EXISTS idx_achievements_event ON achievements(event_id);
 CREATE INDEX IF NOT EXISTS idx_events_type ON events(type);
 CREATE INDEX IF NOT EXISTS idx_events_status ON events(status);
 CREATE INDEX IF NOT EXISTS idx_registrations_event ON registrations(event_id);
