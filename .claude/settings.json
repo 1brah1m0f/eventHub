@@ -9,7 +9,9 @@
       "Bash(node -e \"const p=require\\('lucide-react'\\); console.log\\(['Linkedin','CalendarDays','Megaphone','Award'].map\\(n=>n+':'+\\(n in p\\)\\).join\\(' '\\)\\)\")",
       "Bash(node -e \"require\\('dotenv'\\).config\\(\\); const u=process.env.DATABASE_URL||''; const m=u.match\\(/@\\([^:/?]+\\)/\\); console.log\\('DB host:', m?m[1]:'\\(none\\)'\\); console.log\\('supabase:', /supabase/i.test\\(u\\)\\);\")",
       "Bash(git rev-list *)",
-      "Bash(git remote *)"
+      "Bash(git remote *)",
+      "WebSearch",
+      "Bash(node -e ' *)"
     ]
   },
   "enabledPlugins": {
