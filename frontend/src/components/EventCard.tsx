@@ -9,7 +9,7 @@ interface Props {
 
 const TYPE_COLORS: Record<string, { bg: string; text: string }> = {
   hackathon:   { bg: 'bg-purple-100', text: 'text-purple-700' },
-  conference:  { bg: 'bg-blue-100',   text: 'text-blue-800'   },
+  conference:  { bg: 'bg-violet-100',   text: 'text-violet-800'   },
   workshop:    { bg: 'bg-emerald-100', text: 'text-emerald-700'},
   bootcamp:    { bg: 'bg-orange-100', text: 'text-orange-700' },
   meetup:      { bg: 'bg-pink-100',   text: 'text-pink-700'   },
@@ -22,27 +22,27 @@ const TYPE_COLORS: Record<string, { bg: string; text: string }> = {
 };
 
 const TYPE_BANNER: Record<string, string> = {
-  hackathon:   'from-purple-700 to-blue-900',
-  conference:  'from-blue-800 to-cyan-700',
-  workshop:    'from-emerald-700 to-blue-800',
-  bootcamp:    'from-orange-600 to-blue-800',
-  meetup:      'from-pink-700 to-blue-900',
+  hackathon:   'from-purple-700 to-violet-900',
+  conference:  'from-violet-800 to-cyan-700',
+  workshop:    'from-emerald-700 to-violet-800',
+  bootcamp:    'from-orange-600 to-violet-800',
+  meetup:      'from-pink-700 to-violet-900',
   networking:  'from-yellow-600 to-orange-700',
-  competition: 'from-red-700 to-blue-900',
-  demo_day:    'from-blue-800 to-slate-900',
-  seminar:     'from-teal-700 to-blue-800',
-  summit:      'from-sky-700 to-blue-900',
+  competition: 'from-red-700 to-violet-900',
+  demo_day:    'from-violet-800 to-slate-900',
+  seminar:     'from-teal-700 to-violet-800',
+  summit:      'from-sky-700 to-violet-900',
 };
 
 export function EventCard({ event }: Props) {
   const typeLabel = EVENT_TYPES.find(t => t.value === event.type)?.label || event.type;
   const colors = TYPE_COLORS[event.type] || { bg: 'bg-gray-100', text: 'text-gray-700' };
-  const banner = TYPE_BANNER[event.type] || 'from-blue-900 to-blue-800';
+  const banner = TYPE_BANNER[event.type] || 'from-violet-900 to-violet-800';
 
   return (
     <Link
       href={`/events/${event.event_id}`}
-      className="group bg-white rounded-xl border border-gray-200 hover:border-blue-200 hover:shadow-md transition-all overflow-hidden block"
+      className="group bg-white rounded-xl border border-gray-200 hover:border-violet-200 hover:shadow-md transition-all overflow-hidden block"
     >
       {event.cover_image ? (
         <img
@@ -64,7 +64,7 @@ export function EventCard({ event }: Props) {
           )}
         </div>
 
-        <h3 className="font-semibold text-gray-900 line-clamp-2 group-hover:text-blue-800 transition-colors leading-snug mb-1.5">
+        <h3 className="font-semibold text-gray-900 line-clamp-2 group-hover:text-violet-800 transition-colors leading-snug mb-1.5">
           {event.title}
         </h3>
 
@@ -75,19 +75,19 @@ export function EventCard({ event }: Props) {
         <div className="flex flex-col gap-1.5 text-xs text-gray-500 pt-2 border-t border-gray-100">
           {event.date && (
             <span className="flex items-center gap-1.5">
-              <Calendar size={11} className="text-blue-600 shrink-0" />
+              <Calendar size={11} className="text-violet-600 shrink-0" />
               {format(new Date(event.date), 'MMM d, yyyy')}
             </span>
           )}
           {event.location && (
             <span className="flex items-center gap-1.5">
-              <MapPin size={11} className="text-blue-600 shrink-0" />
+              <MapPin size={11} className="text-violet-600 shrink-0" />
               <span className="truncate">{event.location}</span>
             </span>
           )}
           {event.attendee_count !== undefined && Number(event.attendee_count) > 0 && (
             <span className="flex items-center gap-1.5">
-              <Users size={11} className="text-blue-600 shrink-0" />
+              <Users size={11} className="text-violet-600 shrink-0" />
               {Number(event.attendee_count).toLocaleString()} registered
             </span>
           )}

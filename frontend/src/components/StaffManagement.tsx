@@ -34,9 +34,9 @@ export function StaffManagement({ eventId, staff }: Props) {
         <input value={email} onChange={e => setEmail(e.target.value)}
           placeholder="Invite by email..."
           onKeyDown={e => { if (e.key === 'Enter') invite.mutate(email); }}
-          className="flex-1 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700" />
+          className="flex-1 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700" />
         <button onClick={() => invite.mutate(email)} disabled={invite.isPending || !email}
-          className="flex items-center gap-1 bg-blue-800 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-blue-900 disabled:opacity-50 transition-colors">
+          className="flex items-center gap-1 bg-violet-800 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-violet-900 disabled:opacity-50 transition-colors">
           <UserPlus size={14} /> Invite
         </button>
       </div>
@@ -51,7 +51,7 @@ export function StaffManagement({ eventId, staff }: Props) {
                 {s.avatar_url ? (
                   <img src={s.avatar_url} className="w-7 h-7 rounded-full object-cover" alt={s.name} />
                 ) : (
-                  <div className="w-7 h-7 rounded-full bg-blue-900 flex items-center justify-center text-xs font-medium text-white">
+                  <div className="w-7 h-7 rounded-full bg-violet-900 flex items-center justify-center text-xs font-medium text-white">
                     {s.name[0]}
                   </div>
                 )}

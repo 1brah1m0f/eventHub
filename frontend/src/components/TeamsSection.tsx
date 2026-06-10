@@ -36,7 +36,7 @@ interface Hackathon {
 function Avatar({ member, size = 'sm' }: { member: Member; size?: 'sm' | 'md' }) {
   const sz = size === 'sm' ? 'w-7 h-7 text-xs' : 'w-9 h-9 text-sm';
   return (
-    <div className={`${sz} rounded-full bg-blue-800 flex items-center justify-center font-bold text-white overflow-hidden shrink-0 border-2 border-white`}>
+    <div className={`${sz} rounded-full bg-violet-800 flex items-center justify-center font-bold text-white overflow-hidden shrink-0 border-2 border-white`}>
       {member.avatar_url
         ? <img src={member.avatar_url} alt={member.name} className="w-full h-full object-cover" />
         : member.name?.[0]?.toUpperCase()
@@ -82,8 +82,8 @@ function HackathonPicker({ teamId, onClose }: { teamId: string; onClose: () => v
             <p className="text-gray-400 text-sm text-center py-8">No upcoming hackathons available</p>
           )}
           {hackathons.map((h: Hackathon) => (
-            <div key={h.event_id} className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:border-blue-200 hover:bg-blue-50 transition-all group">
-              <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 bg-gradient-to-br from-purple-700 to-blue-900">
+            <div key={h.event_id} className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:border-violet-200 hover:bg-violet-50 transition-all group">
+              <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 bg-gradient-to-br from-purple-700 to-violet-900">
                 {h.cover_image && <img src={h.cover_image} alt={h.title} className="w-full h-full object-cover" />}
               </div>
               <div className="flex-1 min-w-0">
@@ -96,7 +96,7 @@ function HackathonPicker({ teamId, onClose }: { teamId: string; onClose: () => v
               <button
                 onClick={() => handleRegister(h.event_id, h.title)}
                 disabled={registerTeam.isPending}
-                className="text-xs bg-blue-800 text-white px-3 py-1.5 rounded-lg hover:bg-blue-900 disabled:opacity-50 transition-colors shrink-0"
+                className="text-xs bg-violet-800 text-white px-3 py-1.5 rounded-lg hover:bg-violet-900 disabled:opacity-50 transition-colors shrink-0"
               >
                 Register
               </button>
@@ -156,7 +156,7 @@ function TeamCard({ team, currentUserId }: { team: Team; currentUserId: string }
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         {/* Header */}
         <div className="px-4 py-3.5 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-800 to-blue-600 flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-800 to-violet-600 flex items-center justify-center shrink-0">
             <Users size={18} className="text-white" />
           </div>
           <div className="flex-1 min-w-0">
@@ -225,13 +225,13 @@ function TeamCard({ team, currentUserId }: { team: Team; currentUserId: string }
                       onChange={e => setAddEmail(e.target.value)}
                       onKeyDown={e => e.key === 'Enter' && handleAddMember()}
                       placeholder="Email address..."
-                      className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
+                      className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700 bg-white"
                       autoFocus
                     />
                     <button
                       onClick={handleAddMember}
                       disabled={addMember.isPending}
-                      className="px-3 py-2 bg-blue-800 text-white rounded-lg text-sm hover:bg-blue-900 disabled:opacity-50 transition-colors"
+                      className="px-3 py-2 bg-violet-800 text-white rounded-lg text-sm hover:bg-violet-900 disabled:opacity-50 transition-colors"
                     >
                       {addMember.isPending ? '...' : 'Add'}
                     </button>
@@ -243,7 +243,7 @@ function TeamCard({ team, currentUserId }: { team: Team; currentUserId: string }
                   <div className="flex gap-2">
                     <button
                       onClick={() => setShowAdd(true)}
-                      className="flex items-center gap-1.5 text-sm text-blue-700 hover:text-blue-900 border border-blue-200 hover:border-blue-400 px-3 py-1.5 rounded-lg transition-colors"
+                      className="flex items-center gap-1.5 text-sm text-violet-700 hover:text-violet-900 border border-violet-200 hover:border-violet-400 px-3 py-1.5 rounded-lg transition-colors"
                     >
                       <UserPlus size={13} /> Add member
                     </button>
@@ -313,19 +313,19 @@ function CreateTeamModal({ onClose }: { onClose: () => void }) {
             onKeyDown={e => e.key === 'Enter' && handleCreate()}
             placeholder="Team name *"
             autoFocus
-            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700 bg-white"
           />
           <textarea
             value={description}
             onChange={e => setDescription(e.target.value)}
             placeholder="Short description (optional)"
             rows={2}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white resize-none"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700 bg-white resize-none"
           />
           <button
             onClick={handleCreate}
             disabled={createTeam.isPending}
-            className="w-full bg-blue-800 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-blue-900 disabled:opacity-50 transition-colors"
+            className="w-full bg-violet-800 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-violet-900 disabled:opacity-50 transition-colors"
           >
             {createTeam.isPending ? 'Creating...' : 'Create Team'}
           </button>
@@ -354,7 +354,7 @@ export function TeamsSection() {
         </div>
         <button
           onClick={() => setShowCreate(true)}
-          className="flex items-center gap-1.5 text-sm bg-blue-800 text-white px-3 py-1.5 rounded-lg hover:bg-blue-900 transition-colors"
+          className="flex items-center gap-1.5 text-sm bg-violet-800 text-white px-3 py-1.5 rounded-lg hover:bg-violet-900 transition-colors"
         >
           <Plus size={14} /> New Team
         </button>
@@ -373,7 +373,7 @@ export function TeamsSection() {
           <p className="text-xs text-gray-400 mt-0.5">Create a team to join hackathons together</p>
           <button
             onClick={() => setShowCreate(true)}
-            className="mt-3 text-sm text-blue-700 hover:text-blue-900 font-medium"
+            className="mt-3 text-sm text-violet-700 hover:text-violet-900 font-medium"
           >
             Create your first team →
           </button>

@@ -7,7 +7,7 @@ import { X, Check, Plus, Camera } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '@/lib/api';
 
-const inputClass = 'w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white';
+const inputClass = 'w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700 bg-white';
 const labelClass = 'block text-sm font-medium text-gray-700 mb-1.5';
 
 const XIcon = () => (
@@ -30,7 +30,7 @@ const InstagramIcon = () => (
 
 const SOCIAL_PLATFORMS = [
   { key: 'x_url', label: 'X (Twitter)', icon: XIcon, placeholder: 'https://x.com/yourhandle', color: 'hover:text-black' },
-  { key: 'linkedin_url', label: 'LinkedIn', icon: LinkedInIcon, placeholder: 'https://linkedin.com/in/yourname', color: 'hover:text-blue-700' },
+  { key: 'linkedin_url', label: 'LinkedIn', icon: LinkedInIcon, placeholder: 'https://linkedin.com/in/yourname', color: 'hover:text-violet-700' },
   { key: 'instagram_url', label: 'Instagram', icon: InstagramIcon, placeholder: 'https://instagram.com/yourhandle', color: 'hover:text-pink-600' },
 ] as const;
 
@@ -117,7 +117,7 @@ function ProfileContent() {
         {/* Avatar */}
         <div className="flex items-start gap-5 mb-6">
           <div className="relative shrink-0">
-            <div className="w-16 h-16 rounded-full bg-blue-900 flex items-center justify-center text-2xl font-bold text-white overflow-hidden">
+            <div className="w-16 h-16 rounded-full bg-violet-900 flex items-center justify-center text-2xl font-bold text-white overflow-hidden">
               {user.avatar_url
                 ? <img src={user.avatar_url} alt={user.name} className="w-full h-full object-cover" />
                 : user.name?.[0]?.toUpperCase()
@@ -126,7 +126,7 @@ function ProfileContent() {
             <button
               onClick={() => avatarInputRef.current?.click()}
               disabled={avatarUploading}
-              className="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-700 hover:bg-blue-600 rounded-full flex items-center justify-center text-white border-2 border-white transition-colors disabled:opacity-50"
+              className="absolute -bottom-1 -right-1 w-6 h-6 bg-violet-700 hover:bg-violet-600 rounded-full flex items-center justify-center text-white border-2 border-white transition-colors disabled:opacity-50"
             >
               <Camera size={11} />
             </button>
@@ -152,9 +152,9 @@ function ProfileContent() {
             <label className={labelClass}>Skills</label>
             <div className="flex flex-wrap gap-1.5 mb-2">
               {form.skills.map(s => (
-                <span key={s} className="flex items-center gap-1 text-xs bg-blue-50 text-blue-800 border border-blue-100 px-2 py-0.5 rounded-md">
+                <span key={s} className="flex items-center gap-1 text-xs bg-violet-50 text-violet-800 border border-violet-100 px-2 py-0.5 rounded-md">
                   {s}
-                  <button type="button" onClick={() => removeSkill(s)} className="text-blue-400 hover:text-red-500 transition-colors">
+                  <button type="button" onClick={() => removeSkill(s)} className="text-violet-400 hover:text-red-500 transition-colors">
                     <X size={10} />
                   </button>
                 </span>
@@ -188,7 +188,7 @@ function ProfileContent() {
                     title={hasUrl ? `${p.label}: ${form[p.key]}` : `Add ${p.label}`}
                     className={`p-2.5 rounded-xl border-2 transition-all ${
                       hasUrl
-                        ? 'border-blue-600 text-blue-700 bg-blue-50'
+                        ? 'border-violet-600 text-violet-700 bg-violet-50'
                         : 'border-gray-200 text-gray-400 hover:border-gray-300 bg-white'
                     } ${p.color}`}
                   >
@@ -212,7 +212,7 @@ function ProfileContent() {
             <button
               onClick={handleSave}
               disabled={updateProfile.isPending}
-              className="flex items-center gap-1.5 bg-blue-800 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-900 disabled:opacity-50 transition-colors"
+              className="flex items-center gap-1.5 bg-violet-800 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-violet-900 disabled:opacity-50 transition-colors"
             >
               <Check size={14} />
               {updateProfile.isPending ? 'Saving...' : 'Save changes'}

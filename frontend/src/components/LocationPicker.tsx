@@ -40,8 +40,8 @@ export function LocationPicker({ value, onChange }: Props) {
           onClick={openModal}
           className={`flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg border transition-colors ${
             value
-              ? 'border-blue-300 bg-blue-50 text-blue-700'
-              : 'border-gray-200 text-gray-500 hover:border-blue-300 hover:text-blue-700 hover:bg-blue-50'
+              ? 'border-violet-300 bg-violet-50 text-violet-700'
+              : 'border-gray-200 text-gray-500 hover:border-violet-300 hover:text-violet-700 hover:bg-violet-50'
           }`}
         >
           <MapPin size={13} />
@@ -59,7 +59,7 @@ export function LocationPicker({ value, onChange }: Props) {
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col" style={{ maxHeight: '90vh' }}>
             <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-100 shrink-0">
               <div className="flex items-center gap-2">
-                <MapPin size={16} className="text-blue-700" />
+                <MapPin size={16} className="text-violet-700" />
                 <h3 className="font-semibold text-gray-900">Pin Event Location</h3>
                 <span className="text-xs text-gray-400">Click map to place marker</span>
               </div>
@@ -85,7 +85,7 @@ export function LocationPicker({ value, onChange }: Props) {
             <div className="px-5 py-3.5 border-t border-gray-100 flex items-center justify-between shrink-0">
               <span className="text-sm text-gray-500">
                 {pending
-                  ? <span className="text-blue-700 font-medium">{pending.lat.toFixed(5)}, {pending.lng.toFixed(5)}</span>
+                  ? <span className="text-violet-700 font-medium">{pending.lat.toFixed(5)}, {pending.lng.toFixed(5)}</span>
                   : <span className="text-gray-400">No location selected</span>
                 }
               </span>
@@ -96,7 +96,7 @@ export function LocationPicker({ value, onChange }: Props) {
                 <button
                   onClick={confirm}
                   disabled={!pending}
-                  className="flex items-center gap-1.5 text-sm bg-blue-800 text-white px-4 py-1.5 rounded-lg hover:bg-blue-900 disabled:opacity-50 transition-colors font-medium"
+                  className="flex items-center gap-1.5 text-sm bg-violet-800 text-white px-4 py-1.5 rounded-lg hover:bg-violet-900 disabled:opacity-50 transition-colors font-medium"
                 >
                   <Check size={14} /> Use this location
                 </button>

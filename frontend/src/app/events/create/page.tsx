@@ -42,7 +42,7 @@ const schema = z.object({
 
 type Form = z.infer<typeof schema>;
 
-const inputClass = 'w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-transparent bg-white';
+const inputClass = 'w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700 focus:border-transparent bg-white';
 const labelClass = 'block text-sm font-medium text-gray-700 mb-1.5';
 
 export default function CreateEventPage() {
@@ -122,7 +122,7 @@ export default function CreateEventPage() {
               type="button"
               onClick={() => fileRef.current?.click()}
               disabled={uploading}
-              className="w-full h-32 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center gap-2 text-gray-400 hover:border-blue-400 hover:text-blue-600 transition-colors disabled:opacity-50"
+              className="w-full h-32 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center gap-2 text-gray-400 hover:border-violet-400 hover:text-violet-600 transition-colors disabled:opacity-50"
             >
               {uploading ? (
                 <span className="text-sm">Uploading...</span>
@@ -234,7 +234,7 @@ export default function CreateEventPage() {
         <button
           type="submit"
           disabled={isPending || uploading}
-          className="w-full bg-blue-800 text-white py-3 rounded-lg font-medium hover:bg-blue-900 disabled:opacity-50 transition-colors text-sm"
+          className="w-full bg-violet-800 text-white py-3 rounded-lg font-medium hover:bg-violet-900 disabled:opacity-50 transition-colors text-sm"
         >
           {isPending ? 'Creating...' : 'Create Event (Draft)'}
         </button>

@@ -30,7 +30,7 @@ export default function MyEventsPage() {
         </div>
         <Link
           href="/events/create"
-          className="flex items-center gap-1.5 text-sm bg-blue-800 text-white px-4 py-2 rounded-lg hover:bg-blue-900 transition-colors font-medium"
+          className="flex items-center gap-1.5 text-sm bg-violet-800 text-white px-4 py-2 rounded-lg hover:bg-violet-900 transition-colors font-medium"
         >
           <Plus size={14} /> New Event
         </Link>
@@ -43,7 +43,7 @@ export default function MyEventsPage() {
       ) : events?.length === 0 ? (
         <div className="text-center py-20 text-gray-400">
           <p className="mb-3">No events yet</p>
-          <Link href="/events/create" className="text-sm text-blue-700 hover:underline font-medium">Create your first event</Link>
+          <Link href="/events/create" className="text-sm text-violet-700 hover:underline font-medium">Create your first event</Link>
         </div>
       ) : (
         <div className="space-y-6">

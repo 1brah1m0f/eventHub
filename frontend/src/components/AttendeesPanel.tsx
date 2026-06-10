@@ -63,7 +63,7 @@ export function AttendeesPanel({ eventId, isOwner = false, accessType, inviteCod
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <Users size={16} className="text-blue-700" />
+            <Users size={16} className="text-violet-700" />
             <h3 className="font-semibold text-gray-900">Registrations</h3>
           </div>
           {isOwner && accessType === 'approval' && (
@@ -84,7 +84,7 @@ export function AttendeesPanel({ eventId, isOwner = false, accessType, inviteCod
           )}
         </div>
         {!isOwner || accessType !== 'approval' ? (
-          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
+          <span className="text-xs bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full font-medium">
             {attendees?.length || 0}
           </span>
         ) : null}
@@ -92,16 +92,16 @@ export function AttendeesPanel({ eventId, isOwner = false, accessType, inviteCod
 
       {/* Invite link section for invite_only events */}
       {isOwner && accessType === 'invite_only' && inviteCode && (
-        <div className="mb-4 p-3 bg-blue-50 border border-blue-100 rounded-lg">
-          <p className="text-xs font-medium text-blue-800 mb-2">Invite Link — only people with this link can register</p>
+        <div className="mb-4 p-3 bg-violet-50 border border-violet-100 rounded-lg">
+          <p className="text-xs font-medium text-violet-800 mb-2">Invite Link — only people with this link can register</p>
           <div className="flex gap-2">
-            <code className="flex-1 text-xs bg-white border border-blue-200 rounded px-2 py-1.5 text-blue-700 truncate">
+            <code className="flex-1 text-xs bg-white border border-violet-200 rounded px-2 py-1.5 text-violet-700 truncate">
               {`${typeof window !== 'undefined' ? window.location.origin : ''}/events/${eventId}?code=${inviteCode}`}
             </code>
-            <button onClick={copyInviteLink} className="flex items-center gap-1 text-xs bg-blue-700 text-white px-2.5 py-1.5 rounded-lg hover:bg-blue-800 transition-colors shrink-0">
+            <button onClick={copyInviteLink} className="flex items-center gap-1 text-xs bg-violet-700 text-white px-2.5 py-1.5 rounded-lg hover:bg-violet-800 transition-colors shrink-0">
               <Copy size={12} /> Copy
             </button>
-            <button onClick={() => regen.mutate()} disabled={regen.isPending} className="p-1.5 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors text-blue-600" title="Regenerate">
+            <button onClick={() => regen.mutate()} disabled={regen.isPending} className="p-1.5 border border-violet-200 rounded-lg hover:bg-violet-100 transition-colors text-violet-600" title="Regenerate">
               <RefreshCw size={13} />
             </button>
           </div>
@@ -125,7 +125,7 @@ export function AttendeesPanel({ eventId, isOwner = false, accessType, inviteCod
                     {a.avatar_url ? (
                       <img src={a.avatar_url} className="w-8 h-8 rounded-full object-cover shrink-0" alt={a.name} />
                     ) : (
-                      <div className="w-8 h-8 rounded-full bg-blue-900 flex items-center justify-center text-xs font-bold text-white shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-violet-900 flex items-center justify-center text-xs font-bold text-white shrink-0">
                         {a.name?.[0]?.toUpperCase()}
                       </div>
                     )}
@@ -133,7 +133,7 @@ export function AttendeesPanel({ eventId, isOwner = false, accessType, inviteCod
                       <p className="text-sm font-medium text-gray-900 truncate">{a.name}</p>
                       <p className="text-xs text-gray-400 truncate">{a.email}</p>
                       {a.team_name && (
-                        <p className="text-xs text-blue-700 font-medium mt-0.5">
+                        <p className="text-xs text-violet-700 font-medium mt-0.5">
                           Team: {a.team_name}{a.team_members?.length ? ` · ${a.team_members.join(', ')}` : ''}
                         </p>
                       )}

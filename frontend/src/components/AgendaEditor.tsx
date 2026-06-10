@@ -13,7 +13,7 @@ interface Props {
   onChange: (items: AgendaItem[]) => void;
 }
 
-const inputClass = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white';
+const inputClass = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700 bg-white';
 
 export function AgendaEditor({ value, onChange }: Props) {
   const [items, setItems] = useState<AgendaItem[]>(value || []);
@@ -70,7 +70,7 @@ export function AgendaEditor({ value, onChange }: Props) {
       <button
         type="button"
         onClick={add}
-        className="flex items-center gap-1.5 text-sm text-blue-700 hover:text-blue-900 transition-colors"
+        className="flex items-center gap-1.5 text-sm text-violet-700 hover:text-violet-900 transition-colors"
       >
         <Plus size={15} /> Add agenda item
       </button>

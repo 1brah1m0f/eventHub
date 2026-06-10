@@ -96,7 +96,7 @@ export default function DashboardPage() {
           label="Total Events"
           value={overview.total_events}
           icon={Calendar}
-          accent="bg-blue-50 text-blue-700"
+          accent="bg-violet-50 text-violet-700"
         />
         <StatCard
           label="Total Registrations"
@@ -261,7 +261,7 @@ export default function DashboardPage() {
             )}
             {trends.best_month && (
               <div className="flex gap-3 items-start">
-                <span className="p-1.5 bg-blue-50 text-blue-700 rounded-lg shrink-0"><Calendar size={14} /></span>
+                <span className="p-1.5 bg-violet-50 text-violet-700 rounded-lg shrink-0"><Calendar size={14} /></span>
                 <div>
                   <p className="text-xs text-gray-400">Most active month</p>
                   <p className="text-sm font-medium text-gray-900 mt-0.5">{trends.best_month.label}</p>

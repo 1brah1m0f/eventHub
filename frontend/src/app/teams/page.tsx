@@ -40,7 +40,7 @@ interface Team {
 function MemberAvatar({ m, size = 8 }: { m: Member; size?: number }) {
   const s = `w-${size} h-${size}`;
   return (
-    <div className={`${s} rounded-full bg-blue-800 flex items-center justify-center text-xs font-bold text-white overflow-hidden border-2 border-white shrink-0`}>
+    <div className={`${s} rounded-full bg-violet-800 flex items-center justify-center text-xs font-bold text-white overflow-hidden border-2 border-white shrink-0`}>
       {m.avatar_url
         ? <img src={m.avatar_url} alt={m.name} className="w-full h-full object-cover" />
         : m.name?.[0]?.toUpperCase()
@@ -57,7 +57,7 @@ function RoleTag({ role, isLeader }: { role: string; isLeader: boolean }) {
   );
   if (!role || role === 'member') return null;
   return (
-    <span className="text-xs bg-blue-50 text-blue-700 border border-blue-100 px-1.5 py-0.5 rounded-md">{role}</span>
+    <span className="text-xs bg-violet-50 text-violet-700 border border-violet-100 px-1.5 py-0.5 rounded-md">{role}</span>
   );
 }
 
@@ -91,8 +91,8 @@ function HackathonPicker({ teamId, onClose }: { teamId: string; onClose: () => v
             <p className="text-gray-400 text-sm text-center py-8">No upcoming hackathons available</p>
           )}
           {(hackathons as Hackathon[]).map(h => (
-            <div key={h.event_id} className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:border-blue-200 hover:bg-blue-50 transition-all">
-              <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 bg-gradient-to-br from-purple-700 to-blue-900">
+            <div key={h.event_id} className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:border-violet-200 hover:bg-violet-50 transition-all">
+              <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 bg-gradient-to-br from-purple-700 to-violet-900">
                 {h.cover_image && <img src={h.cover_image} alt={h.title} className="w-full h-full object-cover" />}
               </div>
               <div className="flex-1 min-w-0">
@@ -105,7 +105,7 @@ function HackathonPicker({ teamId, onClose }: { teamId: string; onClose: () => v
               <button
                 onClick={() => handle(h.event_id)}
                 disabled={register.isPending}
-                className="text-xs bg-blue-800 text-white px-3 py-1.5 rounded-lg hover:bg-blue-900 disabled:opacity-50 transition-colors shrink-0"
+                className="text-xs bg-violet-800 text-white px-3 py-1.5 rounded-lg hover:bg-violet-900 disabled:opacity-50 transition-colors shrink-0"
               >Register</button>
             </div>
           ))}
@@ -135,7 +135,7 @@ function RoleEditor({ teamId, member, onDone }: { teamId: string; member: Member
         <button
           key={r}
           onClick={() => save(r)}
-          className={`w-full text-left text-sm px-3 py-1.5 hover:bg-blue-50 hover:text-blue-800 transition-colors flex items-center justify-between ${selected === r ? 'text-blue-800 font-medium' : 'text-gray-700'}`}
+          className={`w-full text-left text-sm px-3 py-1.5 hover:bg-violet-50 hover:text-violet-800 transition-colors flex items-center justify-between ${selected === r ? 'text-violet-800 font-medium' : 'text-gray-700'}`}
         >
           {r}
           {selected === r && <Check size={12} />}
@@ -191,7 +191,7 @@ function TeamCard({ team, currentUserId }: { team: Team; currentUserId: string }
           className="w-full px-5 py-4 flex items-center gap-3 hover:bg-gray-50 transition-colors text-left"
           onClick={() => setExpanded(e => !e)}
         >
-          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-800 to-blue-600 flex items-center justify-center shrink-0">
+          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-800 to-violet-600 flex items-center justify-center shrink-0">
             <Users size={20} className="text-white" />
           </div>
           <div className="flex-1 min-w-0">
@@ -243,7 +243,7 @@ function TeamCard({ team, currentUserId }: { team: Team; currentUserId: string }
                           <div className="relative">
                             <button
                               onClick={e => { e.stopPropagation(); setEditingRoleFor(editingRoleFor === m.user_id ? null : m.user_id); }}
-                              className="text-gray-300 hover:text-blue-600 transition-colors"
+                              className="text-gray-300 hover:text-violet-600 transition-colors"
                               title="Change role"
                             >
                               <Pencil size={13} />
@@ -282,11 +282,11 @@ function TeamCard({ team, currentUserId }: { team: Team; currentUserId: string }
                       href={`/events/${h.event_id}`}
                       className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-orange-50 transition-colors group"
                     >
-                      <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0 bg-gradient-to-br from-purple-700 to-blue-900">
+                      <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0 bg-gradient-to-br from-purple-700 to-violet-900">
                         {h.cover_image && <img src={h.cover_image} alt={h.title} className="w-full h-full object-cover" />}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 group-hover:text-blue-800 truncate transition-colors">{h.title}</p>
+                        <p className="text-sm font-medium text-gray-900 group-hover:text-violet-800 truncate transition-colors">{h.title}</p>
                         <div className="flex items-center gap-2 text-xs text-gray-400 mt-0.5">
                           {h.date && <span className="flex items-center gap-1"><Calendar size={10} />{format(new Date(h.date), 'MMM d, yyyy')}</span>}
                           {h.location && <span className="flex items-center gap-1"><MapPin size={10} />{h.location}</span>}
@@ -301,7 +301,7 @@ function TeamCard({ team, currentUserId }: { team: Team; currentUserId: string }
             {/* Actions */}
             <div className="border-t border-gray-100 px-5 py-3 flex flex-wrap gap-2">
               {isLeader && !showAdd && (
-                <button onClick={() => setShowAdd(true)} className="flex items-center gap-1.5 text-sm text-blue-700 border border-blue-200 hover:border-blue-400 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors">
+                <button onClick={() => setShowAdd(true)} className="flex items-center gap-1.5 text-sm text-violet-700 border border-violet-200 hover:border-violet-400 hover:bg-violet-50 px-3 py-1.5 rounded-lg transition-colors">
                   <UserPlus size={13} /> Add member
                 </button>
               )}
@@ -313,9 +313,9 @@ function TeamCard({ team, currentUserId }: { team: Team; currentUserId: string }
                     onKeyDown={e => e.key === 'Enter' && handleAdd()}
                     placeholder="Member's email..."
                     autoFocus
-                    className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
+                    className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700 bg-white"
                   />
-                  <button onClick={handleAdd} disabled={addMember.isPending} className="px-3 py-2 bg-blue-800 text-white rounded-lg text-sm hover:bg-blue-900 disabled:opacity-50 transition-colors">
+                  <button onClick={handleAdd} disabled={addMember.isPending} className="px-3 py-2 bg-violet-800 text-white rounded-lg text-sm hover:bg-violet-900 disabled:opacity-50 transition-colors">
                     {addMember.isPending ? '...' : 'Add'}
                   </button>
                   <button onClick={() => { setShowAdd(false); setAddEmail(''); }} className="px-2 py-2 border border-gray-200 rounded-lg hover:bg-gray-50">
@@ -359,18 +359,18 @@ function CreateTeamModal({ onClose }: { onClose: () => void }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-gray-900 flex items-center gap-2"><Users size={16} className="text-blue-700" /> Create Team</h3>
+          <h3 className="font-semibold text-gray-900 flex items-center gap-2"><Users size={16} className="text-violet-700" /> Create Team</h3>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><X size={18} /></button>
         </div>
         <div className="space-y-3">
           <input value={name} onChange={e => setName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handle()}
             placeholder="Team name *" autoFocus
-            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white" />
+            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700 bg-white" />
           <textarea value={desc} onChange={e => setDesc(e.target.value)}
             placeholder="Short description (optional)" rows={2}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white resize-none" />
+            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700 bg-white resize-none" />
           <button onClick={handle} disabled={create.isPending}
-            className="w-full bg-blue-800 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-blue-900 disabled:opacity-50 transition-colors">
+            className="w-full bg-violet-800 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-violet-900 disabled:opacity-50 transition-colors">
             {create.isPending ? 'Creating...' : 'Create Team'}
           </button>
         </div>
@@ -387,7 +387,7 @@ export default function TeamsPage() {
   if (!_hasHydrated) return null;
   if (!user) return (
     <div className="max-w-2xl mx-auto px-4 py-16 text-center">
-      <p className="text-gray-500">Please <Link href="/login" className="text-blue-700 font-medium">log in</Link> to view your teams.</p>
+      <p className="text-gray-500">Please <Link href="/login" className="text-violet-700 font-medium">log in</Link> to view your teams.</p>
     </div>
   );
 
@@ -397,13 +397,13 @@ export default function TeamsPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <Users size={22} className="text-blue-700" /> My Teams
+            <Users size={22} className="text-violet-700" /> My Teams
           </h1>
           <p className="text-sm text-gray-500 mt-0.5">Collaborate and join hackathons together</p>
         </div>
         <button
           onClick={() => setShowCreate(true)}
-          className="flex items-center gap-1.5 bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-900 transition-colors"
+          className="flex items-center gap-1.5 bg-violet-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-violet-900 transition-colors"
         >
           <Plus size={15} /> New Team
         </button>
@@ -420,7 +420,7 @@ export default function TeamsPage() {
           <Users size={36} className="text-gray-200 mx-auto mb-3" />
           <p className="text-gray-600 font-medium">No teams yet</p>
           <p className="text-sm text-gray-400 mt-1">Create a team and join hackathons together</p>
-          <button onClick={() => setShowCreate(true)} className="mt-4 bg-blue-800 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-blue-900 transition-colors">
+          <button onClick={() => setShowCreate(true)} className="mt-4 bg-violet-800 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-violet-900 transition-colors">
             Create your first team
           </button>
         </div>

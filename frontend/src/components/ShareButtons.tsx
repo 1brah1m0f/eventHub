@@ -55,7 +55,7 @@ export function ShareButtons({ title, url }: Props) {
       label: 'LinkedIn',
       href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`,
       icon: <LinkedInIcon />,
-      color: 'hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200',
+      color: 'hover:bg-violet-50 hover:text-violet-700 hover:border-violet-200',
     },
   ];
 

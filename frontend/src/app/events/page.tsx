@@ -46,7 +46,7 @@ export default function EventsPage() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder={t('search')}
-            className="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
+            className="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-violet-700 bg-white"
           />
         </div>
         <div className="flex items-center gap-2">
@@ -54,7 +54,7 @@ export default function EventsPage() {
           <select
             value={type}
             onChange={e => setType(e.target.value)}
-            className="border border-gray-300 rounded-full px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
+            className="border border-gray-300 rounded-full px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700 bg-white"
           >
             <option value="">{t('allTypes')}</option>
             {EVENT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
@@ -67,7 +67,7 @@ export default function EventsPage() {
         <button
           onClick={() => setType('')}
           className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${
-            !type ? 'bg-blue-800 text-white border-blue-800' : 'text-gray-600 border-gray-200 hover:bg-gray-50'
+            !type ? 'bg-violet-800 text-white border-violet-800' : 'text-gray-600 border-gray-200 hover:bg-gray-50'
           }`}
         >
           {t('all')}
@@ -78,7 +78,7 @@ export default function EventsPage() {
             onClick={() => setType(type === t.value ? '' : t.value)}
             className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${
               type === t.value
-                ? 'bg-blue-800 text-white border-blue-800'
+                ? 'bg-violet-800 text-white border-violet-800'
                 : 'text-gray-600 border-gray-200 hover:bg-gray-50'
             }`}
           >

@@ -15,7 +15,7 @@ import { useState } from 'react';
 
 const TYPE_COLORS: Record<string, { bg: string; text: string }> = {
   hackathon:   { bg: 'bg-purple-100', text: 'text-purple-700' },
-  conference:  { bg: 'bg-blue-100',   text: 'text-blue-800'   },
+  conference:  { bg: 'bg-violet-100',   text: 'text-violet-800'   },
   workshop:    { bg: 'bg-emerald-100', text: 'text-emerald-700'},
   bootcamp:    { bg: 'bg-orange-100', text: 'text-orange-700' },
   meetup:      { bg: 'bg-pink-100',   text: 'text-pink-700'   },
@@ -25,7 +25,7 @@ const TYPE_COLORS: Record<string, { bg: string; text: string }> = {
   seminar:     { bg: 'bg-teal-100',   text: 'text-teal-700'   },
 };
 
-const inputClass = 'w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white';
+const inputClass = 'w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700 bg-white';
 
 export default function EventDetailPage() {
   const { eventId } = useParams<{ eventId: string }>();
@@ -55,7 +55,7 @@ export default function EventDetailPage() {
   if (!event) return (
     <div className="text-center py-24 text-gray-500">
       <p className="text-lg mb-2">Event not found</p>
-      <Link href="/events" className="text-sm text-blue-700 hover:underline">Back to events</Link>
+      <Link href="/events" className="text-sm text-violet-700 hover:underline">Back to events</Link>
     </div>
   );
 
@@ -207,7 +207,7 @@ export default function EventDetailPage() {
       ) : event.cover_image ? (
         <img src={event.cover_image} alt={event.title} className="w-full h-64 object-cover rounded-xl mb-6" />
       ) : (
-        <div className="w-full h-48 bg-gradient-to-br from-blue-900 to-blue-700 rounded-xl mb-6" />
+        <div className="w-full h-48 bg-gradient-to-br from-violet-900 to-violet-700 rounded-xl mb-6" />
       )}
 
       {/* Share */}
@@ -233,7 +233,7 @@ export default function EventDetailPage() {
           <div className="flex items-center gap-1">
             {event.social_links?.linkedin && (
               <a href={event.social_links.linkedin} target="_blank" rel="noopener noreferrer"
-                title="LinkedIn" className="p-2 text-gray-400 hover:text-blue-700 transition-colors rounded-lg hover:bg-blue-50">
+                title="LinkedIn" className="p-2 text-gray-400 hover:text-violet-700 transition-colors rounded-lg hover:bg-violet-50">
                 <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
               </a>
             )}
@@ -256,19 +256,19 @@ export default function EventDetailPage() {
       <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-6 pb-6 border-b border-gray-100">
         {event.date && (
           <span className="flex items-center gap-2">
-            <Calendar size={14} className="text-blue-700 shrink-0" />
+            <Calendar size={14} className="text-violet-700 shrink-0" />
             {format(new Date(event.date), 'MMM d, yyyy · HH:mm')}
             {event.end_date && ` → ${format(new Date(event.end_date), 'MMM d, yyyy')}`}
           </span>
         )}
         {event.location && (
           <span className="flex items-center gap-2">
-            {event.location === 'Online' ? <Globe size={14} className="text-blue-700" /> : <MapPin size={14} className="text-blue-700" />}
+            {event.location === 'Online' ? <Globe size={14} className="text-violet-700" /> : <MapPin size={14} className="text-violet-700" />}
             {event.location}
           </span>
         )}
         <span className="flex items-center gap-2">
-          <Users size={14} className="text-blue-700" />
+          <Users size={14} className="text-violet-700" />
           {totalAttendees} registered
         </span>
       </div>
@@ -286,7 +286,7 @@ export default function EventDetailPage() {
             {event.agenda.map((item: any, i: number) => (
               <div key={i} className="flex gap-4 px-4 py-3 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
                 {item.time && (
-                  <span className="text-xs font-mono text-blue-700 bg-blue-50 px-2 py-0.5 rounded shrink-0 self-start mt-0.5">
+                  <span className="text-xs font-mono text-violet-700 bg-violet-50 px-2 py-0.5 rounded shrink-0 self-start mt-0.5">
                     {item.time}
                   </span>
                 )}
@@ -310,7 +310,7 @@ export default function EventDetailPage() {
               <Lock size={14} /> This event is invite-only. You need a valid invite link.
             </div>
           ) : (
-            <Link href="/login" className="inline-block bg-blue-800 text-white px-6 py-3 rounded-lg hover:bg-blue-900 transition-colors font-medium text-sm">
+            <Link href="/login" className="inline-block bg-violet-800 text-white px-6 py-3 rounded-lg hover:bg-violet-900 transition-colors font-medium text-sm">
               Login to register
             </Link>
           )}
@@ -327,7 +327,7 @@ export default function EventDetailPage() {
             <button
               onClick={handleRegister}
               disabled={registerMutation.isPending}
-              className="flex items-center gap-2 bg-blue-800 text-white px-6 py-3 rounded-lg hover:bg-blue-900 disabled:opacity-50 transition-colors font-medium text-sm"
+              className="flex items-center gap-2 bg-violet-800 text-white px-6 py-3 rounded-lg hover:bg-violet-900 disabled:opacity-50 transition-colors font-medium text-sm"
             >
               <Clock size={14} />
               {registerMutation.isPending ? 'Sending...' : 'Request to join'}
@@ -337,13 +337,13 @@ export default function EventDetailPage() {
               <button
                 onClick={handleRegister}
                 disabled={registerMutation.isPending}
-                className="bg-blue-800 text-white px-5 py-2.5 rounded-lg hover:bg-blue-900 disabled:opacity-50 transition-colors font-medium text-sm"
+                className="bg-violet-800 text-white px-5 py-2.5 rounded-lg hover:bg-violet-900 disabled:opacity-50 transition-colors font-medium text-sm"
               >
                 {registerMutation.isPending ? 'Registering...' : isApproval ? 'Request to join (solo)' : 'Register solo'}
               </button>
               <button
                 onClick={() => setShowTeamForm(true)}
-                className="flex items-center gap-1.5 border border-blue-800 text-blue-800 px-5 py-2.5 rounded-lg hover:bg-blue-50 transition-colors font-medium text-sm"
+                className="flex items-center gap-1.5 border border-violet-800 text-violet-800 px-5 py-2.5 rounded-lg hover:bg-violet-50 transition-colors font-medium text-sm"
               >
                 <Users size={14} /> {isApproval ? 'Request as team' : 'Register as team'}
               </button>
@@ -372,9 +372,9 @@ export default function EventDetailPage() {
                   <label className="block text-xs font-medium text-gray-700 mb-1">Team members <span className="text-gray-400">(max 4, optional)</span></label>
                   <div className="flex flex-wrap gap-1.5 mb-2">
                     {members.map(m => (
-                      <span key={m} className="flex items-center gap-1 text-xs bg-blue-50 text-blue-800 border border-blue-100 px-2 py-0.5 rounded-md">
+                      <span key={m} className="flex items-center gap-1 text-xs bg-violet-50 text-violet-800 border border-violet-100 px-2 py-0.5 rounded-md">
                         {m}
-                        <button type="button" onClick={() => setMembers(p => p.filter(x => x !== m))} className="text-blue-400 hover:text-red-500">
+                        <button type="button" onClick={() => setMembers(p => p.filter(x => x !== m))} className="text-violet-400 hover:text-red-500">
                           <X size={10} />
                         </button>
                       </span>
@@ -399,7 +399,7 @@ export default function EventDetailPage() {
                   <button
                     onClick={handleTeamRegister}
                     disabled={registerMutation.isPending}
-                    className="bg-blue-800 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-900 disabled:opacity-50 transition-colors"
+                    className="bg-violet-800 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-violet-900 disabled:opacity-50 transition-colors"
                   >
                     {registerMutation.isPending ? 'Registering...' : 'Register team'}
                   </button>
@@ -415,7 +415,7 @@ export default function EventDetailPage() {
             <button
               onClick={handleRegister}
               disabled={registerMutation.isPending}
-              className="bg-blue-800 text-white px-6 py-3 rounded-lg hover:bg-blue-900 disabled:opacity-50 transition-colors font-medium text-sm"
+              className="bg-violet-800 text-white px-6 py-3 rounded-lg hover:bg-violet-900 disabled:opacity-50 transition-colors font-medium text-sm"
             >
               {registerMutation.isPending ? 'Registering...' : 'Register for this event'}
             </button>

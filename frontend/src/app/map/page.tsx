@@ -51,7 +51,7 @@ export default function MapPage() {
         <button
           onClick={() => { setSelectedType(''); setSelected(null); }}
           className={`text-xs px-3 py-1.5 rounded-full border font-medium shrink-0 transition-colors ${
-            !selectedType ? 'bg-blue-800 text-white border-blue-800' : 'text-gray-600 border-gray-200 hover:bg-gray-50'
+            !selectedType ? 'bg-violet-800 text-white border-violet-800' : 'text-gray-600 border-gray-200 hover:bg-gray-50'
           }`}
         >All</button>
         {EVENT_TYPES.map(t => {
@@ -120,26 +120,26 @@ export default function MapPage() {
                     <div className="space-y-1 text-xs text-gray-500 mb-3">
                       {selected.date && (
                         <div className="flex items-center gap-1.5">
-                          <Calendar size={11} className="text-blue-600 shrink-0" />
+                          <Calendar size={11} className="text-violet-600 shrink-0" />
                           {format(new Date(selected.date), 'MMM d, yyyy · HH:mm')}
                         </div>
                       )}
                       {selected.location && (
                         <div className="flex items-center gap-1.5">
-                          <MapPin size={11} className="text-blue-600 shrink-0" />
+                          <MapPin size={11} className="text-violet-600 shrink-0" />
                           <span className="truncate">{selected.location}</span>
                         </div>
                       )}
                       {Number(selected.attendee_count) > 0 && (
                         <div className="flex items-center gap-1.5">
-                          <Users size={11} className="text-blue-600 shrink-0" />
+                          <Users size={11} className="text-violet-600 shrink-0" />
                           {Number(selected.attendee_count).toLocaleString()} registered
                         </div>
                       )}
                     </div>
                     <Link
                       href={`/events/${selected.event_id}`}
-                      className="block text-center text-xs font-medium bg-blue-800 text-white py-1.5 rounded-lg hover:bg-blue-900 transition-colors"
+                      className="block text-center text-xs font-medium bg-violet-800 text-white py-1.5 rounded-lg hover:bg-violet-900 transition-colors"
                     >
                       View Event →
                     </Link>

@@ -35,7 +35,7 @@ export default function RegisteredEventsPage() {
       ) : events?.length === 0 ? (
         <div className="text-center py-20 text-gray-400">
           <p className="mb-3">Not registered for any events</p>
-          <Link href="/events" className="text-sm text-blue-700 hover:underline font-medium">Browse events</Link>
+          <Link href="/events" className="text-sm text-violet-700 hover:underline font-medium">Browse events</Link>
         </div>
       ) : (
         <div className="space-y-6">

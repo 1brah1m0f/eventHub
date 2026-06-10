@@ -37,8 +37,8 @@ export function DynamicEventFields({ type, onChange, initialValues = {} }: Props
     update(key, list);
   };
 
-  const inp = 'w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700';
-  const addBtn = 'flex items-center gap-1 text-xs text-blue-700 hover:text-blue-900 transition-colors mt-1';
+  const inp = 'w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700';
+  const addBtn = 'flex items-center gap-1 text-xs text-violet-700 hover:text-violet-900 transition-colors mt-1';
 
   // Simple string list
   const ListField = ({ fieldKey, label, placeholder }: { fieldKey: string; label: string; placeholder?: string }) => (
@@ -48,7 +48,7 @@ export function DynamicEventFields({ type, onChange, initialValues = {} }: Props
         <div key={idx} className="flex gap-2 mb-2">
           <input value={item} onChange={e => updateListItem(fieldKey, idx, e.target.value)}
             placeholder={placeholder}
-            className="flex-1 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700" />
+            className="flex-1 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700" />
           <button type="button" onClick={() => removeListItem(fieldKey, idx)}
             className="text-red-400 hover:text-red-600 transition-colors shrink-0">
             <Trash2 size={15} />
@@ -69,7 +69,7 @@ export function DynamicEventFields({ type, onChange, initialValues = {} }: Props
         <div key={idx} className="border rounded-xl p-3 mb-3 bg-gray-50 space-y-2">
           <div className="flex gap-2">
             <input value={s.name || ''} onChange={e => updateListItemField('speakers', idx, 'name', e.target.value)}
-              placeholder="Full name" className="flex-1 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700" />
+              placeholder="Full name" className="flex-1 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700" />
             <button type="button" onClick={() => removeListItem('speakers', idx)}
               className="text-red-400 hover:text-red-600 shrink-0">
               <Trash2 size={15} />
@@ -96,9 +96,9 @@ export function DynamicEventFields({ type, onChange, initialValues = {} }: Props
       {(fields.resources || []).map((r: any, idx: number) => (
         <div key={idx} className="flex gap-2 mb-2">
           <input value={r.label || ''} onChange={e => updateListItemField('resources', idx, 'label', e.target.value)}
-            placeholder="Label (e.g. Slides)" className="w-1/3 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700" />
+            placeholder="Label (e.g. Slides)" className="w-1/3 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700" />
           <input value={r.url || ''} onChange={e => updateListItemField('resources', idx, 'url', e.target.value)}
-            placeholder="https://..." className="flex-1 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700" />
+            placeholder="https://..." className="flex-1 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700" />
           <button type="button" onClick={() => removeListItem('resources', idx)}
             className="text-red-400 hover:text-red-600 shrink-0">
             <Trash2 size={15} />
@@ -119,7 +119,7 @@ export function DynamicEventFields({ type, onChange, initialValues = {} }: Props
         <div key={idx} className="border rounded-xl p-3 mb-3 bg-gray-50 space-y-2">
           <div className="flex gap-2">
             <input value={j.name || ''} onChange={e => updateListItemField('jury', idx, 'name', e.target.value)}
-              placeholder="Juror name" className="flex-1 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700" />
+              placeholder="Juror name" className="flex-1 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700" />
             <button type="button" onClick={() => removeListItem('jury', idx)}
               className="text-red-400 hover:text-red-600 shrink-0">
               <Trash2 size={15} />
@@ -138,9 +138,9 @@ export function DynamicEventFields({ type, onChange, initialValues = {} }: Props
         {(fields.scoring_criteria || []).map((c: any, idx: number) => (
           <div key={idx} className="flex gap-2 mb-2">
             <input value={c.name || ''} onChange={e => updateListItemField('scoring_criteria', idx, 'name', e.target.value)}
-              placeholder="Criterion (e.g. Innovation)" className="flex-1 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700" />
+              placeholder="Criterion (e.g. Innovation)" className="flex-1 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700" />
             <input type="number" value={c.weight || ''} onChange={e => updateListItemField('scoring_criteria', idx, 'weight', e.target.value)}
-              placeholder="Weight %" className="w-24 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700" />
+              placeholder="Weight %" className="w-24 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700" />
             <button type="button" onClick={() => removeListItem('scoring_criteria', idx)}
               className="text-red-400 hover:text-red-600 shrink-0">
               <Trash2 size={15} />
@@ -162,7 +162,7 @@ export function DynamicEventFields({ type, onChange, initialValues = {} }: Props
         <div key={idx} className="border rounded-xl p-3 mb-3 bg-gray-50 space-y-2">
           <div className="flex gap-2">
             <input value={s.title || ''} onChange={e => updateListItemField('sessions', idx, 'title', e.target.value)}
-              placeholder="Session title" className="flex-1 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700" />
+              placeholder="Session title" className="flex-1 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700" />
             <button type="button" onClick={() => removeListItem('sessions', idx)}
               className="text-red-400 hover:text-red-600 shrink-0">
               <Trash2 size={15} />
@@ -171,9 +171,9 @@ export function DynamicEventFields({ type, onChange, initialValues = {} }: Props
           <div className="grid grid-cols-2 gap-2">
             <input type="datetime-local" value={s.start_time || ''}
               onChange={e => updateListItemField('sessions', idx, 'start_time', e.target.value)}
-              className="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700" />
+              className="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700" />
             <input value={s.room || ''} onChange={e => updateListItemField('sessions', idx, 'room', e.target.value)}
-              placeholder="Room / Track" className="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700" />
+              placeholder="Room / Track" className="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700" />
           </div>
           <input value={s.speaker || ''} onChange={e => updateListItemField('sessions', idx, 'speaker', e.target.value)}
             placeholder="Speaker name" className={inp} />
@@ -193,7 +193,7 @@ export function DynamicEventFields({ type, onChange, initialValues = {} }: Props
         <div key={idx} className="border rounded-xl p-3 mb-3 bg-gray-50 space-y-2">
           <div className="flex gap-2">
             <input value={m.title || ''} onChange={e => updateListItemField('modules', idx, 'title', e.target.value)}
-              placeholder={`Module ${idx + 1} title`} className="flex-1 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700" />
+              placeholder={`Module ${idx + 1} title`} className="flex-1 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700" />
             <button type="button" onClick={() => removeListItem('modules', idx)}
               className="text-red-400 hover:text-red-600 shrink-0">
               <Trash2 size={15} />
@@ -201,9 +201,9 @@ export function DynamicEventFields({ type, onChange, initialValues = {} }: Props
           </div>
           <div className="grid grid-cols-2 gap-2">
             <input type="date" value={m.date || ''} onChange={e => updateListItemField('modules', idx, 'date', e.target.value)}
-              className="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700" />
+              className="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700" />
             <input value={m.duration || ''} onChange={e => updateListItemField('modules', idx, 'duration', e.target.value)}
-              placeholder="Duration (e.g. 3 hours)" className="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700" />
+              placeholder="Duration (e.g. 3 hours)" className="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700" />
           </div>
           <textarea value={m.description || ''} onChange={e => updateListItemField('modules', idx, 'description', e.target.value)}
             placeholder="What will be covered..." rows={2} className={inp} />
@@ -227,7 +227,7 @@ export function DynamicEventFields({ type, onChange, initialValues = {} }: Props
               <input type="checkbox"
                 checked={!!(fields.profile_fields || {})[field]}
                 onChange={e => update('profile_fields', { ...(fields.profile_fields || {}), [field]: e.target.checked })}
-                className="rounded accent-blue-800" />
+                className="rounded accent-violet-800" />
               {field.split('_').map(w => w[0].toUpperCase() + w.slice(1)).join(' ')}
             </label>
           ))}
@@ -237,7 +237,7 @@ export function DynamicEventFields({ type, onChange, initialValues = {} }: Props
         <label className="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
           <input type="checkbox" checked={!!fields.public_attendee_list}
             onChange={e => update('public_attendee_list', e.target.checked)}
-            className="rounded accent-blue-800" />
+            className="rounded accent-violet-800" />
           Show public attendee list
         </label>
       </div>
@@ -245,7 +245,7 @@ export function DynamicEventFields({ type, onChange, initialValues = {} }: Props
         <label className="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
           <input type="checkbox" checked={!!fields.connect_feature}
             onChange={e => update('connect_feature', e.target.checked)}
-            className="rounded accent-blue-800" />
+            className="rounded accent-violet-800" />
           Enable Connect feature (attendees can request introductions)
         </label>
       </div>
@@ -260,7 +260,7 @@ export function DynamicEventFields({ type, onChange, initialValues = {} }: Props
         <div key={idx} className="border rounded-xl p-3 mb-3 bg-gray-50 space-y-2">
           <div className="flex gap-2">
             <input value={slot.team || ''} onChange={e => updateListItemField('pitch_slots', idx, 'team', e.target.value)}
-              placeholder="Team / Startup name" className="flex-1 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700" />
+              placeholder="Team / Startup name" className="flex-1 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700" />
             <button type="button" onClick={() => removeListItem('pitch_slots', idx)}
               className="text-red-400 hover:text-red-600 shrink-0">
               <Trash2 size={15} />
@@ -269,9 +269,9 @@ export function DynamicEventFields({ type, onChange, initialValues = {} }: Props
           <div className="grid grid-cols-2 gap-2">
             <input type="datetime-local" value={slot.time || ''}
               onChange={e => updateListItemField('pitch_slots', idx, 'time', e.target.value)}
-              className="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700" />
+              className="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700" />
             <input value={slot.duration || ''} onChange={e => updateListItemField('pitch_slots', idx, 'duration', e.target.value)}
-              placeholder="Duration (e.g. 5 min)" className="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700" />
+              placeholder="Duration (e.g. 5 min)" className="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700" />
           </div>
         </div>
       ))}
@@ -344,13 +344,13 @@ export function DynamicEventFields({ type, onChange, initialValues = {} }: Props
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
                 <input type="checkbox" checked={!!fields.certificate}
                   onChange={e => update('certificate', e.target.checked)}
-                  className="rounded accent-blue-800" />
+                  className="rounded accent-violet-800" />
                 Certificate of completion
               </label>
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
                 <input type="checkbox" checked={!!fields.progress_tracker}
                   onChange={e => update('progress_tracker', e.target.checked)}
-                  className="rounded accent-blue-800" />
+                  className="rounded accent-violet-800" />
                 Enable progress tracker
               </label>
             </div>
@@ -373,7 +373,7 @@ export function DynamicEventFields({ type, onChange, initialValues = {} }: Props
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
                 <input type="checkbox" checked={!!fields.rsvp_enabled}
                   onChange={e => update('rsvp_enabled', e.target.checked)}
-                  className="rounded accent-blue-800" />
+                  className="rounded accent-violet-800" />
                 Enable RSVP system
               </label>
             </div>
@@ -389,7 +389,7 @@ export function DynamicEventFields({ type, onChange, initialValues = {} }: Props
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
                 <input type="checkbox" checked={!!fields.photo_gallery}
                   onChange={e => update('photo_gallery', e.target.checked)}
-                  className="rounded accent-blue-800" />
+                  className="rounded accent-violet-800" />
                 Enable post-event photo gallery
               </label>
             </div>
@@ -439,7 +439,7 @@ export function DynamicEventFields({ type, onChange, initialValues = {} }: Props
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
                 <input type="checkbox" checked={!!fields.leaderboard}
                   onChange={e => update('leaderboard', e.target.checked)}
-                  className="rounded accent-blue-800" />
+                  className="rounded accent-violet-800" />
                 Enable real-time leaderboard
               </label>
             </div>
@@ -455,13 +455,13 @@ export function DynamicEventFields({ type, onChange, initialValues = {} }: Props
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
                 <input type="checkbox" checked={!!fields.audience_voting}
                   onChange={e => update('audience_voting', e.target.checked)}
-                  className="rounded accent-blue-800" />
+                  className="rounded accent-violet-800" />
                 Enable audience voting
               </label>
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
                 <input type="checkbox" checked={!!fields.jury_feedback_form}
                   onChange={e => update('jury_feedback_form', e.target.checked)}
-                  className="rounded accent-blue-800" />
+                  className="rounded accent-violet-800" />
                 Enable jury feedback form per team
               </label>
             </div>
@@ -479,7 +479,7 @@ export function DynamicEventFields({ type, onChange, initialValues = {} }: Props
 
   return (
     <div className="border-t pt-5 mt-2">
-      <h3 className="text-sm font-semibold text-blue-800 mb-4 uppercase tracking-wide">
+      <h3 className="text-sm font-semibold text-violet-800 mb-4 uppercase tracking-wide">
         {type.charAt(0).toUpperCase() + type.replace('_', ' ').slice(1)} settings
       </h3>
       <div className="space-y-5">{content}</div>

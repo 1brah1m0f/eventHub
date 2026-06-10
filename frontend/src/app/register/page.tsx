@@ -18,7 +18,7 @@ const schema = z.object({
 
 type Form = z.infer<typeof schema>;
 
-const inputClass = 'w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-transparent bg-white';
+const inputClass = 'w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700 focus:border-transparent bg-white';
 
 export default function RegisterPage() {
   const { register: registerUser, isLoading } = useAuthStore();
@@ -39,7 +39,7 @@ export default function RegisterPage() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <Calendar size={22} className="text-blue-800" />
+            <Calendar size={22} className="text-violet-800" />
             <span className="text-xl font-bold text-gray-900">EventHub</span>
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Create account</h1>
@@ -75,7 +75,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-blue-800 text-white py-2.5 rounded-lg font-medium hover:bg-blue-900 disabled:opacity-50 transition-colors text-sm"
+              className="w-full bg-gradient-to-r from-violet-700 to-indigo-700 text-white py-2.5 rounded-lg font-semibold shadow-lg shadow-violet-500/20 hover:from-violet-600 hover:to-indigo-600 hover:-translate-y-0.5 disabled:opacity-50 transition-all text-sm"
             >
               {isLoading ? 'Creating account...' : 'Create account'}
             </button>
@@ -84,7 +84,7 @@ export default function RegisterPage() {
 
         <p className="text-sm text-center mt-4 text-gray-500">
           Already have an account?{' '}
-          <Link href="/login" className="text-blue-800 font-medium hover:underline">Sign in</Link>
+          <Link href="/login" className="text-violet-800 font-medium hover:underline">Sign in</Link>
         </p>
       </div>
     </div>

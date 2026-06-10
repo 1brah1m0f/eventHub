@@ -52,7 +52,7 @@ export function QASection({ eventId, eventRole }: Props) {
         {['', 'answered', 'unanswered'].map(f => (
           <button key={f} onClick={() => setFilter(f)}
             className={`text-sm px-3 py-1 rounded-full border transition-colors ${
-              filter === f ? 'bg-blue-800 text-white border-blue-800' : 'hover:bg-gray-50'
+              filter === f ? 'bg-violet-800 text-white border-violet-800' : 'hover:bg-gray-50'
             }`}>
             {f === '' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
           </button>
@@ -64,9 +64,9 @@ export function QASection({ eventId, eventRole }: Props) {
           <input value={newQuestion} onChange={e => setNewQuestion(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter') handlePostQuestion(); }}
             placeholder="Ask a question..."
-            className="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700" />
+            className="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700" />
           <button onClick={handlePostQuestion} disabled={postQuestion.isPending}
-            className="bg-blue-800 text-white px-3 py-2 rounded-lg hover:bg-blue-900 disabled:opacity-50 transition-colors">
+            className="bg-violet-800 text-white px-3 py-2 rounded-lg hover:bg-violet-900 disabled:opacity-50 transition-colors">
             <Send size={16} />
           </button>
         </div>
@@ -143,7 +143,7 @@ function QuestionItem({ question, canAnswer, canModerate, currentUserId, eventId
     <div className="border rounded-xl p-4 bg-white">
       <div className="flex gap-3">
         <button onClick={onUpvote}
-          className="flex flex-col items-center gap-0.5 text-gray-400 hover:text-blue-700 transition-colors min-w-[32px]">
+          className="flex flex-col items-center gap-0.5 text-gray-400 hover:text-violet-700 transition-colors min-w-[32px]">
           <ChevronUp size={16} />
           <span className="text-xs font-medium">{question.upvotes}</span>
         </button>
@@ -154,7 +154,7 @@ function QuestionItem({ question, canAnswer, canModerate, currentUserId, eventId
                 value={editText}
                 onChange={e => setEditText(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleSaveEdit()}
-                className="flex-1 border rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700"
+                className="flex-1 border rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700"
                 autoFocus
               />
               <button onClick={handleSaveEdit} disabled={editQuestion.isPending}
@@ -172,11 +172,11 @@ function QuestionItem({ question, canAnswer, canModerate, currentUserId, eventId
           <div className="flex items-center gap-3 mt-1 flex-wrap">
             <span className="text-xs text-gray-500">{question.asker_name} · {format(new Date(question.created_at), 'MMM d')}</span>
             {question.is_answered && <span className="text-xs text-green-600 font-medium">Answered</span>}
-            <button onClick={onToggle} className="flex items-center gap-1 text-xs text-gray-500 hover:text-blue-700 transition-colors">
+            <button onClick={onToggle} className="flex items-center gap-1 text-xs text-gray-500 hover:text-violet-700 transition-colors">
               <MessageSquare size={12} /> {question.answer_count} answers
             </button>
             {canEdit && !editing && (
-              <button onClick={() => setEditing(true)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-blue-700 transition-colors">
+              <button onClick={() => setEditing(true)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-violet-700 transition-colors">
                 <Pencil size={11} /> Edit
               </button>
             )}
@@ -198,9 +198,9 @@ function QuestionItem({ question, canAnswer, canModerate, currentUserId, eventId
               <input value={answerText} onChange={e => onAnswerChange(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleAnswer()}
                 placeholder="Write an answer..."
-                className="flex-1 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700" />
+                className="flex-1 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700" />
               <button onClick={handleAnswer} disabled={postAnswer.isPending}
-                className="bg-blue-800 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-blue-900 disabled:opacity-50 transition-colors">
+                className="bg-violet-800 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-violet-900 disabled:opacity-50 transition-colors">
                 Answer
               </button>
             </div>
@@ -225,7 +225,7 @@ function AnswerList({ questionId, eventId }: { questionId: string; eventId: stri
   return (
     <div className="space-y-2">
       {answers.map((a: any) => (
-        <div key={a.answer_id} className="bg-blue-50 border border-blue-100 rounded-lg p-3">
+        <div key={a.answer_id} className="bg-violet-50 border border-violet-100 rounded-lg p-3">
           <p className="text-sm text-gray-800">{a.content}</p>
           <p className="text-xs text-gray-500 mt-1">{a.answerer_name} · {format(new Date(a.created_at), 'MMM d')}</p>
         </div>
