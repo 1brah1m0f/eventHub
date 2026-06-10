@@ -7,7 +7,9 @@
       "Bash(grep -rn \"GOOGLE_MAPS\" .env* \"c:/Users/sixii/OneDrive/Desktop/EventHub/backend/.env\")",
       "Bash(node -e \"const p=require\\('lucide-react'\\); console.log\\(['Trophy','Medal','Award','Star','Sparkles','Palette','Mic','CheckCircle2'].map\\(n=>n+':'+\\(n in p\\)\\).join\\(' '\\)\\)\")",
       "Bash(node -e \"const p=require\\('lucide-react'\\); console.log\\(['Linkedin','CalendarDays','Megaphone','Award'].map\\(n=>n+':'+\\(n in p\\)\\).join\\(' '\\)\\)\")",
-      "Bash(node -e \"require\\('dotenv'\\).config\\(\\); const u=process.env.DATABASE_URL||''; const m=u.match\\(/@\\([^:/?]+\\)/\\); console.log\\('DB host:', m?m[1]:'\\(none\\)'\\); console.log\\('supabase:', /supabase/i.test\\(u\\)\\);\")"
+      "Bash(node -e \"require\\('dotenv'\\).config\\(\\); const u=process.env.DATABASE_URL||''; const m=u.match\\(/@\\([^:/?]+\\)/\\); console.log\\('DB host:', m?m[1]:'\\(none\\)'\\); console.log\\('supabase:', /supabase/i.test\\(u\\)\\);\")",
+      "Bash(git rev-list *)",
+      "Bash(git remote *)"
     ]
   },
   "enabledPlugins": {

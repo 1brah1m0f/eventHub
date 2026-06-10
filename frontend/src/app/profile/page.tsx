@@ -2,8 +2,9 @@
 import { useAuthStore } from '@/store/auth.store';
 import { useEffect, useState, useRef, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useUpdateProfile } from '@/hooks/useProfile';
-import { X, Check, Plus, Camera } from 'lucide-react';
+import { X, Check, Plus, Camera, Award } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '@/lib/api';
 
@@ -113,6 +114,15 @@ function ProfileContent() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-xl font-bold text-gray-900">Edit profile</h1>
+        <Link
+          href={`/users/${user.user_id}`}
+          className="flex items-center gap-1.5 text-sm text-violet-700 border border-violet-200 px-3 py-1.5 rounded-lg hover:bg-violet-50 transition-colors"
+        >
+          <Award size={14} className="text-amber-500" /> View public profile
+        </Link>
+      </div>
       <div className="bg-white rounded-xl border border-gray-200 p-6">
         {/* Avatar */}
         <div className="flex items-start gap-5 mb-6">
