@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { useState, useEffect } from 'react';
 import { useSettingsStore } from '@/store/settings.store';
+import { AuthGuard } from '@/components/AuthGuard';
 
 function ThemeSync() {
   const { darkMode } = useSettingsStore();
@@ -17,7 +18,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={qc}>
       <ThemeSync />
-      {children}
+      <AuthGuard>{children}</AuthGuard>
       <Toaster position="top-right" />
     </QueryClientProvider>
   );

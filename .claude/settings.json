@@ -1,10 +1,13 @@
 {
-  "enabledPlugins": {
-    "frontend-design@claude-plugins-official": true
-  },
   "permissions": {
     "allow": [
-      "Bash(node -e \"const p=require\\('lucide-react'\\); console.log\\(['Sparkles','ArrowRight','CheckCircle'].map\\(n=>n+':'+\\(typeof p[n]!=='undefined'\\)\\).join\\(' '\\)\\)\")"
+      "Bash(node -e \"const p=require\\('lucide-react'\\); console.log\\(['Sparkles','ArrowRight','CheckCircle'].map\\(n=>n+':'+\\(typeof p[n]!=='undefined'\\)\\).join\\(' '\\)\\)\")",
+      "Bash(ls -la .env*)",
+      "Bash(ls -la \"c:/Users/sixii/OneDrive/Desktop/EventHub/.env\"*)",
+      "Bash(grep -rn \"GOOGLE_MAPS\" .env* \"c:/Users/sixii/OneDrive/Desktop/EventHub/backend/.env\")"
     ]
+  },
+  "enabledPlugins": {
+    "frontend-design@claude-plugins-official": true
   }
 }

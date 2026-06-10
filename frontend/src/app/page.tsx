@@ -88,10 +88,10 @@ export default function HomePage() {
                   <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link
-                  href="/events"
+                  href="/login"
                   className="flex items-center justify-center gap-2 border border-white/20 bg-white/5 backdrop-blur text-white px-6 py-3.5 rounded-xl font-semibold hover:bg-white/10 hover:border-white/30 transition-all duration-300"
                 >
-                  Browse events
+                  Sign in
                 </Link>
               </div>
             </Reveal>

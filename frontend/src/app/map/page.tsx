@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { APIProvider, Map, Marker, InfoWindow } from '@vis.gl/react-google-maps';
+import { APIProvider, Map, AdvancedMarker, Pin, InfoWindow } from '@vis.gl/react-google-maps';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { Calendar, MapPin, Users } from 'lucide-react';
@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { EVENT_TYPES } from '@/lib/utils';
 
 const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!;
+const MAP_ID = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
 
 const TYPE_COLORS: Record<string, { bg: string; border: string }> = {
   hackathon:   { bg: '#7c3aed', border: '#5b21b6' },
@@ -30,9 +31,15 @@ interface MapEvent {
 }
 
 function useMapEvents(type: string) {
-  return useQuery({
+  return useQuery<MapEvent[]>({
     queryKey: ['events', 'map', type],
-    queryFn: () => api.get('/events/map', { params: type ? { type } : {} }).then(r => r.data),
+    queryFn: () =>
+      api.get('/events/map', { params: type ? { type } : {} }).then(r =>
+        (r.data as MapEvent[])
+          // Postgres numeric comes back as string — Google Maps needs real numbers.
+          .map(ev => ({ ...ev, lat: Number(ev.lat), lng: Number(ev.lng) }))
+          .filter(ev => Number.isFinite(ev.lat) && Number.isFinite(ev.lng))
+      ),
   });
 }
 
@@ -78,20 +85,26 @@ export default function MapPage() {
       <div className="flex-1 relative">
         <APIProvider apiKey={API_KEY}>
           <Map
+            mapId={MAP_ID}
             defaultCenter={{ lat: 40.4093, lng: 49.8671 }}
             defaultZoom={10}
             style={{ width: '100%', height: '100%' }}
             onClick={() => setSelected(null)}
             gestureHandling="greedy"
           >
-            {(events as MapEvent[]).map(ev => (
-              <Marker
-                key={ev.event_id}
-                position={{ lat: ev.lat, lng: ev.lng }}
-                onClick={() => setSelected(ev)}
-                title={ev.title}
-              />
-            ))}
+            {(events as MapEvent[]).map(ev => {
+              const c = col(ev.type);
+              return (
+                <AdvancedMarker
+                  key={ev.event_id}
+                  position={{ lat: ev.lat, lng: ev.lng }}
+                  onClick={() => setSelected(ev)}
+                  title={ev.title}
+                >
+                  <Pin background={c.bg} borderColor={c.border} glyphColor="#fff" />
+                </AdvancedMarker>
+              );
+            })}
 
             {selected && (
               <InfoWindow

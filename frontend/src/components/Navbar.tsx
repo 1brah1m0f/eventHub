@@ -81,13 +81,13 @@ export function Navbar() {
               {darkMode ? <Sun size={16} /> : <Moon size={16} />}
             </button>
 
-            <Link href="/events" className={navLinkCls}>{t('home')}</Link>
-            <Link href="/map" className={`${navLinkCls} flex items-center gap-1.5`}>
-              <Map size={14} /> Map
-            </Link>
-
             {user && (
               <>
+                <Link href="/events" className={navLinkCls}>{t('home')}</Link>
+                <Link href="/map" className={`${navLinkCls} flex items-center gap-1.5`}>
+                  <Map size={14} /> Map
+                </Link>
+
                 {/* Organizations dropdown */}
                 <div
                   className="relative"
@@ -207,15 +207,15 @@ export function Navbar() {
             className="absolute top-14 left-0 right-0 bg-gradient-to-b from-violet-950 to-indigo-950 border-b border-violet-800/40 px-4 py-3 space-y-1"
             onClick={e => e.stopPropagation()}
           >
-            <Link href="/events" onClick={close} className="block text-sm text-violet-300 hover:text-white px-3 py-2.5 rounded-md hover:bg-violet-800/50 transition-colors">
-              {t('home')}
-            </Link>
-            <Link href="/map" onClick={close} className="flex items-center gap-2 text-sm text-violet-300 hover:text-white px-3 py-2.5 rounded-md hover:bg-violet-800/50 transition-colors">
-              <Map size={14} /> Map
-            </Link>
-
             {user ? (
               <>
+                <Link href="/events" onClick={close} className="block text-sm text-violet-300 hover:text-white px-3 py-2.5 rounded-md hover:bg-violet-800/50 transition-colors">
+                  {t('home')}
+                </Link>
+                <Link href="/map" onClick={close} className="flex items-center gap-2 text-sm text-violet-300 hover:text-white px-3 py-2.5 rounded-md hover:bg-violet-800/50 transition-colors">
+                  <Map size={14} /> Map
+                </Link>
+
                 <div className="text-xs text-violet-600 font-semibold uppercase tracking-wider px-3 pt-2 pb-1">{t('organizations')}</div>
                 <Link href="/dashboard" onClick={close} className="flex items-center gap-2 text-sm text-violet-300 hover:text-white px-3 py-2.5 rounded-md hover:bg-violet-800/50 transition-colors">
                   <BarChart2 size={14} /> {t('statistics')}
