@@ -187,6 +187,17 @@ export async function registerForEvent(req: AuthRequest & { event?: any }, res: 
     const { role = 'attendee', team_name, team_members, invite_code } = req.body;
     const event = req.event;
 
+    // No joining finished, draft, or already-passed events.
+    if (event.status === 'finished') {
+      return res.status(400).json({ error: 'This event has finished — registration is closed' });
+    }
+    if (event.status !== 'published') {
+      return res.status(400).json({ error: 'This event is not open for registration yet' });
+    }
+    if (event.date && new Date(event.date).getTime() < Date.now()) {
+      return res.status(400).json({ error: 'This event has already taken place' });
+    }
+
     if (event.access_type === 'invite_only') {
       if (!invite_code || invite_code !== event.invite_code) {
         return res.status(403).json({ error: 'Valid invite code required' });

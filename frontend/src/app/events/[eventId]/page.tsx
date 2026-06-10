@@ -63,6 +63,8 @@ export default function EventDetailPage() {
   const isOwner = event.viewer_role === 'owner';
   const isStaff = event.viewer_role === 'staff';
   const canEdit = isOwner || isStaff;
+  const isPast = event.status === 'finished' || (event.date && new Date(event.date).getTime() < Date.now());
+  const isOpen = event.status === 'published' && !isPast;
   const typeLabel = EVENT_TYPES.find(t => t.value === event.type)?.label || event.type;
   const colors = TYPE_COLORS[event.type] || { bg: 'bg-gray-100', text: 'text-gray-700' };
   const totalAttendees = event.registration_counts?.reduce((sum: number, r: any) => sum + parseInt(r.count), 0) || 0;
@@ -319,8 +321,15 @@ export default function EventDetailPage() {
             {/* Registration actions live inside the card */}
             <div className="mt-5 pt-5 border-t border-gray-100">
 
+      {/* Past / finished — registration closed */}
+      {isPast && (
+        <div className="flex items-center gap-2 text-sm text-gray-500 border border-gray-200 rounded-lg px-4 py-3">
+          <Lock size={14} /> This event has already taken place — registration is closed.
+        </div>
+      )}
+
       {/* Registration block */}
-      {event.status === 'published' && !user && (
+      {isOpen && !user && (
         <div>
           {isInviteOnly && !hasValidInvite ? (
             <div className="flex items-center gap-2 text-sm text-gray-500 border border-gray-200 rounded-lg px-4 py-3 w-fit">
@@ -334,7 +343,7 @@ export default function EventDetailPage() {
         </div>
       )}
 
-      {event.status === 'published' && user && !canEdit && (
+      {isOpen && user && !canEdit && (
         <div>
           {isInviteOnly && !hasValidInvite ? (
             <div className="flex items-center gap-2 text-sm text-gray-500 border border-gray-200 rounded-lg px-4 py-3 w-fit">
@@ -440,11 +449,12 @@ export default function EventDetailPage() {
         </div>
       )}
 
-      {/* Owner/staff or finished events: no register CTA */}
-      {(canEdit || event.status !== 'published') && (
-        <p className="text-sm text-gray-400">
-          {canEdit ? 'You manage this event.' : event.status === 'finished' ? 'This event has finished.' : 'Registration is not open yet.'}
-        </p>
+      {/* Owner/staff hint (only when event is open — past events show the lock above) */}
+      {canEdit && !isPast && (
+        <p className="text-sm text-gray-400">You manage this event.</p>
+      )}
+      {!canEdit && !isPast && event.status === 'draft' && (
+        <p className="text-sm text-gray-400">Registration is not open yet.</p>
       )}
             </div>
 
