@@ -23,3 +23,4 @@ sql += 'COMMIT;\n';
 const out = join(__dirname, '..', 'events_real.sql');
 writeFileSync(out, sql, 'utf8');
 console.log('Wrote', out, `(${ids.length} updates + delete)`);
+
