@@ -8,7 +8,6 @@ import {
   BriefcaseBusiness,
   Calendar,
   Code2,
-  DollarSign,
   GraduationCap,
   Handshake,
   LocateFixed,
@@ -17,8 +16,6 @@ import {
   Navigation,
   Presentation,
   Rocket,
-  Search,
-  SlidersHorizontal,
   Target,
   Trophy,
   Users,
@@ -27,24 +24,24 @@ import {
 import { format } from 'date-fns';
 import Link from 'next/link';
 import { EVENT_TYPES } from '@/lib/utils';
-import { EMPTY_EVENT_FILTERS, EventFilters, activeEventFilterCount, toEventQueryParams } from '@/lib/eventFilters';
+import { EMPTY_EVENT_FILTERS, EventFilters, toEventQueryParams } from '@/lib/eventFilters';
 
 const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
 const MAP_ID = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
 const DEFAULT_CENTER = { lat: 40.4093, lng: 49.8671 };
 
 const TYPE_COLORS: Record<string, { bg: string; ring: string; text: string }> = {
-  hackathon:   { bg: '#7c3aed', ring: '#ede9fe', text: '#5b21b6' },
-  conference:  { bg: '#2563eb', ring: '#dbeafe', text: '#1e40af' },
-  workshop:    { bg: '#059669', ring: '#d1fae5', text: '#047857' },
-  bootcamp:    { bg: '#d97706', ring: '#fef3c7', text: '#92400e' },
-  meetup:      { bg: '#db2777', ring: '#fce7f3', text: '#9d174d' },
-  networking:  { bg: '#ca8a04', ring: '#fef9c3', text: '#854d0e' },
+  hackathon: { bg: '#7c3aed', ring: '#ede9fe', text: '#5b21b6' },
+  conference: { bg: '#2563eb', ring: '#dbeafe', text: '#1e40af' },
+  workshop: { bg: '#059669', ring: '#d1fae5', text: '#047857' },
+  bootcamp: { bg: '#d97706', ring: '#fef3c7', text: '#92400e' },
+  meetup: { bg: '#db2777', ring: '#fce7f3', text: '#9d174d' },
+  networking: { bg: '#ca8a04', ring: '#fef9c3', text: '#854d0e' },
   competition: { bg: '#dc2626', ring: '#fee2e2', text: '#991b1b' },
-  demo_day:    { bg: '#4f46e5', ring: '#e0e7ff', text: '#3730a3' },
-  seminar:     { bg: '#0d9488', ring: '#ccfbf1', text: '#0f766e' },
-  summit:      { bg: '#0284c7', ring: '#e0f2fe', text: '#0369a1' },
-  course:      { bg: '#0891b2', ring: '#cffafe', text: '#0e7490' },
+  demo_day: { bg: '#4f46e5', ring: '#e0e7ff', text: '#3730a3' },
+  seminar: { bg: '#0d9488', ring: '#ccfbf1', text: '#0f766e' },
+  summit: { bg: '#0284c7', ring: '#e0f2fe', text: '#0369a1' },
+  course: { bg: '#0891b2', ring: '#cffafe', text: '#0e7490' },
 };
 
 const TYPE_ICONS = {
@@ -61,18 +58,23 @@ const TYPE_ICONS = {
   course: BookOpen,
 };
 
+type TimeMode = 'all' | 'future' | 'past';
+
+const TIME_MODES: { value: TimeMode; label: string }[] = [
+  { value: 'all', label: 'All events' },
+  { value: 'future', label: 'Future event' },
+  { value: 'past', label: 'Past events' },
+];
+
 interface MapEvent {
   event_id: string;
   title: string;
   description?: string;
   type: string;
   date?: string;
-  end_date?: string;
   location?: string;
   lat: number;
   lng: number;
-  price?: number | string | null;
-  is_online?: boolean;
   cover_image?: string;
   attendee_count?: number;
 }
@@ -97,7 +99,7 @@ function useMapEvents(filters: EventFilters) {
     queryFn: () =>
       api.get('/events/map', { params: toEventQueryParams(filters) }).then(r =>
         (r.data as MapEvent[])
-          .map(ev => ({ ...ev, lat: Number(ev.lat), lng: Number(ev.lng), price: ev.price == null ? null : Number(ev.price) }))
+          .map(ev => ({ ...ev, lat: Number(ev.lat), lng: Number(ev.lng) }))
           .filter(ev => Number.isFinite(ev.lat) && Number.isFinite(ev.lng))
       ),
   });
@@ -109,6 +111,18 @@ function typeLabel(type: string) {
 
 function typeColor(type: string) {
   return TYPE_COLORS[type] ?? { bg: '#475569', ring: '#e2e8f0', text: '#334155' };
+}
+
+function filterByTimeMode(events: MapEvent[], mode: TimeMode) {
+  if (mode === 'all') return events;
+
+  const now = Date.now();
+  return events.filter(event => {
+    if (!event.date) return false;
+    const eventTime = new Date(event.date).getTime();
+    if (Number.isNaN(eventTime)) return false;
+    return mode === 'future' ? eventTime >= now : eventTime < now;
+  });
 }
 
 function distanceKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }) {
@@ -169,8 +183,8 @@ function ViewportSync({ events, onBoundsChange, onZoomChange }: { events: MapEve
   }, [map, onBoundsChange, onZoomChange]);
 
   useEffect(() => {
-    if (!map || events.length === 0 || !(window as any).google?.maps) return;
-    const bounds = new (window as any).google.maps.LatLngBounds();
+    if (!map || events.length === 0 || !(window as unknown as { google?: typeof google }).google?.maps) return;
+    const bounds = new google.maps.LatLngBounds();
     events.forEach(event => bounds.extend({ lat: event.lat, lng: event.lng }));
     map.fitBounds(bounds, 72);
   }, [map, events]);
@@ -205,7 +219,7 @@ function ClusterMarker({ cluster, selectedId, onSelect }: { cluster: EventCluste
         </div>
       ) : (
         <div
-          className={`group relative grid h-12 w-12 place-items-center rounded-2xl border-2 border-white text-white shadow-lg transition-all hover:-translate-y-1 hover:scale-105 ${selected ? '-translate-y-1 scale-110' : ''}`}
+          className={`relative grid h-12 w-12 place-items-center rounded-2xl border-2 border-white text-white shadow-lg transition-all hover:-translate-y-1 hover:scale-105 ${selected ? '-translate-y-1 scale-110' : ''}`}
           style={{ backgroundColor: color.bg, boxShadow: `0 16px 30px ${color.bg}35` }}
         >
           <EventIcon size={22} strokeWidth={2.2} />
@@ -220,7 +234,7 @@ function MapControls({ userLocation, onMyLocation, onNearby, nearby, onFit }: { 
   const map = useMap();
 
   return (
-    <div className="absolute right-4 top-4 z-10 flex flex-col gap-2">
+    <div className="absolute right-4 top-20 z-10 flex flex-col gap-2 sm:top-4">
       <button
         type="button"
         onClick={() => {
@@ -254,7 +268,6 @@ function MapControls({ userLocation, onMyLocation, onNearby, nearby, onFit }: { 
 
 function EventPreview({ event, onClose }: { event: MapEvent; onClose: () => void }) {
   const color = typeColor(event.type);
-  const price = Number(event.price || 0);
 
   return (
     <InfoWindow position={{ lat: event.lat, lng: event.lng }} onCloseClick={onClose} headerDisabled>
@@ -283,10 +296,6 @@ function EventPreview({ event, onClose }: { event: MapEvent; onClose: () => void
                 <span className="truncate">{event.location}</span>
               </div>
             )}
-            <div className="flex items-center gap-1.5">
-              <DollarSign size={12} className="shrink-0 text-violet-700" />
-              {price > 0 ? `$${price.toFixed(2)}` : 'Free'}
-            </div>
             {Number(event.attendee_count) > 0 && (
               <div className="flex items-center gap-1.5">
                 <Users size={12} className="shrink-0 text-violet-700" />
@@ -308,6 +317,7 @@ function EventPreview({ event, onClose }: { event: MapEvent; onClose: () => void
 
 export default function MapPage() {
   const [filters, setFilters] = useState(EMPTY_EVENT_FILTERS);
+  const [timeMode, setTimeMode] = useState<TimeMode>('all');
   const [selected, setSelected] = useState<MapEvent | null>(null);
   const [bounds, setBounds] = useState<Bounds | null>(null);
   const [zoom, setZoom] = useState(11);
@@ -316,27 +326,29 @@ export default function MapPage() {
   const [fitVersion, setFitVersion] = useState(0);
   const { data: events = [], isLoading, isError, refetch } = useMapEvents(filters);
 
-  const activeFilters = activeEventFilterCount(filters);
   const visibleEvents = useMemo(() => {
-    const nearbyEvents = nearbyOnly && userLocation
-      ? events.filter(event => distanceKm(userLocation, event) <= 25)
-      : events;
-    return nearbyEvents;
-  }, [events, nearbyOnly, userLocation]);
+    const timeFiltered = filterByTimeMode(events, timeMode);
+    return nearbyOnly && userLocation
+      ? timeFiltered.filter(event => distanceKm(userLocation, event) <= 25)
+      : timeFiltered;
+  }, [events, nearbyOnly, timeMode, userLocation]);
   const viewportCount = useMemo(() => visibleEvents.filter(event => inBounds(event, bounds)).length, [visibleEvents, bounds]);
   const clusters = useMemo(() => clusterEvents(visibleEvents, zoom), [visibleEvents, zoom]);
 
-  const setFilter = <K extends keyof EventFilters>(key: K, value: EventFilters[K]) => {
+  const setType = (type: string) => {
     setSelected(null);
-    setFilters(current => ({ ...current, [key]: value }));
+    setFilters(current => ({ ...current, type }));
+  };
+
+  const setEventTimeMode = (mode: TimeMode) => {
+    setSelected(null);
+    setTimeMode(mode);
   };
 
   const locateUser = () => {
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
-      position => {
-        setUserLocation({ lat: position.coords.latitude, lng: position.coords.longitude });
-      },
+      position => setUserLocation({ lat: position.coords.latitude, lng: position.coords.longitude }),
       undefined,
       { enableHighAccuracy: true, timeout: 8000 }
     );
@@ -355,162 +367,47 @@ export default function MapPage() {
   }
 
   return (
-    <div className="grid min-h-[calc(100dvh-56px)] grid-cols-1 bg-gray-50 lg:grid-cols-[380px_1fr]">
-      <aside className="z-20 border-b border-gray-200 bg-white p-4 shadow-sm lg:border-b-0 lg:border-r lg:p-5">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Event Map</h1>
-            <p className="mt-1 text-sm text-gray-500">Explore published events by place, time, format, and category.</p>
-          </div>
-          {activeFilters > 0 && (
+    <div className="flex min-h-[calc(100dvh-56px)] flex-col bg-gray-50">
+      <div className="z-20 border-b border-gray-200 bg-white px-4 py-3 shadow-sm">
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 xl:flex-wrap xl:overflow-visible xl:pb-0">
             <button
-              type="button"
-              onClick={() => {
-                setFilters(EMPTY_EVENT_FILTERS);
-                setNearbyOnly(false);
-              }}
-              className="rounded-full border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50"
+              onClick={() => setType('')}
+              className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${!filters.type ? 'border-violet-800 bg-violet-800 text-white' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
             >
-              Clear
+              All
             </button>
-          )}
-        </div>
+            {EVENT_TYPES.map(type => (
+              <button
+                key={type.value}
+                onClick={() => setType(filters.type === type.value ? '' : type.value)}
+                className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${filters.type === type.value ? 'border-violet-800 bg-violet-800 text-white' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+              >
+                {type.label}
+              </button>
+            ))}
+          </div>
 
-        <div className="mt-5 space-y-3">
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
-            <input
-              value={filters.search}
-              onChange={e => setFilter('search', e.target.value)}
-              placeholder="Search by event name"
-              className="w-full rounded-xl border border-gray-300 bg-white py-2.5 pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700"
-            />
-          </div>
-          <div className="relative">
-            <MapPin className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
-            <input
-              value={filters.location}
-              onChange={e => setFilter('location', e.target.value)}
-              placeholder="Filter by location"
-              className="w-full rounded-xl border border-gray-300 bg-white py-2.5 pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700"
-            />
-          </div>
-          <div className="rounded-2xl border border-gray-200 bg-gray-50 p-3">
-            <div className="mb-2 flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">Date range</span>
-              {(filters.date_from || filters.date_to) && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFilter('date_from', '');
-                    setFilter('date_to', '');
-                  }}
-                  className="text-xs font-medium text-violet-700 hover:text-violet-900"
-                >
-                  Clear
-                </button>
-              )}
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <label className="grid gap-1 text-[11px] font-medium text-gray-500">
-                From
-                <input
-                  type="date"
-                  value={filters.date_from}
-                  max={filters.date_to || undefined}
-                  onChange={e => setFilter('date_from', e.target.value)}
-                  className="rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-700"
-                />
-              </label>
-              <label className="grid gap-1 text-[11px] font-medium text-gray-500">
-                To
-                <input
-                  type="date"
-                  value={filters.date_to}
-                  min={filters.date_from || undefined}
-                  onChange={e => setFilter('date_to', e.target.value)}
-                  className="rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-700"
-                />
-              </label>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <select value={filters.price} onChange={e => setFilter('price', e.target.value as EventFilters['price'])} className="rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700">
-              <option value="">Any price</option>
-              <option value="free">Free</option>
-              <option value="paid">Paid</option>
-            </select>
-            <select value={filters.event_mode} onChange={e => setFilter('event_mode', e.target.value as EventFilters['event_mode'])} className="rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700">
-              <option value="">Online/offline</option>
-              <option value="offline">Offline</option>
-              <option value="online">Online</option>
-            </select>
+          <div className="flex shrink-0 items-center gap-1 overflow-x-auto rounded-full border border-gray-200 bg-gray-50 p-1">
+            {TIME_MODES.map(mode => (
+              <button
+                key={mode.value}
+                type="button"
+                onClick={() => setEventTimeMode(mode.value)}
+                className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+                  timeMode === mode.value
+                    ? 'bg-gray-950 text-white shadow-sm'
+                    : 'text-gray-600 hover:bg-white hover:text-gray-900'
+                }`}
+              >
+                {mode.label}
+              </button>
+            ))}
           </div>
         </div>
+      </div>
 
-        <div className="mt-4 flex items-center gap-2 overflow-x-auto pb-1 lg:flex-wrap lg:overflow-visible">
-          <button
-            onClick={() => setFilter('type', '')}
-            className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${!filters.type ? 'border-violet-800 bg-violet-800 text-white' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
-          >
-            All
-          </button>
-          {EVENT_TYPES.map(type => (
-            <button
-              key={type.value}
-              onClick={() => setFilter('type', filters.type === type.value ? '' : type.value)}
-              className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${filters.type === type.value ? 'border-violet-800 bg-violet-800 text-white' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
-            >
-              {type.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="mt-5 grid grid-cols-3 gap-2 rounded-2xl border border-gray-200 bg-gray-50 p-2 text-center">
-          <div className="rounded-xl bg-white p-3">
-            <p className="text-lg font-bold text-gray-900">{visibleEvents.length}</p>
-            <p className="text-[11px] font-medium text-gray-500">visible</p>
-          </div>
-          <div className="rounded-xl bg-white p-3">
-            <p className="text-lg font-bold text-gray-900">{viewportCount}</p>
-            <p className="text-[11px] font-medium text-gray-500">in view</p>
-          </div>
-          <div className="rounded-xl bg-white p-3">
-            <p className="text-lg font-bold text-gray-900">{clusters.length}</p>
-            <p className="text-[11px] font-medium text-gray-500">markers</p>
-          </div>
-        </div>
-
-        {nearbyOnly && (
-          <div className="mt-3 rounded-xl border border-violet-200 bg-violet-50 px-3 py-2 text-sm text-violet-800">
-            Showing events within 25 km of your location.
-          </div>
-        )}
-
-        <div className="mt-5 hidden gap-2 lg:flex">
-          <button
-            type="button"
-            onClick={() => setFitVersion(version => version + 1)}
-            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-gray-900 px-3 py-2.5 text-sm font-semibold text-white hover:bg-gray-800"
-          >
-            <SlidersHorizontal size={15} />
-            Fit results
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              if (!userLocation) locateUser();
-              setNearbyOnly(value => !value);
-            }}
-            className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-sm font-semibold ${nearbyOnly ? 'bg-violet-800 text-white' : 'border border-gray-200 text-gray-700 hover:bg-gray-50'}`}
-          >
-            <Navigation size={15} />
-            Nearby
-          </button>
-        </div>
-      </aside>
-
-      <section className="relative min-h-[560px] overflow-hidden lg:min-h-[calc(100dvh-56px)]">
+      <section className="relative min-h-[560px] flex-1 overflow-hidden">
         <APIProvider apiKey={API_KEY}>
           <Map
             mapId={MAP_ID}
@@ -524,7 +421,7 @@ export default function MapPage() {
             streetViewControl={false}
             fullscreenControl={false}
           >
-            <ViewportSync key={`${filters.type}-${filters.search}-${filters.location}-${filters.date_from}-${filters.date_to}-${filters.price}-${filters.event_mode}-${nearbyOnly}-${fitVersion}`} events={visibleEvents} onBoundsChange={setBounds} onZoomChange={setZoom} />
+            <ViewportSync key={`${filters.type}-${timeMode}-${nearbyOnly}-${fitVersion}`} events={visibleEvents} onBoundsChange={setBounds} onZoomChange={setZoom} />
             <MapControls
               userLocation={userLocation}
               onMyLocation={locateUser}
@@ -564,7 +461,7 @@ export default function MapPage() {
           <div className="absolute inset-0 z-20 grid place-items-center bg-white/85 p-4 backdrop-blur-sm">
             <div className="max-w-sm rounded-2xl border border-gray-200 bg-white p-5 text-center shadow-lg">
               <p className="font-semibold text-gray-900">Map events could not load</p>
-              <p className="mt-1 text-sm text-gray-500">Please try again. Your filters are preserved.</p>
+              <p className="mt-1 text-sm text-gray-500">Please try again.</p>
               <button onClick={() => refetch()} className="mt-4 rounded-lg bg-violet-800 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-900">Retry</button>
             </div>
           </div>
@@ -575,7 +472,7 @@ export default function MapPage() {
             <div className="max-w-sm rounded-2xl border border-gray-200 bg-white/95 p-5 text-center shadow-lg shadow-gray-900/10 backdrop-blur">
               <MapPin className="mx-auto text-gray-300" size={30} />
               <p className="mt-2 font-semibold text-gray-900">No pinned events match</p>
-              <p className="mt-1 text-sm text-gray-500">Published offline events need latitude and longitude to appear here.</p>
+              <p className="mt-1 text-sm text-gray-500">Try another type or event time.</p>
             </div>
           </div>
         )}

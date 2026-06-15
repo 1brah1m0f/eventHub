@@ -89,7 +89,7 @@ export async function createEvent(req: AuthRequest, res: Response) {
 
 export async function getMapEvents(req: Request, res: Response) {
   try {
-    const { type, search, date_from, date_to, location, price, event_mode } = req.query as any;
+    const { type } = req.query as any;
     let sql = `
       SELECT e.event_id, e.title, e.description, e.type, e.date, e.end_date, e.location, e.lat, e.lng, e.cover_image, e.price, e.is_online,
         (SELECT COUNT(*) FROM registrations r WHERE r.event_id = e.event_id) as attendee_count
@@ -99,14 +99,6 @@ export async function getMapEvents(req: Request, res: Response) {
     const params: any[] = [];
     let idx = 1;
     if (type) { sql += ` AND e.type = $${idx++}`; params.push(type); }
-    if (search) { sql += ` AND (e.title ILIKE $${idx} OR e.description ILIKE $${idx++})`; params.push(`%${search}%`); }
-    if (date_from) { sql += ` AND e.date >= $${idx++}`; params.push(`${date_from}T00:00:00`); }
-    if (date_to) { sql += ` AND e.date <= $${idx++}`; params.push(`${date_to}T23:59:59`); }
-    if (location) { sql += ` AND e.location ILIKE $${idx++}`; params.push(`%${location}%`); }
-    if (price === 'free') sql += ` AND (e.price IS NULL OR e.price = 0)`;
-    if (price === 'paid') sql += ` AND e.price > 0`;
-    if (event_mode === 'online') sql += ` AND e.is_online = TRUE`;
-    if (event_mode === 'offline') sql += ` AND COALESCE(e.is_online, FALSE) = FALSE`;
     sql += ` ORDER BY e.date ASC`;
     const { rows } = await query(sql, params);
     res.json(rows);
@@ -117,7 +109,7 @@ export async function getMapEvents(req: Request, res: Response) {
 
 export async function getEvents(req: Request, res: Response) {
   try {
-    const { type, status, search, date_from, date_to, location, price, event_mode, page = '1', limit = '20' } = req.query as any;
+    const { type, status, search, date_from, date_to, page = '1', limit = '20' } = req.query as any;
     const offset = (parseInt(page) - 1) * parseInt(limit);
 
     let sql = `SELECT e.*, u.name as owner_name, u.avatar_url as owner_avatar,
@@ -132,11 +124,6 @@ export async function getEvents(req: Request, res: Response) {
     if (search) { sql += ` AND (e.title ILIKE $${idx} OR e.description ILIKE $${idx++})`; params.push(`%${search}%`); }
     if (date_from) { sql += ` AND e.date >= $${idx++}`; params.push(`${date_from}T00:00:00`); }
     if (date_to) { sql += ` AND e.date <= $${idx++}`; params.push(`${date_to}T23:59:59`); }
-    if (location) { sql += ` AND e.location ILIKE $${idx++}`; params.push(`%${location}%`); }
-    if (price === 'free') sql += ` AND (e.price IS NULL OR e.price = 0)`;
-    if (price === 'paid') sql += ` AND e.price > 0`;
-    if (event_mode === 'online') sql += ` AND e.is_online = TRUE`;
-    if (event_mode === 'offline') sql += ` AND COALESCE(e.is_online, FALSE) = FALSE`;
 
     sql += ` ORDER BY e.created_at DESC LIMIT $${idx++} OFFSET $${idx++}`;
     params.push(parseInt(limit), offset);

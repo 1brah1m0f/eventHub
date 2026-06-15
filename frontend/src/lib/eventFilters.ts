@@ -1,14 +1,8 @@
-export type EventMode = '' | 'online' | 'offline';
-export type PriceFilter = '' | 'free' | 'paid';
-
 export interface EventFilters {
   search: string;
   type: string;
   date_from: string;
   date_to: string;
-  location: string;
-  price: PriceFilter;
-  event_mode: EventMode;
 }
 
 export const EMPTY_EVENT_FILTERS: EventFilters = {
@@ -16,19 +10,12 @@ export const EMPTY_EVENT_FILTERS: EventFilters = {
   type: '',
   date_from: '',
   date_to: '',
-  location: '',
-  price: '',
-  event_mode: '',
 };
 
 export function toEventQueryParams(filters: EventFilters) {
   return Object.fromEntries(
     Object.entries(filters).filter(([, value]) => value !== '')
   ) as Record<string, string>;
-}
-
-export function activeEventFilterCount(filters: EventFilters) {
-  return Object.values(filters).filter(Boolean).length;
 }
 
 export function isInDateRange(event: { date?: string | null }, dateFrom: string, dateTo: string) {
