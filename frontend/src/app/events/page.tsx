@@ -1,13 +1,23 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useEvents } from '@/hooks/useEvents';
 import { EventCard } from '@/components/EventCard';
 import { EVENT_TYPES } from '@/lib/utils';
 import { Search, SlidersHorizontal } from 'lucide-react';
-import { useAuthStore } from '@/store/auth.store';
 import { useT } from '@/lib/i18n';
 
 const COVER = (id: string) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=1000&q=80`;
+type EventWithDate = { date?: string | null };
+type EventListItem = EventWithDate & { event_id: string; [key: string]: unknown };
+
+const isInDateRange = (event: EventWithDate, dateFrom: string, dateTo: string) => {
+  const eventTime = event.date ? new Date(event.date).getTime() : null;
+  const fromTime = dateFrom ? new Date(`${dateFrom}T00:00:00`).getTime() : null;
+  const toTime = dateTo ? new Date(`${dateTo}T23:59:59`).getTime() : null;
+
+  if (eventTime === null || Number.isNaN(eventTime)) return false;
+  return (fromTime === null || eventTime >= fromTime) && (toTime === null || eventTime <= toTime);
+};
 
 // Real Baku tech events (fallback shown only if the API returns nothing).
 const MOCK_EVENTS = [
@@ -25,17 +35,40 @@ const MOCK_EVENTS = [
 export default function EventsPage() {
   const [search, setSearch] = useState('');
   const [type, setType] = useState('');
-  const { data: apiEvents, isLoading } = useEvents({ search, type });
-  const { user } = useAuthStore();
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
+  const dateFromInputRef = useRef<HTMLInputElement>(null);
+  const { data: apiEvents, isLoading } = useEvents({
+    search,
+    type,
+    date_from: dateFrom,
+    date_to: dateTo,
+  });
   const t = useT();
+
+  useEffect(() => {
+    if (!isDateFilterOpen) return;
+
+    const picker = dateFromInputRef.current;
+    picker?.focus();
+    try {
+      picker?.showPicker?.();
+    } catch {
+      // Some browsers only allow opening the native picker directly inside the click event.
+    }
+  }, [isDateFilterOpen]);
 
   const filtered = MOCK_EVENTS.filter(e => {
     const matchSearch = !search || e.title.toLowerCase().includes(search.toLowerCase()) || e.description.toLowerCase().includes(search.toLowerCase());
     const matchType = !type || e.type === type;
-    return matchSearch && matchType;
+    return matchSearch && matchType && isInDateRange(e, dateFrom, dateTo);
   });
 
-  const events = (apiEvents && apiEvents.length > 0) ? apiEvents : filtered;
+  const apiEventList = (Array.isArray(apiEvents) ? apiEvents : []) as EventListItem[];
+  const apiFiltered = apiEventList.filter(e => isInDateRange(e, dateFrom, dateTo));
+
+  const events: EventListItem[] = (apiEvents && apiEvents.length > 0) ? apiFiltered : filtered;
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -52,16 +85,72 @@ export default function EventsPage() {
             className="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-violet-700 bg-white"
           />
         </div>
-        <div className="flex items-center gap-2">
-          <SlidersHorizontal size={15} className="text-gray-400 shrink-0" />
+        <div className="relative">
           <select
             value={type}
             onChange={e => setType(e.target.value)}
-            className="border border-gray-300 rounded-full px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700 bg-white"
+            className="appearance-none border border-gray-300 rounded-full pl-3 pr-11 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700 bg-white"
           >
             <option value="">{t('allTypes')}</option>
             {EVENT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
           </select>
+          <button
+            type="button"
+            onClick={() => setIsDateFilterOpen(open => !open)}
+            aria-label="Filter by date range"
+            className={`absolute right-1.5 top-1/2 -translate-y-1/2 grid h-8 w-8 place-items-center rounded-full transition-colors ${
+              dateFrom || dateTo ? 'bg-violet-800 text-white' : 'text-gray-500 hover:bg-gray-100'
+            }`}
+          >
+            <SlidersHorizontal size={15} />
+          </button>
+          {isDateFilterOpen && (
+            <div className="absolute right-0 top-12 z-20 w-72 rounded-2xl border border-gray-200 bg-white p-4 shadow-xl">
+              <div className="mb-3 text-sm font-semibold text-gray-900">{t('dateRange')}</div>
+              <div className="grid gap-3">
+                <label className="grid gap-1 text-xs font-medium text-gray-500">
+                  {t('from')}
+                  <input
+                    ref={dateFromInputRef}
+                    type="date"
+                    value={dateFrom}
+                    max={dateTo || undefined}
+                    onChange={e => setDateFrom(e.target.value)}
+                    className="rounded-full border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-700"
+                  />
+                </label>
+                <label className="grid gap-1 text-xs font-medium text-gray-500">
+                  {t('to')}
+                  <input
+                    type="date"
+                    value={dateTo}
+                    min={dateFrom || undefined}
+                    onChange={e => setDateTo(e.target.value)}
+                    className="rounded-full border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-700"
+                  />
+                </label>
+              </div>
+              <div className="mt-4 flex items-center justify-between gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDateFrom('');
+                    setDateTo('');
+                  }}
+                  className="rounded-full px-3 py-2 text-xs font-medium text-gray-500 hover:bg-gray-100"
+                >
+                  {t('clear')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsDateFilterOpen(false)}
+                  className="rounded-full bg-violet-800 px-4 py-2 text-xs font-semibold text-white hover:bg-violet-900"
+                >
+                  {t('apply')}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -104,7 +193,7 @@ export default function EventsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {events.map((event: any) => (
+          {events.map(event => (
             <EventCard key={event.event_id} event={event} />
           ))}
         </div>

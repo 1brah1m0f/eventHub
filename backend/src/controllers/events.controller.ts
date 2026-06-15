@@ -62,7 +62,7 @@ export async function getMapEvents(req: Request, res: Response) {
 
 export async function getEvents(req: Request, res: Response) {
   try {
-    const { type, status, search, page = '1', limit = '20' } = req.query as any;
+    const { type, status, search, date_from, date_to, page = '1', limit = '20' } = req.query as any;
     const offset = (parseInt(page) - 1) * parseInt(limit);
 
     let sql = `SELECT e.*, u.name as owner_name, u.avatar_url as owner_avatar,
@@ -75,6 +75,8 @@ export async function getEvents(req: Request, res: Response) {
     if (type) { sql += ` AND e.type = $${idx++}`; params.push(type); }
     if (status) { sql += ` AND e.status = $${idx++}`; params.push(status); }
     if (search) { sql += ` AND (e.title ILIKE $${idx} OR e.description ILIKE $${idx++})`; params.push(`%${search}%`); }
+    if (date_from) { sql += ` AND e.date >= $${idx++}`; params.push(`${date_from}T00:00:00`); }
+    if (date_to) { sql += ` AND e.date <= $${idx++}`; params.push(`${date_to}T23:59:59`); }
 
     sql += ` ORDER BY e.created_at DESC LIMIT $${idx++} OFFSET $${idx++}`;
     params.push(parseInt(limit), offset);
