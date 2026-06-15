@@ -8,6 +8,49 @@ async function ensureCoords() {
   await query(`ALTER TABLE events ADD COLUMN IF NOT EXISTS lng DOUBLE PRECISION`);
   await query(`ALTER TABLE events ADD COLUMN IF NOT EXISTS price NUMERIC(10,2)`);
   await query(`ALTER TABLE events ADD COLUMN IF NOT EXISTS is_online BOOLEAN DEFAULT FALSE`);
+  await query(`
+    UPDATE events
+    SET
+      lat = CASE
+        WHEN LOWER(location) LIKE '%baku convention%' THEN 40.3926
+        WHEN LOWER(location) LIKE '%ada university%' THEN 40.3876
+        WHEN LOWER(location) LIKE '%higher oil school%' OR LOWER(location) LIKE '%bhos%' THEN 40.3208
+        WHEN LOWER(location) LIKE '%holberton%' THEN 40.3777
+        WHEN LOWER(location) LIKE '%ufaz%' THEN 40.3737
+        WHEN LOWER(location) LIKE '%sea breeze%' THEN 40.5919
+        WHEN LOWER(location) LIKE '%innovation hub%' THEN 40.4148
+        WHEN LOWER(location) LIKE '%pasha%' THEN 40.3812
+        WHEN LOWER(location) LIKE '%jw marriott%' THEN 40.3763
+        WHEN LOWER(location) LIKE '%asan%' THEN 40.3954
+        WHEN LOWER(location) LIKE '%hilton%' THEN 40.3718
+        WHEN LOWER(location) LIKE '%bravo coworking%' THEN 40.3764
+        WHEN LOWER(location) LIKE '%baku tech hub%' THEN 40.3727
+        WHEN LOWER(location) LIKE '%oxbridge%' THEN 40.3964
+        WHEN LOWER(location) LIKE '%baku, azerbaijan%' THEN 40.4093
+        ELSE lat
+      END,
+      lng = CASE
+        WHEN LOWER(location) LIKE '%baku convention%' THEN 49.8651
+        WHEN LOWER(location) LIKE '%ada university%' THEN 49.8372
+        WHEN LOWER(location) LIKE '%higher oil school%' OR LOWER(location) LIKE '%bhos%' THEN 49.7257
+        WHEN LOWER(location) LIKE '%holberton%' THEN 49.8374
+        WHEN LOWER(location) LIKE '%ufaz%' THEN 49.8548
+        WHEN LOWER(location) LIKE '%sea breeze%' THEN 49.9862
+        WHEN LOWER(location) LIKE '%innovation hub%' THEN 49.9143
+        WHEN LOWER(location) LIKE '%pasha%' THEN 49.8505
+        WHEN LOWER(location) LIKE '%jw marriott%' THEN 49.8534
+        WHEN LOWER(location) LIKE '%asan%' THEN 49.8512
+        WHEN LOWER(location) LIKE '%hilton%' THEN 49.8490
+        WHEN LOWER(location) LIKE '%bravo coworking%' THEN 49.8430
+        WHEN LOWER(location) LIKE '%baku tech hub%' THEN 49.8421
+        WHEN LOWER(location) LIKE '%oxbridge%' THEN 49.8400
+        WHEN LOWER(location) LIKE '%baku, azerbaijan%' THEN 49.8671
+        ELSE lng
+      END
+    WHERE (lat IS NULL OR lng IS NULL)
+      AND location IS NOT NULL
+      AND LOWER(location) NOT LIKE '%online%'
+  `);
 }
 ensureCoords().catch(console.error);
 
@@ -52,7 +95,6 @@ export async function getMapEvents(req: Request, res: Response) {
         (SELECT COUNT(*) FROM registrations r WHERE r.event_id = e.event_id) as attendee_count
       FROM events e
       WHERE e.status = 'published' AND e.lat IS NOT NULL AND e.lng IS NOT NULL
-        AND (e.date IS NULL OR e.date > NOW())
     `;
     const params: any[] = [];
     let idx = 1;

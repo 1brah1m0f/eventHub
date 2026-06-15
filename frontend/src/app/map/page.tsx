@@ -3,7 +3,27 @@ import { useEffect, useMemo, useState } from 'react';
 import { APIProvider, AdvancedMarker, InfoWindow, Map, useMap } from '@vis.gl/react-google-maps';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
-import { Calendar, DollarSign, LocateFixed, MapPin, Navigation, Search, SlidersHorizontal, Target, Users, X } from 'lucide-react';
+import {
+  BookOpen,
+  BriefcaseBusiness,
+  Calendar,
+  Code2,
+  DollarSign,
+  GraduationCap,
+  Handshake,
+  LocateFixed,
+  MapPin,
+  Mic2,
+  Navigation,
+  Presentation,
+  Rocket,
+  Search,
+  SlidersHorizontal,
+  Target,
+  Trophy,
+  Users,
+  Wrench,
+} from 'lucide-react';
 import { format } from 'date-fns';
 import Link from 'next/link';
 import { EVENT_TYPES } from '@/lib/utils';
@@ -25,6 +45,20 @@ const TYPE_COLORS: Record<string, { bg: string; ring: string; text: string }> = 
   seminar:     { bg: '#0d9488', ring: '#ccfbf1', text: '#0f766e' },
   summit:      { bg: '#0284c7', ring: '#e0f2fe', text: '#0369a1' },
   course:      { bg: '#0891b2', ring: '#cffafe', text: '#0e7490' },
+};
+
+const TYPE_ICONS = {
+  hackathon: Code2,
+  conference: Mic2,
+  workshop: Wrench,
+  bootcamp: GraduationCap,
+  meetup: Users,
+  networking: Handshake,
+  competition: Trophy,
+  demo_day: Rocket,
+  seminar: Presentation,
+  summit: BriefcaseBusiness,
+  course: BookOpen,
 };
 
 interface MapEvent {
@@ -149,6 +183,7 @@ function ClusterMarker({ cluster, selectedId, onSelect }: { cluster: EventCluste
   const isCluster = cluster.events.length > 1;
   const event = cluster.events[0];
   const color = typeColor(event.type);
+  const EventIcon = TYPE_ICONS[event.type as keyof typeof TYPE_ICONS] ?? MapPin;
   const selected = selectedId === event.event_id;
 
   return (
@@ -170,10 +205,10 @@ function ClusterMarker({ cluster, selectedId, onSelect }: { cluster: EventCluste
         </div>
       ) : (
         <div
-          className={`group relative grid h-11 w-11 place-items-center rounded-2xl border-2 border-white text-white shadow-lg transition-all hover:-translate-y-1 hover:scale-105 ${selected ? '-translate-y-1 scale-110' : ''}`}
+          className={`group relative grid h-12 w-12 place-items-center rounded-2xl border-2 border-white text-white shadow-lg transition-all hover:-translate-y-1 hover:scale-105 ${selected ? '-translate-y-1 scale-110' : ''}`}
           style={{ backgroundColor: color.bg, boxShadow: `0 16px 30px ${color.bg}35` }}
         >
-          <MapPin size={22} fill="currentColor" />
+          <EventIcon size={22} strokeWidth={2.2} />
           <span className="absolute -bottom-1 h-3 w-3 rotate-45 border-b-2 border-r-2 border-white" style={{ backgroundColor: color.bg }} />
         </div>
       )}
@@ -360,23 +395,44 @@ export default function MapPage() {
               className="w-full rounded-xl border border-gray-300 bg-white py-2.5 pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700"
             />
           </div>
-          <div className="grid grid-cols-2 gap-2">
-            <input
-              type="date"
-              value={filters.date_from}
-              max={filters.date_to || undefined}
-              onChange={e => setFilter('date_from', e.target.value)}
-              className="rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700"
-              aria-label="Date from"
-            />
-            <input
-              type="date"
-              value={filters.date_to}
-              min={filters.date_from || undefined}
-              onChange={e => setFilter('date_to', e.target.value)}
-              className="rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700"
-              aria-label="Date to"
-            />
+          <div className="rounded-2xl border border-gray-200 bg-gray-50 p-3">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">Date range</span>
+              {(filters.date_from || filters.date_to) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFilter('date_from', '');
+                    setFilter('date_to', '');
+                  }}
+                  className="text-xs font-medium text-violet-700 hover:text-violet-900"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <label className="grid gap-1 text-[11px] font-medium text-gray-500">
+                From
+                <input
+                  type="date"
+                  value={filters.date_from}
+                  max={filters.date_to || undefined}
+                  onChange={e => setFilter('date_from', e.target.value)}
+                  className="rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-700"
+                />
+              </label>
+              <label className="grid gap-1 text-[11px] font-medium text-gray-500">
+                To
+                <input
+                  type="date"
+                  value={filters.date_to}
+                  min={filters.date_from || undefined}
+                  onChange={e => setFilter('date_to', e.target.value)}
+                  className="rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-700"
+                />
+              </label>
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-2">
             <select value={filters.price} onChange={e => setFilter('price', e.target.value as EventFilters['price'])} className="rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700">
