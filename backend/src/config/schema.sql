@@ -26,6 +26,8 @@ CREATE TABLE IF NOT EXISTS events (
   date TIMESTAMPTZ,
   end_date TIMESTAMPTZ,
   location VARCHAR(500),
+  price NUMERIC(10,2),
+  is_online BOOLEAN DEFAULT FALSE,
   cover_image VARCHAR(500),
   agenda JSONB,
   resources JSONB,

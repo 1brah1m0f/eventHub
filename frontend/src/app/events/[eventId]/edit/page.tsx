@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { DynamicEventFields } from '@/components/DynamicEventFields';
 import { AgendaEditor, AgendaItem } from '@/components/AgendaEditor';
+import { Coords, LocationPicker } from '@/components/LocationPicker';
 
 export default function EditEventPage() {
   const { eventId } = useParams<{ eventId: string }>();
@@ -15,6 +16,7 @@ export default function EditEventPage() {
 
   const { register, handleSubmit, setValue, watch, reset } = useForm<any>();
   const [agenda, setAgenda] = useState<AgendaItem[]>([]);
+  const [coords, setCoords] = useState<Coords | null>(null);
 
   useEffect(() => {
     if (event) {
@@ -25,19 +27,23 @@ export default function EditEventPage() {
         date: event.date ? new Date(event.date).toISOString().slice(0, 16) : '',
         end_date: event.end_date ? new Date(event.end_date).toISOString().slice(0, 16) : '',
         location: event.location,
+        price: event.price ?? '',
+        is_online: Boolean(event.is_online),
         status: event.status,
         extra_fields: event.extra_fields || {},
       });
       setAgenda(Array.isArray(event.agenda) ? event.agenda : []);
+      setCoords(event.lat != null && event.lng != null ? { lat: Number(event.lat), lng: Number(event.lng) } : null);
     }
   }, [event]);
 
   const selectedType = watch('type');
+  const isOnline = watch('is_online');
 
   const onSubmit = async (data: any) => {
     try {
       const filteredAgenda = agenda.filter(a => a.title.trim());
-      await update.mutateAsync({ ...data, agenda: filteredAgenda });
+      await update.mutateAsync({ ...data, agenda: filteredAgenda, lat: data.is_online ? null : coords?.lat, lng: data.is_online ? null : coords?.lng });
       toast.success('Event updated!');
       router.push(`/events/${eventId}`);
     } catch (err: any) {
@@ -87,8 +93,35 @@ export default function EditEventPage() {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+          <div className="mb-3 flex flex-col gap-3 rounded-xl border border-gray-200 bg-gray-50 p-3 sm:flex-row sm:items-center sm:justify-between">
+            <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+              <input
+                type="checkbox"
+                {...register('is_online')}
+                onChange={e => {
+                  setValue('is_online', e.target.checked);
+                  if (e.target.checked) setCoords(null);
+                }}
+                className="h-4 w-4 rounded border-gray-300 text-violet-800 focus:ring-violet-700"
+              />
+              This is an online event
+            </label>
+            <label className="flex items-center gap-2 text-sm text-gray-600">
+              Price
+              <input {...register('price')} type="number" min="0" step="0.01"
+                className="w-28 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700" />
+            </label>
+          </div>
           <input {...register('location')}
             className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700" />
+          {!isOnline && (
+            <LocationPicker
+              value={coords}
+              onChange={setCoords}
+              locationLabel={watch('location')}
+              onLocationLabelChange={(label) => setValue('location', label, { shouldDirty: true })}
+            />
+          )}
         </div>
 
         <div>

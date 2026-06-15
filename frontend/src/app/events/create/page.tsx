@@ -9,7 +9,7 @@ import toast from 'react-hot-toast';
 import { EVENT_TYPES, EVENT_TYPE_FIELDS } from '@/lib/utils';
 import { DynamicEventFields } from '@/components/DynamicEventFields';
 import api from '@/lib/api';
-import { Upload, X, ImageIcon } from 'lucide-react';
+import { X, ImageIcon } from 'lucide-react';
 import { AgendaEditor, AgendaItem } from '@/components/AgendaEditor';
 import { LocationPicker, Coords } from '@/components/LocationPicker';
 
@@ -37,10 +37,13 @@ const schema = z.object({
   date: z.string().optional().refine(v => !v || new Date(v) > new Date(), { message: 'Date must be in the future' }),
   end_date: z.string().optional(),
   location: z.string().optional(),
+  price: z.coerce.number().min(0).optional(),
+  is_online: z.boolean().optional(),
   extra_fields: z.record(z.string(), z.any()).optional(),
 });
 
-type Form = z.infer<typeof schema>;
+type FormInput = z.input<typeof schema>;
+type Form = z.output<typeof schema>;
 
 const inputClass = 'w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700 focus:border-transparent bg-white';
 const labelClass = 'block text-sm font-medium text-gray-700 mb-1.5';
@@ -55,12 +58,13 @@ export default function CreateEventPage() {
   const [coords, setCoords] = useState<Coords | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<Form>({
+  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormInput, unknown, Form>({
     resolver: zodResolver(schema),
-    defaultValues: { extra_fields: {}, access_type: 'public' },
+    defaultValues: { extra_fields: {}, access_type: 'public', is_online: false },
   });
 
   const selectedType = watch('type');
+  const isOnline = watch('is_online');
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -86,7 +90,7 @@ export default function CreateEventPage() {
       const filteredAgenda = agenda.filter(a => a.title.trim());
       const sl = { linkedin: socialLinks.linkedin.trim(), instagram: socialLinks.instagram.trim(), x: socialLinks.x.trim() };
       const hasSocial = sl.linkedin || sl.instagram || sl.x;
-      const event = await mutateAsync({ ...data, cover_image: coverImage || undefined, agenda: filteredAgenda.length ? filteredAgenda : undefined, social_links: hasSocial ? sl : undefined, lat: coords?.lat, lng: coords?.lng });
+      const event = await mutateAsync({ ...data, cover_image: coverImage || undefined, agenda: filteredAgenda.length ? filteredAgenda : undefined, social_links: hasSocial ? sl : undefined, lat: data.is_online ? undefined : coords?.lat, lng: data.is_online ? undefined : coords?.lng });
       toast.success('Event created!');
       router.push(`/events/${event.event_id}`);
     } catch (err: any) {
@@ -185,8 +189,40 @@ export default function CreateEventPage() {
 
         <div>
           <label className={labelClass}>Location</label>
-          <input {...register('location')} className={inputClass} placeholder="City, Country or Online" />
-          <LocationPicker value={coords} onChange={setCoords} />
+          <div className="mb-3 flex flex-col gap-3 rounded-xl border border-gray-200 bg-gray-50 p-3 sm:flex-row sm:items-center sm:justify-between">
+            <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+              <input
+                type="checkbox"
+                {...register('is_online')}
+                onChange={e => {
+                  setValue('is_online', e.target.checked);
+                  if (e.target.checked) setCoords(null);
+                }}
+                className="h-4 w-4 rounded border-gray-300 text-violet-800 focus:ring-violet-700"
+              />
+              This is an online event
+            </label>
+            <label className="flex items-center gap-2 text-sm text-gray-600">
+              Price
+              <input
+                {...register('price')}
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="0.00"
+                className="w-28 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700"
+              />
+            </label>
+          </div>
+          <input {...register('location')} className={inputClass} placeholder={isOnline ? 'Online link or platform' : 'Venue, city, country'} />
+          {!isOnline && (
+            <LocationPicker
+              value={coords}
+              onChange={setCoords}
+              locationLabel={watch('location')}
+              onLocationLabelChange={(label) => setValue('location', label, { shouldDirty: true })}
+            />
+          )}
         </div>
 
         <div>

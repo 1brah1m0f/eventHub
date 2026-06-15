@@ -6,12 +6,14 @@ import { AuthRequest } from '../middleware/auth';
 async function ensureCoords() {
   await query(`ALTER TABLE events ADD COLUMN IF NOT EXISTS lat DOUBLE PRECISION`);
   await query(`ALTER TABLE events ADD COLUMN IF NOT EXISTS lng DOUBLE PRECISION`);
+  await query(`ALTER TABLE events ADD COLUMN IF NOT EXISTS price NUMERIC(10,2)`);
+  await query(`ALTER TABLE events ADD COLUMN IF NOT EXISTS is_online BOOLEAN DEFAULT FALSE`);
 }
 ensureCoords().catch(console.error);
 
 export async function createEvent(req: AuthRequest, res: Response) {
   try {
-    const { title, description, type, date, end_date, location, lat, lng, cover_image, agenda, resources, extra_fields, access_type = 'public', images, social_links } = req.body;
+    const { title, description, type, date, end_date, location, lat, lng, price, is_online, cover_image, agenda, resources, extra_fields, access_type = 'public', images, social_links } = req.body;
     if (!title || !type) return res.status(400).json({ error: 'title and type required' });
 
     const validAccess = ['public', 'invite_only', 'approval'];
@@ -20,12 +22,14 @@ export async function createEvent(req: AuthRequest, res: Response) {
     const invite_code = access_type === 'invite_only' ? uuidv4() : null;
 
     const { rows } = await query(
-      `INSERT INTO events (event_id, title, description, type, date, end_date, location, lat, lng, cover_image, agenda, resources, extra_fields, images, social_links, created_by, status, access_type, invite_code)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,'draft',$17,$18)
+      `INSERT INTO events (event_id, title, description, type, date, end_date, location, lat, lng, price, is_online, cover_image, agenda, resources, extra_fields, images, social_links, created_by, status, access_type, invite_code)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,'draft',$19,$20)
        RETURNING *`,
       [uuidv4(), title, description, type, date, end_date, location,
        lat != null ? parseFloat(lat) : null,
        lng != null ? parseFloat(lng) : null,
+       price != null && price !== '' ? parseFloat(price) : null,
+       Boolean(is_online),
        cover_image || null,
        agenda ? JSON.stringify(agenda) : null,
        resources ? JSON.stringify(resources) : null,
@@ -42,16 +46,25 @@ export async function createEvent(req: AuthRequest, res: Response) {
 
 export async function getMapEvents(req: Request, res: Response) {
   try {
-    const { type } = req.query as any;
+    const { type, search, date_from, date_to, location, price, event_mode } = req.query as any;
     let sql = `
-      SELECT e.event_id, e.title, e.type, e.date, e.location, e.lat, e.lng, e.cover_image,
+      SELECT e.event_id, e.title, e.description, e.type, e.date, e.end_date, e.location, e.lat, e.lng, e.cover_image, e.price, e.is_online,
         (SELECT COUNT(*) FROM registrations r WHERE r.event_id = e.event_id) as attendee_count
       FROM events e
       WHERE e.status = 'published' AND e.lat IS NOT NULL AND e.lng IS NOT NULL
         AND (e.date IS NULL OR e.date > NOW())
     `;
     const params: any[] = [];
-    if (type) { sql += ` AND e.type = $1`; params.push(type); }
+    let idx = 1;
+    if (type) { sql += ` AND e.type = $${idx++}`; params.push(type); }
+    if (search) { sql += ` AND (e.title ILIKE $${idx} OR e.description ILIKE $${idx++})`; params.push(`%${search}%`); }
+    if (date_from) { sql += ` AND e.date >= $${idx++}`; params.push(`${date_from}T00:00:00`); }
+    if (date_to) { sql += ` AND e.date <= $${idx++}`; params.push(`${date_to}T23:59:59`); }
+    if (location) { sql += ` AND e.location ILIKE $${idx++}`; params.push(`%${location}%`); }
+    if (price === 'free') sql += ` AND (e.price IS NULL OR e.price = 0)`;
+    if (price === 'paid') sql += ` AND e.price > 0`;
+    if (event_mode === 'online') sql += ` AND e.is_online = TRUE`;
+    if (event_mode === 'offline') sql += ` AND COALESCE(e.is_online, FALSE) = FALSE`;
     sql += ` ORDER BY e.date ASC`;
     const { rows } = await query(sql, params);
     res.json(rows);
@@ -62,7 +75,7 @@ export async function getMapEvents(req: Request, res: Response) {
 
 export async function getEvents(req: Request, res: Response) {
   try {
-    const { type, status, search, date_from, date_to, page = '1', limit = '20' } = req.query as any;
+    const { type, status, search, date_from, date_to, location, price, event_mode, page = '1', limit = '20' } = req.query as any;
     const offset = (parseInt(page) - 1) * parseInt(limit);
 
     let sql = `SELECT e.*, u.name as owner_name, u.avatar_url as owner_avatar,
@@ -77,6 +90,11 @@ export async function getEvents(req: Request, res: Response) {
     if (search) { sql += ` AND (e.title ILIKE $${idx} OR e.description ILIKE $${idx++})`; params.push(`%${search}%`); }
     if (date_from) { sql += ` AND e.date >= $${idx++}`; params.push(`${date_from}T00:00:00`); }
     if (date_to) { sql += ` AND e.date <= $${idx++}`; params.push(`${date_to}T23:59:59`); }
+    if (location) { sql += ` AND e.location ILIKE $${idx++}`; params.push(`%${location}%`); }
+    if (price === 'free') sql += ` AND (e.price IS NULL OR e.price = 0)`;
+    if (price === 'paid') sql += ` AND e.price > 0`;
+    if (event_mode === 'online') sql += ` AND e.is_online = TRUE`;
+    if (event_mode === 'offline') sql += ` AND COALESCE(e.is_online, FALSE) = FALSE`;
 
     sql += ` ORDER BY e.created_at DESC LIMIT $${idx++} OFFSET $${idx++}`;
     params.push(parseInt(limit), offset);
@@ -120,14 +138,18 @@ export async function getEvent(req: Request & { event?: any; eventRole?: string 
 export async function updateEvent(req: Request & { event?: any; user?: any }, res: Response) {
   try {
     const event = req.event;
-    const fields = ['title','description','type','date','end_date','location','lat','lng','cover_image','agenda','resources','extra_fields','images','social_links','status'];
+    const fields = ['title','description','type','date','end_date','location','lat','lng','price','is_online','cover_image','agenda','resources','extra_fields','images','social_links','status'];
     const updates: string[] = [];
     const params: any[] = [];
     let idx = 1;
 
     for (const f of fields) {
       if (req.body[f] !== undefined) {
-        const val = ['agenda','resources','extra_fields','images','social_links'].includes(f) ? JSON.stringify(req.body[f]) : req.body[f];
+        let val = ['agenda','resources','extra_fields','images','social_links'].includes(f) ? JSON.stringify(req.body[f]) : req.body[f];
+        if (['lat','lng','price'].includes(f)) {
+          val = val === null || val === '' ? null : parseFloat(val);
+        }
+        if (f === 'is_online') val = Boolean(val);
         updates.push(`${f}=$${idx++}`);
         params.push(val);
       }
