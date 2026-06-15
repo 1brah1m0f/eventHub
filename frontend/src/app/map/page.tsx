@@ -1,25 +1,15 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
-import { APIProvider, AdvancedMarker, InfoWindow, Map, useMap } from '@vis.gl/react-google-maps';
+import { APIProvider, InfoWindow, Map, Marker, useMap } from '@vis.gl/react-google-maps';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import {
-  BookOpen,
-  BriefcaseBusiness,
   Calendar,
-  Code2,
-  GraduationCap,
-  Handshake,
   LocateFixed,
   MapPin,
-  Mic2,
   Navigation,
-  Presentation,
-  Rocket,
   Target,
-  Trophy,
   Users,
-  Wrench,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import Link from 'next/link';
@@ -27,7 +17,6 @@ import { EVENT_TYPES } from '@/lib/utils';
 import { EMPTY_EVENT_FILTERS, EventFilters, toEventQueryParams } from '@/lib/eventFilters';
 
 const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
-const MAP_ID = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || 'DEMO_MAP_ID';
 const DEFAULT_CENTER = { lat: 40.4093, lng: 49.8671 };
 
 const TYPE_COLORS: Record<string, { bg: string; ring: string; text: string }> = {
@@ -44,18 +33,19 @@ const TYPE_COLORS: Record<string, { bg: string; ring: string; text: string }> = 
   course: { bg: '#0891b2', ring: '#cffafe', text: '#0e7490' },
 };
 
-const TYPE_ICONS = {
-  hackathon: Code2,
-  conference: Mic2,
-  workshop: Wrench,
-  bootcamp: GraduationCap,
-  meetup: Users,
-  networking: Handshake,
-  competition: Trophy,
-  demo_day: Rocket,
-  seminar: Presentation,
-  summit: BriefcaseBusiness,
-  course: BookOpen,
+// DÜZƏLİŞ: hackathon üçün '</>' əvəzinə 'HACK' istifadə edilir
+const TYPE_GLYPHS: Record<string, string> = {
+  hackathon: 'HACK',
+  conference: 'MIC',
+  workshop: 'WR',
+  bootcamp: 'EDU',
+  meetup: 'MEET',
+  networking: 'NET',
+  competition: 'CUP',
+  demo_day: 'GO',
+  seminar: 'TALK',
+  summit: 'SUM',
+  course: 'BOOK',
 };
 
 type TimeMode = 'all' | 'future' | 'past';
@@ -111,6 +101,48 @@ function typeLabel(type: string) {
 
 function typeColor(type: string) {
   return TYPE_COLORS[type] ?? { bg: '#475569', ring: '#e2e8f0', text: '#334155' };
+}
+
+function markerIcon(type: string, selected = false) {
+  const color = typeColor(type);
+  const glyph = TYPE_GLYPHS[type] ?? 'EV';
+  const width = selected ? 62 : 54;
+  const height = selected ? 70 : 62;
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+      <filter id="shadow" x="-30%" y="-20%" width="160%" height="160%">
+        <feDropShadow dx="0" dy="8" stdDeviation="7" flood-color="${color.bg}" flood-opacity=".35"/>
+      </filter>
+      <path filter="url(#shadow)" d="M${width / 2} ${height - 4} C${width / 2 - 7} ${height - 17} 8 ${height - 22} 8 25 C8 11 18 4 ${width / 2} 4 C${width - 18} 4 ${width - 8} 11 ${width - 8} 25 C${width - 8} ${height - 22} ${width / 2 + 7} ${height - 17} ${width / 2} ${height - 4}Z" fill="${color.bg}" stroke="white" stroke-width="3"/>
+      <circle cx="${width / 2}" cy="26" r="${selected ? 17 : 15}" fill="rgba(255,255,255,.18)" stroke="rgba(255,255,255,.35)" stroke-width="1"/>
+      <text x="${width / 2}" y="30" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="${glyph.length > 3 ? 8 : glyph.length > 2 ? 10 : 12}" font-weight="800" fill="white">${glyph}</text>
+    </svg>
+  `;
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+}
+
+function clusterIcon(count: number) {
+  const size = count > 9 ? 56 : 48;
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+      <filter id="shadow" x="-30%" y="-20%" width="160%" height="160%">
+        <feDropShadow dx="0" dy="8" stdDeviation="7" flood-color="#111827" flood-opacity=".28"/>
+      </filter>
+      <circle filter="url(#shadow)" cx="${size / 2}" cy="${size / 2}" r="${size / 2 - 4}" fill="#111827" stroke="white" stroke-width="3"/>
+      <text x="${size / 2}" y="${size / 2 + 5}" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="800" fill="white">${count}</text>
+    </svg>
+  `;
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+}
+
+function userLocationIcon() {
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34">
+      <circle cx="17" cy="17" r="14" fill="#bfdbfe" opacity=".75"/>
+      <circle cx="17" cy="17" r="8" fill="#2563eb" stroke="white" stroke-width="4"/>
+    </svg>
+  `;
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 }
 
 function filterByTimeMode(events: MapEvent[], mode: TimeMode) {
@@ -196,14 +228,13 @@ function ClusterMarker({ cluster, selectedId, onSelect }: { cluster: EventCluste
   const map = useMap();
   const isCluster = cluster.events.length > 1;
   const event = cluster.events[0];
-  const color = typeColor(event.type);
-  const EventIcon = TYPE_ICONS[event.type as keyof typeof TYPE_ICONS] ?? MapPin;
   const selected = selectedId === event.event_id;
 
   return (
-    <AdvancedMarker
+    <Marker
       position={{ lat: cluster.lat, lng: cluster.lng }}
       title={isCluster ? `${cluster.events.length} events` : event.title}
+      icon={isCluster ? clusterIcon(cluster.events.length) : markerIcon(event.type, selected)}
       onClick={() => {
         if (isCluster) {
           map?.panTo({ lat: cluster.lat, lng: cluster.lng });
@@ -212,21 +243,7 @@ function ClusterMarker({ cluster, selectedId, onSelect }: { cluster: EventCluste
         }
         onSelect(event);
       }}
-    >
-      {isCluster ? (
-        <div className="grid h-11 min-w-11 place-items-center rounded-full border-2 border-white bg-gray-950 px-3 text-sm font-bold text-white shadow-lg shadow-gray-950/25 transition-transform hover:scale-105">
-          {cluster.events.length}
-        </div>
-      ) : (
-        <div
-          className={`relative grid h-12 w-12 place-items-center rounded-2xl border-2 border-white text-white shadow-lg transition-all hover:-translate-y-1 hover:scale-105 ${selected ? '-translate-y-1 scale-110' : ''}`}
-          style={{ backgroundColor: color.bg, boxShadow: `0 16px 30px ${color.bg}35` }}
-        >
-          <EventIcon size={22} strokeWidth={2.2} />
-          <span className="absolute -bottom-1 h-3 w-3 rotate-45 border-b-2 border-r-2 border-white" style={{ backgroundColor: color.bg }} />
-        </div>
-      )}
-    </AdvancedMarker>
+    />
   );
 }
 
@@ -410,7 +427,6 @@ export default function MapPage() {
       <section className="relative h-[calc(100dvh-120px)] min-h-[560px] overflow-hidden">
         <APIProvider apiKey={API_KEY}>
           <Map
-            mapId={MAP_ID}
             defaultCenter={DEFAULT_CENTER}
             defaultZoom={11}
             style={{ width: '100%', height: '100%' }}
@@ -434,9 +450,11 @@ export default function MapPage() {
             />
 
             {userLocation && (
-              <AdvancedMarker position={userLocation} title="Your location">
-                <div className="h-5 w-5 rounded-full border-4 border-white bg-blue-600 shadow-lg shadow-blue-600/30 ring-4 ring-blue-200" />
-              </AdvancedMarker>
+              <Marker
+                position={userLocation}
+                title="Your location"
+                icon={userLocationIcon()}
+              />
             )}
 
             {clusters.map(cluster => (
@@ -480,4 +498,3 @@ export default function MapPage() {
     </div>
   );
 }
-
