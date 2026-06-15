@@ -27,7 +27,7 @@ import { EVENT_TYPES } from '@/lib/utils';
 import { EMPTY_EVENT_FILTERS, EventFilters, toEventQueryParams } from '@/lib/eventFilters';
 
 const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
-const MAP_ID = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
+const MAP_ID = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || 'DEMO_MAP_ID';
 const DEFAULT_CENTER = { lat: 40.4093, lng: 49.8671 };
 
 const TYPE_COLORS: Record<string, { bg: string; ring: string; text: string }> = {
@@ -407,7 +407,7 @@ export default function MapPage() {
         </div>
       </div>
 
-      <section className="relative min-h-[560px] flex-1 overflow-hidden">
+      <section className="relative h-[calc(100dvh-120px)] min-h-[560px] overflow-hidden">
         <APIProvider apiKey={API_KEY}>
           <Map
             mapId={MAP_ID}
@@ -480,5 +480,4 @@ export default function MapPage() {
     </div>
   );
 }
-
 
