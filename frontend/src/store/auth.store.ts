@@ -21,6 +21,8 @@ interface AuthState {
   _hasHydrated: boolean;
   setHasHydrated: (v: boolean) => void;
   login: (email: string, password: string) => Promise<void>;
+  sendCode: (email: string, purpose: 'login' | 'password_reset') => Promise<void>;
+  verifyCode: (email: string, code: string, purpose: 'login' | 'password_reset', newPassword?: string) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   logout: () => void;
   fetchMe: () => Promise<void>;
@@ -57,6 +59,34 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
+      sendCode: async (email, purpose) => {
+        set({ isLoading: true });
+        try {
+          await api.post('/auth/send-code', { email, purpose });
+          set({ isLoading: false });
+        } catch (err) {
+          set({ isLoading: false });
+          throw err;
+        }
+      },
+
+      verifyCode: async (email, code, purpose, newPassword) => {
+        set({ isLoading: true });
+        try {
+          const { data } = await api.post('/auth/verify-code', {
+            email,
+            code,
+            purpose,
+            ...(newPassword ? { newPassword } : {}),
+          });
+          localStorage.setItem('token', data.token);
+          set({ user: data.user, token: data.token, isLoading: false });
+        } catch (err) {
+          set({ isLoading: false });
+          throw err;
+        }
+      },
+
       register: async (registerData) => {
         set({ isLoading: true });
         try {
@@ -78,7 +108,7 @@ export const useAuthStore = create<AuthState>()(
         const mockUser: User = {
           user_id: 'mock-user-1',
           name: 'Dev User',
-          email: 'dev@eventhub.local',
+          email: 'dev@nextevent.local',
           bio: 'Frontend developer',
           skills: ['React', 'TypeScript'],
         };

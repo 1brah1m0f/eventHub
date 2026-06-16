@@ -1,33 +1,46 @@
 'use client';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useAuthStore } from '@/store/auth.store';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { Calendar } from 'lucide-react';
+import { useAuthStore } from '@/store/auth.store';
 
-const schema = z.object({
-  email: z.string().email('Enter a valid email'),
-  password: z.string().min(1, 'Password is required'),
-});
-
-type Form = z.infer<typeof schema>;
-
-const inputClass = 'w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700 focus:border-transparent bg-white';
+const inputClass =
+  'w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700 focus:border-transparent bg-white';
 
 export default function LoginPage() {
-  const { login, isLoading, mockLogin } = useAuthStore();
+  const { sendCode, verifyCode, isLoading, mockLogin } = useAuthStore();
   const router = useRouter();
-  const { register, handleSubmit, formState: { errors } } = useForm<Form>({ resolver: zodResolver(schema) });
+  const [email, setEmail] = useState('');
+  const [code, setCode] = useState('');
+  const [codeSent, setCodeSent] = useState(false);
 
-  const onSubmit = async (data: Form) => {
+  const handleSendCode = async () => {
+    if (!email.trim()) {
+      toast.error('E-poçt daxil edin');
+      return;
+    }
     try {
-      await login(data.email, data.password);
+      await sendCode(email, 'login');
+      setCodeSent(true);
+      toast.success('Kod e-poçtunuza göndərildi');
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Kod göndərilmədi');
+    }
+  };
+
+  const handleVerify = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!code.trim()) {
+      toast.error('Kodu daxil edin');
+      return;
+    }
+    try {
+      await verifyCode(email, code, 'login');
       router.push('/events');
     } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Login failed');
+      toast.error(err.response?.data?.error || 'Giriş uğursuz oldu');
     }
   };
 
@@ -39,48 +52,101 @@ export default function LoginPage() {
             <Calendar size={22} className="text-violet-800" />
             <span className="text-xl font-bold text-gray-900">NextEvent</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Welcome back</h1>
-          <p className="text-gray-500 text-sm mt-1">Sign in to your account</p>
+          <h1 className="text-2xl font-bold text-gray-900">Xoş gəldiniz</h1>
+          <p className="text-gray-500 text-sm mt-1">E-poçtunuza göndərilən kodla daxil olun</p>
         </div>
 
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleVerify} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
-              <input {...register('email')} type="email" className={inputClass} placeholder="you@example.com" />
-              {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">E-poçt</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={inputClass}
+                placeholder="you@example.com"
+                disabled={codeSent && isLoading}
+              />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
-              <input {...register('password')} type="password" className={inputClass} />
-              {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
-            </div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-gradient-to-r from-violet-700 to-indigo-700 text-white py-2.5 rounded-lg font-semibold shadow-lg shadow-violet-500/20 hover:from-violet-600 hover:to-indigo-600 hover:-translate-y-0.5 disabled:opacity-50 transition-all text-sm"
-            >
-              {isLoading ? 'Signing in...' : 'Sign in'}
-            </button>
+
+            {codeSent && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Giriş kodu</label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={6}
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+                  className={`${inputClass} text-center text-lg tracking-[0.4em] font-semibold`}
+                  placeholder="000000"
+                  autoFocus
+                />
+              </div>
+            )}
+
+            {!codeSent ? (
+              <button
+                type="button"
+                onClick={handleSendCode}
+                disabled={isLoading}
+                className="w-full bg-gradient-to-r from-violet-700 to-indigo-700 text-white py-2.5 rounded-lg font-semibold shadow-lg shadow-violet-500/20 hover:from-violet-600 hover:to-indigo-600 hover:-translate-y-0.5 disabled:opacity-50 transition-all text-sm"
+              >
+                {isLoading ? 'Göndərilir...' : 'Kod göndər'}
+              </button>
+            ) : (
+              <>
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-gradient-to-r from-violet-700 to-indigo-700 text-white py-2.5 rounded-lg font-semibold shadow-lg shadow-violet-500/20 hover:from-violet-600 hover:to-indigo-600 hover:-translate-y-0.5 disabled:opacity-50 transition-all text-sm"
+                >
+                  {isLoading ? 'Yoxlanılır...' : 'Daxil ol'}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSendCode}
+                  disabled={isLoading}
+                  className="w-full text-violet-700 text-sm font-medium hover:underline disabled:opacity-50"
+                >
+                  Kodu yenidən göndər
+                </button>
+              </>
+            )}
           </form>
 
           <div className="relative my-4">
-            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200" /></div>
-            <div className="relative flex justify-center"><span className="bg-white px-3 text-xs text-gray-400">or</span></div>
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200" />
+            </div>
+            <div className="relative flex justify-center">
+              <span className="bg-white px-3 text-xs text-gray-400">və ya</span>
+            </div>
           </div>
 
           <button
             type="button"
-            onClick={() => { mockLogin(); router.push('/events'); }}
+            onClick={() => {
+              mockLogin();
+              router.push('/events');
+            }}
             className="w-full bg-gray-100 text-gray-600 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
           >
-            Continue as demo user
+            Demo istifadəçi kimi davam et
           </button>
         </div>
 
         <p className="text-sm text-center mt-4 text-gray-500">
-          No account?{' '}
-          <Link href="/register" className="text-violet-800 font-medium hover:underline">Create one</Link>
+          <Link href="/forgot-password" className="text-violet-800 font-medium hover:underline">
+            Şifrəni unutdum
+          </Link>
+        </p>
+        <p className="text-sm text-center mt-2 text-gray-500">
+          Hesabınız yoxdur?{' '}
+          <Link href="/register" className="text-violet-800 font-medium hover:underline">
+            Qeydiyyatdan keç
+          </Link>
         </p>
       </div>
     </div>

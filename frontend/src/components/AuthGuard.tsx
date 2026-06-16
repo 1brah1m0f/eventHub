@@ -4,7 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/auth.store';
 
 // Pages a guest (not logged in) is allowed to see.
-const PUBLIC_ROUTES = ['/', '/login', '/register'];
+const PUBLIC_ROUTES = ['/', '/login', '/register', '/forgot-password'];
 
 function isPublic(path: string) {
   return PUBLIC_ROUTES.includes(path);

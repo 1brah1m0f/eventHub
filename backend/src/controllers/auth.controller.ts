@@ -3,6 +3,92 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import { query } from '../config/db';
+import { sendOtpEmail } from '../services/email.service';
+
+function normalizeEmail(email: string) {
+  return email.trim().toLowerCase();
+}
+
+function generateCode() {
+  return String(Math.floor(100000 + Math.random() * 900000));
+}
+
+export async function sendCode(req: Request, res: Response) {
+  try {
+    const { email, purpose = 'login' } = req.body;
+    if (!email || !['login', 'password_reset'].includes(purpose)) {
+      return res.status(400).json({ error: 'email and valid purpose required' });
+    }
+
+    const normalized = normalizeEmail(email);
+    const { rows: users } = await query('SELECT user_id FROM users WHERE email=$1', [normalized]);
+    if (!users.length) {
+      return res.status(404).json({ error: 'Bu e-poçt ilə hesab tapılmadı' });
+    }
+
+    const { rows: recent } = await query(
+      `SELECT id FROM auth_codes
+       WHERE email=$1 AND used_at IS NULL AND created_at > NOW() - INTERVAL '60 seconds'`,
+      [normalized],
+    );
+    if (recent.length) {
+      return res.status(429).json({ error: 'Yeni kod üçün 60 saniyə gözləyin' });
+    }
+
+    const code = generateCode();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+    await query(
+      'INSERT INTO auth_codes (email, code, purpose, expires_at) VALUES ($1,$2,$3,$4)',
+      [normalized, code, purpose, expiresAt],
+    );
+
+    await sendOtpEmail(normalized, code, purpose);
+    res.json({ message: 'Kod e-poçtunuza göndərildi' });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
+export async function verifyCode(req: Request, res: Response) {
+  try {
+    const { email, code, purpose = 'login', newPassword } = req.body;
+    if (!email || !code) {
+      return res.status(400).json({ error: 'email and code required' });
+    }
+
+    const normalized = normalizeEmail(email);
+    const { rows: codes } = await query(
+      `SELECT id FROM auth_codes
+       WHERE email=$1 AND code=$2 AND purpose=$3
+         AND used_at IS NULL AND expires_at > NOW()
+       ORDER BY created_at DESC LIMIT 1`,
+      [normalized, String(code).trim(), purpose],
+    );
+    if (!codes.length) {
+      return res.status(401).json({ error: 'Kod yanlışdır və ya vaxtı bitib' });
+    }
+
+    await query('UPDATE auth_codes SET used_at=NOW() WHERE id=$1', [codes[0].id]);
+
+    if (purpose === 'password_reset' && newPassword) {
+      if (newPassword.length < 6) {
+        return res.status(400).json({ error: 'Şifrə ən azı 6 simvol olmalıdır' });
+      }
+      const hashed = await bcrypt.hash(newPassword, 12);
+      await query('UPDATE users SET password=$1 WHERE email=$2', [hashed, normalized]);
+    }
+
+    const { rows } = await query('SELECT * FROM users WHERE email=$1', [normalized]);
+    if (!rows.length) return res.status(404).json({ error: 'User not found' });
+
+    const { password: _, ...user } = rows[0];
+    const token = signToken(user.user_id, user.email);
+    res.json({ user, token });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+}
 
 export async function register(req: Request, res: Response) {
   try {
