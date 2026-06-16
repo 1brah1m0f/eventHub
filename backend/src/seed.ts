@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 const TARGET_EMAIL = 'sixiibrahimov217@gmail.com';
 
+
 const FAKE_NAMES = [
   'Anar Məmmədov','Leyla Əliyeva','Orxan Hüseynov','Nigar Quliyeva','Rauf Babayev',
   'Sevinc Əhmədova','Tural Həsənov','Günel Nəcəfova','Elçin Rəsulов','Aytən Kərimova',
