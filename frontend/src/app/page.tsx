@@ -75,7 +75,7 @@ export default function HomePage() {
             </Reveal>
             <Reveal delay={160}>
               <p className="text-lg text-violet-200/90 mb-9 max-w-lg leading-relaxed">
-                EventHub gives organizers everything they need to create, manage, and grow community events — hackathons, conferences, meetups, and more.
+                NextEvent gives organizers everything they need to create, manage, and grow community events — hackathons, conferences, meetups, and more.
               </p>
             </Reveal>
             <Reveal delay={240}>
@@ -191,7 +191,7 @@ export default function HomePage() {
               <span className="text-sm font-semibold uppercase tracking-wider text-violet-600">Flexible</span>
               <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mt-2 mb-4">Built for every type of tech event</h2>
               <p className="text-gray-500 mb-7 leading-relaxed text-lg">
-                EventHub adapts to your event format. Hackathons get team management and leaderboards. Conferences get speaker sessions and sponsors. Meetups get RSVPs and maps.
+                NextEvent adapts to your event format. Hackathons get team management and leaderboards. Conferences get speaker sessions and sponsors. Meetups get RSVPs and maps.
               </p>
               <ul className="space-y-3">
                 {['Type-specific custom fields', 'Attendee roles: participant, mentor, jury, speaker', 'Team formation for hackathons and competitions', 'Draft and publish workflow'].map(item => (

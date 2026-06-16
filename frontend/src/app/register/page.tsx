@@ -40,7 +40,7 @@ export default function RegisterPage() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Calendar size={22} className="text-violet-800" />
-            <span className="text-xl font-bold text-gray-900">EventHub</span>
+            <span className="text-xl font-bold text-gray-900">NextEvent</span>
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Create account</h1>
           <p className="text-gray-500 text-sm mt-1">Join the community</p>

@@ -68,7 +68,7 @@ export function Navbar() {
           {/* Logo */}
           <Link href={user ? '/events' : '/'} className="flex items-center gap-2 text-white font-bold text-lg tracking-tight shrink-0">
             <Calendar size={18} className="text-amber-400" />
-            Event<span className="text-amber-400">Hub</span>
+            Next<span className="text-amber-400">Event</span>
           </Link>
 
           {/* Desktop nav */}
