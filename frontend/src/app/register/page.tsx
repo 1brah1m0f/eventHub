@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { Calendar } from 'lucide-react';
+import { GoogleSignInButton } from '@/components/GoogleSignInButton';
 
 const schema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -80,6 +81,17 @@ export default function RegisterPage() {
               {isLoading ? 'Creating account...' : 'Create account'}
             </button>
           </form>
+
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200" />
+            </div>
+            <div className="relative flex justify-center">
+              <span className="bg-white px-3 text-xs text-gray-400">və ya</span>
+            </div>
+          </div>
+
+          <GoogleSignInButton />
         </div>
 
         <p className="text-sm text-center mt-4 text-gray-500">

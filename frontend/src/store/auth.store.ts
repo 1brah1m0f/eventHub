@@ -23,6 +23,7 @@ interface AuthState {
   login: (email: string, password: string) => Promise<void>;
   sendCode: (email: string, purpose: 'login' | 'password_reset') => Promise<void>;
   verifyCode: (email: string, code: string, purpose: 'login' | 'password_reset', newPassword?: string) => Promise<void>;
+  googleLogin: (credential: string) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   logout: () => void;
   fetchMe: () => Promise<void>;
@@ -79,6 +80,18 @@ export const useAuthStore = create<AuthState>()(
             purpose,
             ...(newPassword ? { newPassword } : {}),
           });
+          localStorage.setItem('token', data.token);
+          set({ user: data.user, token: data.token, isLoading: false });
+        } catch (err) {
+          set({ isLoading: false });
+          throw err;
+        }
+      },
+
+      googleLogin: async (credential) => {
+        set({ isLoading: true });
+        try {
+          const { data } = await api.post('/auth/google', { credential });
           localStorage.setItem('token', data.token);
           set({ user: data.user, token: data.token, isLoading: false });
         } catch (err) {

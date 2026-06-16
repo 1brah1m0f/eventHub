@@ -2,8 +2,11 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
+import { OAuth2Client } from 'google-auth-library';
 import { query } from '../config/db';
 import { sendOtpEmail } from '../services/email.service';
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
@@ -87,6 +90,53 @@ export async function verifyCode(req: Request, res: Response) {
     res.json({ user, token });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
+  }
+}
+
+export async function googleAuth(req: Request, res: Response) {
+  try {
+    const { credential } = req.body;
+    if (!credential) {
+      return res.status(400).json({ error: 'Google credential required' });
+    }
+    if (!process.env.GOOGLE_CLIENT_ID) {
+      return res.status(500).json({ error: 'GOOGLE_CLIENT_ID is not configured' });
+    }
+
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    if (!payload?.email) {
+      return res.status(401).json({ error: 'Google token invalid' });
+    }
+
+    const email = normalizeEmail(payload.email);
+    const name = payload.name || email.split('@')[0];
+    const avatar_url = payload.picture || null;
+
+    let { rows } = await query('SELECT * FROM users WHERE email=$1', [email]);
+
+    if (!rows.length) {
+      const hashed = await bcrypt.hash(uuidv4(), 12);
+      const { rows: created } = await query(
+        `INSERT INTO users (user_id, name, email, password, avatar_url)
+         VALUES ($1,$2,$3,$4,$5)
+         RETURNING user_id, name, email, bio, skills, linkedin_url, avatar_url, created_at`,
+        [uuidv4(), name, email, hashed, avatar_url],
+      );
+      rows = created;
+    } else if (avatar_url && !rows[0].avatar_url) {
+      await query('UPDATE users SET avatar_url=$1 WHERE user_id=$2', [avatar_url, rows[0].user_id]);
+      rows[0].avatar_url = avatar_url;
+    }
+
+    const { password: _, ...user } = rows[0];
+    const token = signToken(user.user_id, user.email);
+    res.json({ user, token });
+  } catch (err: any) {
+    res.status(401).json({ error: err.message || 'Google authentication failed' });
   }
 }
 

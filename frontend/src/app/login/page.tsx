@@ -5,6 +5,7 @@ import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { Calendar } from 'lucide-react';
 import { useAuthStore } from '@/store/auth.store';
+import { GoogleSignInButton } from '@/components/GoogleSignInButton';
 
 const inputClass =
   'w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700 focus:border-transparent bg-white';
@@ -115,6 +116,17 @@ export default function LoginPage() {
               </>
             )}
           </form>
+
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200" />
+            </div>
+            <div className="relative flex justify-center">
+              <span className="bg-white px-3 text-xs text-gray-400">və ya</span>
+            </div>
+          </div>
+
+          <GoogleSignInButton />
 
           <div className="relative my-4">
             <div className="absolute inset-0 flex items-center">
