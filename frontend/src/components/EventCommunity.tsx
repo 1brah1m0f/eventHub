@@ -39,6 +39,12 @@ export function EventCommunity({ eventId, canManage }: { eventId: string; canMan
   const qc = useQueryClient();
   const { data: attendees = [], isLoading } = useAttendees(eventId);
   const { data: achievements = [] } = useAchievements(eventId);
+  const [showAll, setShowAll] = useState(false);
+
+  const PREVIEW_COUNT = 5;
+  const attendeeList = attendees as Attendee[];
+  const visibleAttendees = showAll ? attendeeList : attendeeList.slice(0, PREVIEW_COUNT);
+  const hasMore = attendeeList.length > PREVIEW_COUNT;
 
   const [awardTarget, setAwardTarget] = useState<Attendee | null>(null);
   const [type, setType] = useState('winner');
@@ -137,33 +143,43 @@ export function EventCommunity({ eventId, canManage }: { eventId: string; canMan
         ) : attendees.length === 0 ? (
           <p className="text-sm text-gray-400">No one has joined yet. Be the first!</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {(attendees as Attendee[]).map(a => (
-              <div key={a.user_id} className="flex items-center justify-between gap-2 rounded-xl border border-gray-100 p-2.5 hover:border-violet-200 hover:bg-violet-50/30 transition-colors">
-                <Link href={`/users/${a.user_id}`} className="flex items-center gap-2.5 min-w-0">
-                  <Avatar name={a.name} url={a.avatar_url} />
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate hover:text-violet-700">{a.name}</p>
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      {a.team_name && <span className="text-xs text-violet-600">{a.team_name}</span>}
-                      {badgesByUser[a.user_id]?.slice(0, 1).map(b => (
-                        <Badge key={b.achievement_id} type={b.type} label={b.label} />
-                      ))}
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {visibleAttendees.map(a => (
+                <div key={a.user_id} className="flex items-center justify-between gap-2 rounded-xl border border-gray-100 p-2.5 hover:border-violet-200 hover:bg-violet-50/30 transition-colors">
+                  <Link href={`/users/${a.user_id}`} className="flex items-center gap-2.5 min-w-0">
+                    <Avatar name={a.name} url={a.avatar_url} />
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate hover:text-violet-700">{a.name}</p>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {a.team_name && <span className="text-xs text-violet-600">{a.team_name}</span>}
+                        {badgesByUser[a.user_id]?.slice(0, 1).map(b => (
+                          <Badge key={b.achievement_id} type={b.type} label={b.label} />
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                </Link>
-                {canManage && (
-                  <button
-                    onClick={() => setAwardTarget(a)}
-                    className="flex items-center gap-1 text-xs text-violet-700 border border-violet-200 px-2 py-1 rounded-lg hover:bg-violet-50 transition-colors shrink-0"
-                    title="Award a badge"
-                  >
-                    <Award size={12} /> Award
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
+                  </Link>
+                  {canManage && (
+                    <button
+                      onClick={() => setAwardTarget(a)}
+                      className="flex items-center gap-1 text-xs text-violet-700 border border-violet-200 px-2 py-1 rounded-lg hover:bg-violet-50 transition-colors shrink-0"
+                      title="Award a badge"
+                    >
+                      <Award size={12} /> Award
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+            {hasMore && (
+              <button
+                onClick={() => setShowAll(v => !v)}
+                className="mt-3 w-full text-sm text-violet-700 border border-violet-200 hover:bg-violet-50 py-2 rounded-lg transition-colors font-medium"
+              >
+                {showAll ? 'Show less' : `Show all ${attendeeList.length} participants`}
+              </button>
+            )}
+          </>
         )}
       </section>
 

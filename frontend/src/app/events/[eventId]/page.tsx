@@ -3,7 +3,7 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useEvent, useRegisterForEvent, useUpdateEvent, useDeleteEvent } from '@/hooks/useEvents';
 import { useAuthStore } from '@/store/auth.store';
 import { format } from 'date-fns';
-import { Calendar, MapPin, Users, Pencil, Trash2, Globe, CheckCircle2, ArrowLeft, Plus, X, Lock, Clock, Share2, Link2, Check } from 'lucide-react';
+import { Calendar, MapPin, Users, Pencil, Trash2, Globe, CheckCircle2, ArrowLeft, Lock, Clock, Share2, Link2, Check } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { EVENT_TYPES } from '@/lib/utils';
@@ -11,6 +11,7 @@ import { QASection } from '@/components/QASection';
 import { StaffManagement } from '@/components/StaffManagement';
 import { AttendeesPanel } from '@/components/AttendeesPanel';
 import { EventCommunity } from '@/components/EventCommunity';
+import { EventTeamSection } from '@/components/EventTeamSection';
 import { EventCarousel } from '@/components/EventCarousel';
 import { useState } from 'react';
 
@@ -26,8 +27,6 @@ const TYPE_COLORS: Record<string, { bg: string; text: string }> = {
   seminar:     { bg: 'bg-teal-100',   text: 'text-teal-700'   },
 };
 
-const inputClass = 'w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700 bg-white';
-
 export default function EventDetailPage() {
   const { eventId } = useParams<{ eventId: string }>();
   const searchParams = useSearchParams();
@@ -39,10 +38,6 @@ export default function EventDetailPage() {
   const updateEvent = useUpdateEvent(eventId);
   const deleteEvent = useDeleteEvent();
 
-  const [showTeamForm, setShowTeamForm] = useState(false);
-  const [teamName, setTeamName] = useState('');
-  const [memberInput, setMemberInput] = useState('');
-  const [members, setMembers] = useState<string[]>([]);
   const [linkCopied, setLinkCopied] = useState(false);
 
   if (isLoading) return (
@@ -75,12 +70,6 @@ export default function EventDetailPage() {
   const hasValidInvite = isInviteOnly && inviteCodeParam === event.invite_code;
   const canRegister = !isInviteOnly || hasValidInvite;
 
-  const addMember = () => {
-    const m = memberInput.trim();
-    if (m && !members.includes(m) && members.length < 4) setMembers(prev => [...prev, m]);
-    setMemberInput('');
-  };
-
   const handleRegister = async () => {
     if (!user) { router.push('/login'); return; }
     try {
@@ -88,20 +77,6 @@ export default function EventDetailPage() {
         isInviteOnly ? { invite_code: inviteCodeParam || '' } : undefined
       );
       toast.success(res?.status === 'pending' ? 'Request sent — waiting for approval' : 'Registered!');
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Registration failed');
-    }
-  };
-
-  const handleTeamRegister = async () => {
-    if (!user) { router.push('/login'); return; }
-    if (!teamName.trim()) { toast.error('Enter a team name'); return; }
-    try {
-      const payload: any = { team_name: teamName.trim(), team_members: members };
-      if (isInviteOnly) payload.invite_code = inviteCodeParam || '';
-      const res: any = await registerMutation.mutateAsync(payload);
-      toast.success(res?.status === 'pending' ? 'Request sent — waiting for approval' : 'Team registered!');
-      setShowTeamForm(false);
     } catch (err: any) {
       toast.error(err.response?.data?.error || 'Registration failed');
     }
@@ -358,84 +333,18 @@ export default function EventDetailPage() {
               <Clock size={14} />
               {registerMutation.isPending ? 'Sending...' : 'Request to join'}
             </button>
-          ) : isHackathon && !showTeamForm && canRegister ? (
-            <div className="flex gap-3 flex-wrap">
+          ) : isHackathon && canRegister ? (
+            <div className="space-y-3">
               <button
                 onClick={handleRegister}
                 disabled={registerMutation.isPending}
-                className="bg-violet-800 text-white px-5 py-2.5 rounded-lg hover:bg-violet-900 disabled:opacity-50 transition-colors font-medium text-sm"
+                className="w-full bg-violet-800 text-white px-5 py-2.5 rounded-lg hover:bg-violet-900 disabled:opacity-50 transition-colors font-medium text-sm"
               >
                 {registerMutation.isPending ? 'Registering...' : isApproval ? 'Request to join (solo)' : 'Register solo'}
               </button>
-              <button
-                onClick={() => setShowTeamForm(true)}
-                className="flex items-center gap-1.5 border border-violet-800 text-violet-800 px-5 py-2.5 rounded-lg hover:bg-violet-50 transition-colors font-medium text-sm"
-              >
-                <Users size={14} /> {isApproval ? 'Request as team' : 'Register as team'}
-              </button>
+              <EventTeamSection eventId={eventId} isApproval={isApproval} />
             </div>
           ) : null}
-
-          {isHackathon && showTeamForm && (
-            <div className="border border-gray-200 rounded-xl p-5 max-w-md bg-gray-50">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-gray-900 text-sm">Team Registration</h3>
-                <button onClick={() => setShowTeamForm(false)} className="text-gray-400 hover:text-gray-600">
-                  <X size={16} />
-                </button>
-              </div>
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Team name *</label>
-                  <input
-                    value={teamName}
-                    onChange={e => setTeamName(e.target.value)}
-                    className={inputClass}
-                    placeholder="e.g. ByteForce"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Team members <span className="text-gray-400">(max 4, optional)</span></label>
-                  <div className="flex flex-wrap gap-1.5 mb-2">
-                    {members.map(m => (
-                      <span key={m} className="flex items-center gap-1 text-xs bg-violet-50 text-violet-800 border border-violet-100 px-2 py-0.5 rounded-md">
-                        {m}
-                        <button type="button" onClick={() => setMembers(p => p.filter(x => x !== m))} className="text-violet-400 hover:text-red-500">
-                          <X size={10} />
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                  {members.length < 4 && (
-                    <div className="flex gap-2">
-                      <input
-                        value={memberInput}
-                        onChange={e => setMemberInput(e.target.value)}
-                        onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addMember())}
-                        className={inputClass}
-                        placeholder="Member name, press Enter"
-                      />
-                      <button type="button" onClick={addMember} className="px-3 border border-gray-300 rounded-lg hover:bg-white text-gray-600 transition-colors">
-                        <Plus size={14} />
-                      </button>
-                    </div>
-                  )}
-                </div>
-                <div className="flex gap-2 pt-1">
-                  <button
-                    onClick={handleTeamRegister}
-                    disabled={registerMutation.isPending}
-                    className="bg-violet-800 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-violet-900 disabled:opacity-50 transition-colors"
-                  >
-                    {registerMutation.isPending ? 'Registering...' : 'Register team'}
-                  </button>
-                  <button onClick={() => setShowTeamForm(false)} className="px-4 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-white transition-colors">
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
 
           {!isHackathon && canRegister && !isApproval && (
             <button

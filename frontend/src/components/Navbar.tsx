@@ -176,7 +176,6 @@ export function Navbar() {
 
             {!user && (
               <>
-                <LanguageSwitcher variant="dark" />
                 <Link href="/login" className={navLinkCls}>{t('login')}</Link>
                 <Link href="/register" className="text-sm bg-amber-400 hover:bg-amber-300 text-indigo-950 font-semibold px-3.5 py-1.5 rounded-md transition-colors ml-1">
                   {t('signUp')}
@@ -267,12 +266,6 @@ export function Navbar() {
               </>
             ) : (
               <>
-                <div className="flex items-center justify-between px-3 py-2">
-                  <span className="flex items-center gap-2 text-sm text-violet-300">
-                    <Globe size={14} /> {t('language')}
-                  </span>
-                  <LanguageSwitcher variant="dark" />
-                </div>
                 <Link href="/login" onClick={close} className="block text-sm text-violet-300 hover:text-white px-3 py-2.5 rounded-md hover:bg-violet-800/50 transition-colors">
                   {t('login')}
                 </Link>

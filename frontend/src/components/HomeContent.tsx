@@ -2,33 +2,33 @@
 import Link from 'next/link';
 import { Calendar, Users, MessageSquare, Layers, ArrowRight, CheckCircle, Sparkles } from 'lucide-react';
 import { Reveal } from '@/components/Reveal';
-import { useT, EVENT_TYPE_VALUES } from '@/lib/i18n';
+
+const EVENT_TYPES = [
+  'Hackathon', 'Conference', 'Bootcamp', 'Meetup', 'Workshop',
+  'Demo Day', 'Competition', 'Seminar', 'Networking Event', 'Summit',
+];
+
+const FEATURES = [
+  { icon: Layers, title: 'Any event type', desc: 'Hackathons, conferences, bootcamps, meetups, workshops, competitions — all supported with type-specific fields.' },
+  { icon: Users, title: 'Staff and roles', desc: 'Invite co-organizers, assign staff roles, manage registrations, and track attendees from one place.' },
+  { icon: MessageSquare, title: 'Live Q&A', desc: 'Built-in Q&A with audience upvoting so the best questions surface. Moderated by your team.' },
+  { icon: Calendar, title: 'Full event lifecycle', desc: 'Draft, publish, manage, and wrap up events. Agenda, resources, and custom fields all included.' },
+];
+
+const STEPS = [
+  { num: '01', title: 'Create your event', desc: 'Choose a type, fill in details, add a cover image. Publish when ready.' },
+  { num: '02', title: 'Invite your team', desc: 'Add co-organizers and staff. Each person gets the right level of access.' },
+  { num: '03', title: 'Manage on the day', desc: 'Handle registrations, run Q&A, track attendees — all in real time.' },
+];
+
+const FLEXIBLE_ITEMS = [
+  'Type-specific custom fields',
+  'Attendee roles: participant, mentor, jury, speaker',
+  'Team formation for hackathons and competitions',
+  'Draft and publish workflow',
+];
 
 export function HomeContent() {
-  const t = useT();
-
-  const FEATURES = [
-    { icon: Layers, title: t('homeFeature1Title'), desc: t('homeFeature1Desc') },
-    { icon: Users, title: t('homeFeature2Title'), desc: t('homeFeature2Desc') },
-    { icon: MessageSquare, title: t('homeFeature3Title'), desc: t('homeFeature3Desc') },
-    { icon: Calendar, title: t('homeFeature4Title'), desc: t('homeFeature4Desc') },
-  ];
-
-  const STEPS = [
-    { num: '01', title: t('step1Title'), desc: t('step1Desc') },
-    { num: '02', title: t('step2Title'), desc: t('step2Desc') },
-    { num: '03', title: t('step3Title'), desc: t('step3Desc') },
-  ];
-
-  const FLEXIBLE_ITEMS = [
-    t('flexibleItem1'),
-    t('flexibleItem2'),
-    t('flexibleItem3'),
-    t('flexibleItem4'),
-  ];
-
-  const typeLabels = EVENT_TYPE_VALUES.map((value) => t(`eventType_${value}` as Parameters<typeof t>[0]));
-
   return (
     <>
       <section className="relative min-h-[100dvh] flex items-center px-4 py-24 text-white">
@@ -51,19 +51,19 @@ export function HomeContent() {
             <Reveal>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 backdrop-blur px-3.5 py-1.5 text-xs font-medium text-violet-200 mb-6">
                 <Sparkles size={13} className="text-amber-300" />
-                {t('homeBadge')}
+                One platform for every community event
               </span>
             </Reveal>
             <Reveal delay={80}>
               <h1 className="text-5xl sm:text-6xl xl:text-7xl font-bold leading-[1.05] tracking-tight mb-6">
-                {t('homeTitle1')}
+                Run great events,
                 <br />
-                <span className="text-gradient">{t('homeTitle2')}</span>
+                <span className="text-gradient">start to finish.</span>
               </h1>
             </Reveal>
             <Reveal delay={160}>
               <p className="text-lg text-violet-200/90 mb-9 max-w-lg leading-relaxed">
-                {t('homeDesc')}
+                NextEvent gives organizers everything they need to create, manage, and grow community events — hackathons, conferences, meetups, and more.
               </p>
             </Reveal>
             <Reveal delay={240}>
@@ -72,14 +72,14 @@ export function HomeContent() {
                   href="/register"
                   className="group flex items-center justify-center gap-2 bg-amber-400 text-indigo-950 px-6 py-3.5 rounded-xl font-semibold shadow-lg shadow-amber-400/25 hover:shadow-amber-400/40 hover:bg-amber-300 hover:-translate-y-0.5 transition-all duration-300"
                 >
-                  {t('getStartedFree')}
+                  Get started free
                   <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link
                   href="/login"
                   className="flex items-center justify-center gap-2 border border-white/20 bg-white/5 backdrop-blur text-white px-6 py-3.5 rounded-xl font-semibold hover:bg-white/10 hover:border-white/30 transition-all duration-300"
                 >
-                  {t('signIn')}
+                  Sign in
                 </Link>
               </div>
             </Reveal>
@@ -87,7 +87,7 @@ export function HomeContent() {
 
           <Reveal delay={300} className="hidden lg:block">
             <div className="grid grid-cols-2 gap-3">
-              {typeLabels.map((type, i) => (
+              {EVENT_TYPES.map((type, i) => (
                 <div
                   key={type}
                   className={`rounded-2xl px-4 py-4 text-sm font-medium border backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] ${
@@ -108,7 +108,7 @@ export function HomeContent() {
 
       <div className="bg-indigo-950 border-y border-white/5 py-4 overflow-hidden">
         <div className="flex w-max animate-marquee gap-3">
-          {[...typeLabels, ...typeLabels].map((type, i) => (
+          {[...EVENT_TYPES, ...EVENT_TYPES].map((type, i) => (
             <span
               key={i}
               className="rounded-full border border-white/10 bg-white/5 px-5 py-2 text-sm font-medium text-violet-200 whitespace-nowrap"
@@ -122,9 +122,9 @@ export function HomeContent() {
       <section className="py-24 px-4 bg-gradient-to-b from-indigo-50/60 to-white">
         <div className="max-w-6xl mx-auto">
           <Reveal className="mb-14">
-            <span className="text-sm font-semibold uppercase tracking-wider text-violet-600">{t('featuresLabel')}</span>
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mt-2 mb-3">{t('featuresTitle')}</h2>
-            <p className="text-gray-500 max-w-xl text-lg">{t('featuresDesc')}</p>
+            <span className="text-sm font-semibold uppercase tracking-wider text-violet-600">Features</span>
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mt-2 mb-3">Everything you need to run events</h2>
+            <p className="text-gray-500 max-w-xl text-lg">Powerful tools that stay out of your way. No bloat, no complex setup.</p>
           </Reveal>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {FEATURES.map((f, i) => (
@@ -145,9 +145,9 @@ export function HomeContent() {
       <section className="py-24 px-4 bg-white">
         <div className="max-w-5xl mx-auto">
           <Reveal className="mb-14">
-            <span className="text-sm font-semibold uppercase tracking-wider text-violet-600">{t('workflowLabel')}</span>
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mt-2 mb-3">{t('howItWorks')}</h2>
-            <p className="text-gray-500 text-lg">{t('howItWorksDesc')}</p>
+            <span className="text-sm font-semibold uppercase tracking-wider text-violet-600">Workflow</span>
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mt-2 mb-3">How it works</h2>
+            <p className="text-gray-500 text-lg">From idea to live event in minutes.</p>
           </Reveal>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {STEPS.map((s, i) => (
@@ -171,9 +171,11 @@ export function HomeContent() {
         <div className="max-w-5xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 items-center">
             <Reveal>
-              <span className="text-sm font-semibold uppercase tracking-wider text-violet-600">{t('flexibleLabel')}</span>
-              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mt-2 mb-4">{t('flexibleTitle')}</h2>
-              <p className="text-gray-500 mb-7 leading-relaxed text-lg">{t('flexibleDesc')}</p>
+              <span className="text-sm font-semibold uppercase tracking-wider text-violet-600">Flexible</span>
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mt-2 mb-4">Built for every type of tech event</h2>
+              <p className="text-gray-500 mb-7 leading-relaxed text-lg">
+                NextEvent adapts to your event format. Hackathons get team management and leaderboards. Conferences get speaker sessions and sponsors. Meetups get RSVPs and maps.
+              </p>
               <ul className="space-y-3">
                 {FLEXIBLE_ITEMS.map((item) => (
                   <li key={item} className="flex items-center gap-3 text-sm text-gray-700">
@@ -187,7 +189,7 @@ export function HomeContent() {
             </Reveal>
             <Reveal delay={150}>
               <div className="grid grid-cols-2 gap-3">
-                {typeLabels.slice(0, 6).map((type, i) => (
+                {EVENT_TYPES.slice(0, 6).map((type, i) => (
                   <div
                     key={type}
                     className={`rounded-xl px-4 py-4 text-sm font-medium text-center border transition-all duration-300 hover:-translate-y-1 ${
@@ -211,14 +213,14 @@ export function HomeContent() {
         <div className="absolute bottom-0 right-1/4 w-96 h-96 rounded-full bg-fuchsia-500/20 blur-3xl animate-float-2 pointer-events-none" />
         <Reveal className="relative max-w-2xl mx-auto">
           <h2 className="text-4xl sm:text-5xl font-bold mb-5">
-            {t('ctaTitle')}
+            Ready to run your next event?
           </h2>
-          <p className="text-violet-200/90 mb-9 text-lg">{t('ctaDesc')}</p>
+          <p className="text-violet-200/90 mb-9 text-lg">Create an account, set up your event, and go live in minutes.</p>
           <Link
             href="/register"
             className="group inline-flex items-center gap-2 bg-amber-400 text-indigo-950 px-8 py-4 rounded-xl font-semibold shadow-xl shadow-amber-400/25 hover:shadow-amber-400/40 hover:bg-amber-300 hover:-translate-y-0.5 transition-all duration-300 text-base"
           >
-            {t('createFreeAccount')}
+            Create free account
             <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
           </Link>
         </Reveal>
