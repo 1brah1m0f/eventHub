@@ -3,10 +3,12 @@ import { GoogleLogin } from '@react-oauth/google';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '@/store/auth.store';
+import { useT } from '@/lib/i18n';
 
 export function GoogleSignInButton() {
   const { googleLogin } = useAuthStore();
   const router = useRouter();
+  const t = useT();
 
   return (
     <div className="w-full [&>div]:!w-full [&>div>div]:!w-full">
@@ -17,10 +19,10 @@ export function GoogleSignInButton() {
             await googleLogin(response.credential);
             router.push('/events');
           } catch (err: any) {
-            toast.error(err.response?.data?.error || 'Google giriş uğursuz oldu');
+            toast.error(err.response?.data?.error || t('googleLoginFailed'));
           }
         }}
-        onError={() => toast.error('Google giriş uğursuz oldu')}
+        onError={() => toast.error(t('googleLoginFailed'))}
         theme="outline"
         size="large"
         text="continue_with"

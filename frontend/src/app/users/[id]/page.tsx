@@ -5,8 +5,8 @@ import Link from 'next/link';
 import { format } from 'date-fns';
 import { Calendar, MapPin, Globe, CalendarDays, Megaphone, Trophy, ArrowLeft } from 'lucide-react';
 import api from '@/lib/api';
-import { EVENT_TYPES } from '@/lib/utils';
 import { BadgeCard, Badge } from '@/components/Badge';
+import { useT, useEventTypeLabel } from '@/lib/i18n';
 
 interface ProfileData {
   user: {
@@ -27,7 +27,9 @@ function useProfile(id: string) {
   });
 }
 
-const typeLabel = (t: string) => EVENT_TYPES.find(x => x.value === t)?.label ?? t;
+function EventTypeLabel({ type }: { type: string }) {
+  return <>{useEventTypeLabel(type)}</>;
+}
 
 function StatCard({ icon: Icon, value, label }: { icon: any; value: number; label: string }) {
   return (
@@ -42,6 +44,7 @@ function StatCard({ icon: Icon, value, label }: { icon: any; value: number; labe
 export default function PublicProfilePage() {
   const { id } = useParams<{ id: string }>();
   const { data, isLoading, isError } = useProfile(id);
+  const t = useT();
 
   if (isLoading) return (
     <div className="max-w-3xl mx-auto px-4 py-10 animate-pulse space-y-4">
@@ -53,8 +56,8 @@ export default function PublicProfilePage() {
 
   if (isError || !data) return (
     <div className="text-center py-24 text-gray-500">
-      <p className="text-lg mb-2">Profile not found</p>
-      <Link href="/events" className="text-sm text-violet-700 hover:underline">Back to events</Link>
+      <p className="text-lg mb-2">{t('profileNotFound')}</p>
+      <Link href="/events" className="text-sm text-violet-700 hover:underline">{t('backToEvents')}</Link>
     </div>
   );
 
@@ -63,7 +66,7 @@ export default function PublicProfilePage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
       <Link href="/events" className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-violet-700 mb-5 w-fit transition-colors">
-        <ArrowLeft size={14} /> Back
+        <ArrowLeft size={14} /> {t('back')}
       </Link>
 
       {/* Header */}
@@ -113,16 +116,16 @@ export default function PublicProfilePage() {
 
       {/* Stats */}
       <div className="flex gap-3 mb-8">
-        <StatCard icon={CalendarDays} value={stats.events_attended} label="Events attended" />
-        <StatCard icon={Megaphone} value={stats.events_organized} label="Events organized" />
-        <StatCard icon={Trophy} value={stats.badges} label="Badges earned" />
+        <StatCard icon={CalendarDays} value={stats.events_attended} label={t('eventsAttended')} />
+        <StatCard icon={Megaphone} value={stats.events_organized} label={t('eventsOrganized')} />
+        <StatCard icon={Trophy} value={stats.badges} label={t('badgesEarned')} />
       </div>
 
       {/* Badges */}
       {achievements.length > 0 && (
         <section className="mb-8">
           <h2 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-            <Trophy size={18} className="text-amber-500" /> Achievements
+            <Trophy size={18} className="text-amber-500" /> {t('achievements')}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {achievements.map(a => (
@@ -136,9 +139,9 @@ export default function PublicProfilePage() {
 
       {/* Event history */}
       <section>
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">Event history</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-3">{t('eventHistory')}</h2>
         {history.length === 0 ? (
-          <p className="text-sm text-gray-400">No events yet.</p>
+          <p className="text-sm text-gray-400">{t('noEventsProfile')}</p>
         ) : (
           <div className="border border-gray-100 rounded-xl overflow-hidden">
             {history.map(ev => (
@@ -150,7 +153,7 @@ export default function PublicProfilePage() {
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-gray-900 truncate">{ev.title}</p>
                   <div className="flex items-center gap-3 text-xs text-gray-500 mt-0.5">
-                    <span>{typeLabel(ev.type)}</span>
+                    <span><EventTypeLabel type={ev.type} /></span>
                     {ev.date && (
                       <span className="flex items-center gap-1">
                         <Calendar size={11} /> {format(new Date(ev.date), 'MMM yyyy')}

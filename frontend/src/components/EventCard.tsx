@@ -1,7 +1,8 @@
+'use client';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { Calendar, MapPin, Users } from 'lucide-react';
-import { EVENT_TYPES } from '@/lib/utils';
+import { useEventTypeLabel, useT } from '@/lib/i18n';
 
 interface Props {
   event: any;
@@ -35,7 +36,8 @@ const TYPE_BANNER: Record<string, string> = {
 };
 
 export function EventCard({ event }: Props) {
-  const typeLabel = EVENT_TYPES.find(t => t.value === event.type)?.label || event.type;
+  const t = useT();
+  const typeLabel = useEventTypeLabel(event.type);
   const colors = TYPE_COLORS[event.type] || { bg: 'bg-gray-100', text: 'text-gray-700' };
   const banner = TYPE_BANNER[event.type] || 'from-violet-900 to-violet-800';
 
@@ -60,7 +62,7 @@ export function EventCard({ event }: Props) {
             {typeLabel}
           </span>
           {event.status === 'draft' && (
-            <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-md">Draft</span>
+            <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-md">{t('draft')}</span>
           )}
         </div>
 
@@ -88,7 +90,7 @@ export function EventCard({ event }: Props) {
           {event.attendee_count !== undefined && Number(event.attendee_count) > 0 && (
             <span className="flex items-center gap-1.5">
               <Users size={11} className="text-violet-600 shrink-0" />
-              {Number(event.attendee_count).toLocaleString()} registered
+              {t('registered', { n: Number(event.attendee_count).toLocaleString() })}
             </span>
           )}
         </div>

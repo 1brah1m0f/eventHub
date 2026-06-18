@@ -16,12 +16,21 @@ function ThemeSync() {
   return null;
 }
 
+function LanguageSync() {
+  const { language } = useSettingsStore();
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
+  return null;
+}
+
 export function Providers({ children }: { children: React.ReactNode }) {
   const [qc] = useState(() => new QueryClient({ defaultOptions: { queries: { staleTime: 30_000 } } }));
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <QueryClientProvider client={qc}>
         <ThemeSync />
+        <LanguageSync />
         <AuthGuard>{children}</AuthGuard>
         <Toaster position="top-right" />
       </QueryClientProvider>

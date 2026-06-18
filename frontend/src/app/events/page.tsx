@@ -2,9 +2,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useEvents } from '@/hooks/useEvents';
 import { EventCard } from '@/components/EventCard';
-import { EVENT_TYPES } from '@/lib/utils';
 import { Search, SlidersHorizontal } from 'lucide-react';
-import { useT } from '@/lib/i18n';
+import { useT, useEventTypes } from '@/lib/i18n';
 import { EMPTY_EVENT_FILTERS, isInDateRange, toEventQueryParams } from '@/lib/eventFilters';
 
 const COVER = (id: string) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=1000&q=80`;
@@ -28,6 +27,7 @@ export default function EventsPage() {
   const dateFromInputRef = useRef<HTMLInputElement>(null);
   const { data: apiEvents, isLoading } = useEvents(toEventQueryParams(filters));
   const t = useT();
+  const eventTypes = useEventTypes();
 
   useEffect(() => {
     if (!isDateFilterOpen) return;
@@ -70,12 +70,12 @@ export default function EventsPage() {
             className="appearance-none border border-gray-300 rounded-full pl-3 pr-11 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700 bg-white"
           >
             <option value="">{t('allTypes')}</option>
-            {EVENT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+            {eventTypes.map((et) => <option key={et.value} value={et.value}>{et.label}</option>)}
           </select>
           <button
             type="button"
             onClick={() => setIsDateFilterOpen(open => !open)}
-            aria-label="Filter by date range"
+            aria-label={t('filterByDate')}
             className={`absolute right-1.5 top-1/2 -translate-y-1/2 grid h-8 w-8 place-items-center rounded-full transition-colors ${
               filters.date_from || filters.date_to ? 'bg-violet-800 text-white' : 'text-gray-500 hover:bg-gray-100'
             }`}
@@ -138,17 +138,17 @@ export default function EventsPage() {
         >
           {t('all')}
         </button>
-        {EVENT_TYPES.map(t => (
+        {eventTypes.map((et) => (
           <button
-            key={t.value}
-            onClick={() => setFilters(f => ({ ...f, type: f.type === t.value ? '' : t.value }))}
+            key={et.value}
+            onClick={() => setFilters(f => ({ ...f, type: f.type === et.value ? '' : et.value }))}
             className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${
-              filters.type === t.value
+              filters.type === et.value
                 ? 'bg-violet-800 text-white border-violet-800'
                 : 'text-gray-600 border-gray-200 hover:bg-gray-50'
             }`}
           >
-            {t.label}
+            {et.label}
           </button>
         ))}
       </div>

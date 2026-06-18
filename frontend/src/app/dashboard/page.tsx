@@ -9,6 +9,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
 import { TrendingUp, Users, Calendar, Award, Star, Clock, Tag } from 'lucide-react';
+import { useT } from '@/lib/i18n';
 
 const TYPE_COLORS: Record<string, string> = {
   hackathon: '#7c3aed',
@@ -57,6 +58,7 @@ export default function DashboardPage() {
   const { user } = useAuthStore();
   const router = useRouter();
   const { data, isLoading } = useDashboard();
+  const t = useT();
 
   useEffect(() => {
     if (!user) router.push('/login');
@@ -86,35 +88,35 @@ export default function DashboardPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-5">
       <div>
-        <h1 className="text-xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-sm text-gray-400 mt-0.5">Your event analytics</p>
+        <h1 className="text-xl font-bold text-gray-900">{t('dashboardTitle')}</h1>
+        <p className="text-sm text-gray-400 mt-0.5">{t('dashboardDesc')}</p>
       </div>
 
       {/* Overview cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          label="Total Events"
+          label={t('totalEvents')}
           value={overview.total_events}
           icon={Calendar}
           accent="bg-violet-50 text-violet-700"
         />
         <StatCard
-          label="Total Registrations"
+          label={t('totalRegistrations')}
           value={overview.total_registrations.toLocaleString()}
           icon={Users}
           accent="bg-violet-50 text-violet-700"
         />
         <StatCard
-          label="12-Month Growth"
+          label={t('growth12Month')}
           value={`${growthSign}${overview.growth_12m}%`}
-          sub="vs previous 12 months"
+          sub={t('vsPrevious12')}
           icon={TrendingUp}
           accent={overview.growth_12m >= 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-500'}
         />
         <StatCard
-          label="Avg per Event"
+          label={t('avgPerEvent')}
           value={overview.total_events ? Math.round(overview.total_registrations / overview.total_events) : 0}
-          sub="registrations"
+          sub={t('registrationsLabel')}
           icon={Award}
           accent="bg-orange-50 text-orange-700"
         />
@@ -122,7 +124,7 @@ export default function DashboardPage() {
 
       {/* Charts row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <Section title="Registrations Over Time (last 12 months)">
+        <Section title={t('registrationsOverTime')}>
           <div className="lg:col-span-2" style={{ height: 220 }}>
             {monthly_registrations.length ? (
               <ResponsiveContainer width="100%" height="100%">
@@ -132,18 +134,18 @@ export default function DashboardPage() {
                   <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
                   <Tooltip
                     contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e5e7eb' }}
-                    formatter={(v: any) => [v, 'Registrations']}
+                    formatter={(v: any) => [v, t('chartRegistrations')]}
                   />
                   <Line type="monotone" dataKey="count" stroke="#1d4ed8" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
                 </LineChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-full flex items-center justify-center text-sm text-gray-400">No registration data yet</div>
+              <div className="h-full flex items-center justify-center text-sm text-gray-400">{t('noRegistrationData')}</div>
             )}
           </div>
         </Section>
 
-        <Section title="By Event Type">
+        <Section title={t('byEventType')}>
           <div style={{ height: 220 }}>
             {category_breakdown.length ? (
               <ResponsiveContainer width="100%" height="100%">
@@ -172,7 +174,7 @@ export default function DashboardPage() {
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-full flex items-center justify-center text-sm text-gray-400">No data</div>
+              <div className="h-full flex items-center justify-center text-sm text-gray-400">{t('noData')}</div>
             )}
           </div>
         </Section>
@@ -180,7 +182,7 @@ export default function DashboardPage() {
 
       {/* Event comparison bar chart */}
       {event_comparison.length > 0 && (
-        <Section title="Event Comparison — Registrations">
+        <Section title={t('eventComparisonRegistrations')}>
           <div style={{ height: 240 }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
@@ -214,15 +216,15 @@ export default function DashboardPage() {
       {/* Event comparison table + trends */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         <div className="lg:col-span-2">
-          <Section title="Event Comparison">
+          <Section title={t('eventComparison')}>
             {event_comparison.length ? (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="text-left text-xs text-gray-400 border-b border-gray-100">
-                      <th className="pb-2 pr-3 font-medium">Event</th>
-                      <th className="pb-2 pr-3 font-medium text-right">Registrations</th>
-                      <th className="pb-2 font-medium">Date</th>
+                      <th className="pb-2 pr-3 font-medium">{t('tableEvent')}</th>
+                      <th className="pb-2 pr-3 font-medium text-right">{t('totalRegistrations')}</th>
+                      <th className="pb-2 font-medium">{t('tableDate')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -242,20 +244,20 @@ export default function DashboardPage() {
                 </table>
               </div>
             ) : (
-              <p className="text-sm text-gray-400 text-center py-6">No events yet</p>
+              <p className="text-sm text-gray-400 text-center py-6">{t('noEventsYet')}</p>
             )}
           </Section>
         </div>
 
-        <Section title="Trend Analysis">
+        <Section title={t('trendAnalysis')}>
           <div className="space-y-4">
             {trends.best_event && (
               <div className="flex gap-3 items-start">
                 <span className="p-1.5 bg-yellow-50 text-yellow-600 rounded-lg shrink-0"><Star size={14} /></span>
                 <div>
-                  <p className="text-xs text-gray-400">Top event</p>
+                  <p className="text-xs text-gray-400">{t('topEvent')}</p>
                   <p className="text-sm font-medium text-gray-900 mt-0.5">{trends.best_event.title}</p>
-                  <p className="text-xs text-gray-500">{trends.best_event.registrations} registrations</p>
+                  <p className="text-xs text-gray-500">{t('nRegistrations', { n: trends.best_event.registrations })}</p>
                 </div>
               </div>
             )}
@@ -263,9 +265,9 @@ export default function DashboardPage() {
               <div className="flex gap-3 items-start">
                 <span className="p-1.5 bg-violet-50 text-violet-700 rounded-lg shrink-0"><Calendar size={14} /></span>
                 <div>
-                  <p className="text-xs text-gray-400">Most active month</p>
+                  <p className="text-xs text-gray-400">{t('mostActiveMonth')}</p>
                   <p className="text-sm font-medium text-gray-900 mt-0.5">{trends.best_month.label}</p>
-                  <p className="text-xs text-gray-500">{trends.best_month.count} registrations</p>
+                  <p className="text-xs text-gray-500">{t('nRegistrations', { n: trends.best_month.count })}</p>
                 </div>
               </div>
             )}
@@ -273,9 +275,9 @@ export default function DashboardPage() {
               <div className="flex gap-3 items-start">
                 <span className="p-1.5 bg-violet-50 text-violet-700 rounded-lg shrink-0"><Tag size={14} /></span>
                 <div>
-                  <p className="text-xs text-gray-400">Top category</p>
+                  <p className="text-xs text-gray-400">{t('topCategory')}</p>
                   <p className="text-sm font-medium text-gray-900 mt-0.5 capitalize">{trends.best_type.type}</p>
-                  <p className="text-xs text-gray-500">{trends.best_type.registrations} registrations</p>
+                  <p className="text-xs text-gray-500">{t('nRegistrations', { n: trends.best_type.registrations })}</p>
                 </div>
               </div>
             )}
@@ -283,13 +285,13 @@ export default function DashboardPage() {
               <div className="flex gap-3 items-start">
                 <span className="p-1.5 bg-emerald-50 text-emerald-700 rounded-lg shrink-0"><Clock size={14} /></span>
                 <div>
-                  <p className="text-xs text-gray-400">Busiest day</p>
+                  <p className="text-xs text-gray-400">{t('busiestDay')}</p>
                   <p className="text-sm font-medium text-gray-900 mt-0.5">{trends.best_day}</p>
                 </div>
               </div>
             )}
             {!trends.best_event && !trends.best_month && (
-              <p className="text-sm text-gray-400 text-center py-4">No trends yet</p>
+              <p className="text-sm text-gray-400 text-center py-4">{t('noTrendsYet')}</p>
             )}
           </div>
         </Section>

@@ -7,6 +7,7 @@ import { useUpdateProfile } from '@/hooks/useProfile';
 import { X, Check, Plus, Camera, Award } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '@/lib/api';
+import { useT } from '@/lib/i18n';
 
 const inputClass = 'w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-700 bg-white';
 const labelClass = 'block text-sm font-medium text-gray-700 mb-1.5';
@@ -46,6 +47,7 @@ function ProfileContent() {
   const [avatarUploading, setAvatarUploading] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const updateProfile = useUpdateProfile();
+  const t = useT();
 
   useEffect(() => {
     if (!_hasHydrated) return;
@@ -86,9 +88,9 @@ function ProfileContent() {
       const { data } = await api.post('/upload', fd);
       await api.patch('/auth/me', { avatar_url: data.url });
       await fetchMe();
-      toast.success('Avatar updated');
+      toast.success(t('avatarUpdated'));
     } catch {
-      toast.error('Upload failed');
+      toast.error(t('uploadFailed'));
     } finally {
       setAvatarUploading(false);
       if (avatarInputRef.current) avatarInputRef.current.value = '';
@@ -97,7 +99,7 @@ function ProfileContent() {
 
   const handleSocialClick = (platform: typeof SOCIAL_PLATFORMS[number]) => {
     const current = form[platform.key] || '';
-    const entered = window.prompt(`${platform.label} profile URL:`, current);
+    const entered = window.prompt(t('profileUrlPrompt', { platform: platform.label }), current);
     if (entered === null) return;
     setForm(f => ({ ...f, [platform.key]: entered.trim() }));
   };
@@ -106,21 +108,21 @@ function ProfileContent() {
     try {
       const updated = await updateProfile.mutateAsync(form);
       useAuthStore.setState({ user: { ...user, ...updated } });
-      toast.success('Profile updated');
+      toast.success(t('profileUpdated'));
     } catch {
-      toast.error('Failed to update profile');
+      toast.error(t('profileUpdateFailed'));
     }
   };
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-xl font-bold text-gray-900">Edit profile</h1>
+        <h1 className="text-xl font-bold text-gray-900">{t('editProfileTitle')}</h1>
         <Link
           href={`/users/${user.user_id}`}
           className="flex items-center gap-1.5 text-sm text-violet-700 border border-violet-200 px-3 py-1.5 rounded-lg hover:bg-violet-50 transition-colors"
         >
-          <Award size={14} className="text-amber-500" /> View public profile
+          <Award size={14} className="text-amber-500" /> {t('viewPublicProfile')}
         </Link>
       </div>
       <div className="bg-white rounded-xl border border-gray-200 p-6">
@@ -151,15 +153,15 @@ function ProfileContent() {
         {/* Edit form — always open */}
         <div className="space-y-4">
           <div>
-            <label className={labelClass}>Full Name</label>
+            <label className={labelClass}>{t('fullName')}</label>
             <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className={inputClass} />
           </div>
           <div>
-            <label className={labelClass}>Bio</label>
-            <textarea value={form.bio} onChange={e => setForm(f => ({ ...f, bio: e.target.value }))} rows={3} className={inputClass} placeholder="Tell others about yourself..." />
+            <label className={labelClass}>{t('bio')}</label>
+            <textarea value={form.bio} onChange={e => setForm(f => ({ ...f, bio: e.target.value }))} rows={3} className={inputClass} placeholder={t('bioPlaceholder')} />
           </div>
           <div>
-            <label className={labelClass}>Skills</label>
+            <label className={labelClass}>{t('skills')}</label>
             <div className="flex flex-wrap gap-1.5 mb-2">
               {form.skills.map(s => (
                 <span key={s} className="flex items-center gap-1 text-xs bg-violet-50 text-violet-800 border border-violet-100 px-2 py-0.5 rounded-md">
@@ -176,7 +178,7 @@ function ProfileContent() {
                 onChange={e => setSkillInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addSkill())}
                 className={inputClass}
-                placeholder="Add skill, press Enter"
+                placeholder={`${t('addSkill')}, ${t('pressEnter')}`}
               />
               <button type="button" onClick={addSkill} className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-gray-600">
                 <Plus size={15} />
@@ -186,7 +188,7 @@ function ProfileContent() {
 
           {/* Social media */}
           <div>
-            <label className={labelClass}>Link your social media profiles</label>
+            <label className={labelClass}>{t('linkSocial')}</label>
             <div className="flex gap-3 mt-1">
               {SOCIAL_PLATFORMS.map(p => {
                 const hasUrl = !!form[p.key];
@@ -195,7 +197,7 @@ function ProfileContent() {
                     key={p.key}
                     type="button"
                     onClick={() => handleSocialClick(p)}
-                    title={hasUrl ? `${p.label}: ${form[p.key]}` : `Add ${p.label}`}
+                    title={hasUrl ? `${p.label}: ${form[p.key]}` : t('addPlatform', { platform: p.label })}
                     className={`p-2.5 rounded-xl border-2 transition-all ${
                       hasUrl
                         ? 'border-violet-600 text-violet-700 bg-violet-50'
@@ -225,7 +227,7 @@ function ProfileContent() {
               className="flex items-center gap-1.5 bg-violet-800 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-violet-900 disabled:opacity-50 transition-colors"
             >
               <Check size={14} />
-              {updateProfile.isPending ? 'Saving...' : 'Save changes'}
+              {updateProfile.isPending ? t('saving') : t('saveChanges')}
             </button>
           </div>
         </div>

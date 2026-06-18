@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import { Calendar } from 'lucide-react';
 import { useAuthStore } from '@/store/auth.store';
 import { GoogleSignInButton } from '@/components/GoogleSignInButton';
+import { useT } from '@/lib/i18n';
 
 type LoginMode = 'password' | 'code';
 
@@ -15,6 +16,7 @@ const inputClass =
 export default function LoginPage() {
   const { login, sendCode, verifyCode, isLoading, mockLogin } = useAuthStore();
   const router = useRouter();
+  const t = useT();
   const [mode, setMode] = useState<LoginMode>('password');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,46 +26,46 @@ export default function LoginPage() {
   const handlePasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) {
-      toast.error('E-poçt daxil edin');
+      toast.error(t('enterEmail'));
       return;
     }
     if (!password) {
-      toast.error('Şifrə daxil edin');
+      toast.error(t('enterPassword'));
       return;
     }
     try {
       await login(email, password);
       router.push('/events');
     } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Giriş uğursuz oldu');
+      toast.error(err.response?.data?.error || t('loginFailed'));
     }
   };
 
   const handleSendCode = async () => {
     if (!email.trim()) {
-      toast.error('E-poçt daxil edin');
+      toast.error(t('enterEmail'));
       return;
     }
     try {
       await sendCode(email, 'login');
       setCodeSent(true);
-      toast.success('Kod e-poçtunuza göndərildi');
+      toast.success(t('codeSent'));
     } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Kod göndərilmədi');
+      toast.error(err.response?.data?.error || t('codeSendFailed'));
     }
   };
 
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!code.trim()) {
-      toast.error('Kodu daxil edin');
+      toast.error(t('enterCode'));
       return;
     }
     try {
       await verifyCode(email, code, 'login');
       router.push('/events');
     } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Giriş uğursuz oldu');
+      toast.error(err.response?.data?.error || t('loginFailed'));
     }
   };
 
@@ -75,9 +77,9 @@ export default function LoginPage() {
             <Calendar size={22} className="text-violet-800" />
             <span className="text-xl font-bold text-gray-900">NextEvent</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Xoş gəldiniz</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{t('welcome')}</h1>
           <p className="text-gray-500 text-sm mt-1">
-            {mode === 'password' ? 'E-poçt və şifrənizlə daxil olun' : 'E-poçtunuza göndərilən kodla daxil olun'}
+            {mode === 'password' ? t('loginPasswordSubtitle') : t('loginCodeSubtitle')}
           </p>
         </div>
 
@@ -92,7 +94,7 @@ export default function LoginPage() {
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              Şifrə ilə
+              {t('withPassword')}
             </button>
             <button
               type="button"
@@ -103,14 +105,14 @@ export default function LoginPage() {
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              Kod ilə
+              {t('withCode')}
             </button>
           </div>
 
           {mode === 'password' ? (
             <form onSubmit={handlePasswordLogin} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">E-poçt</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('email')}</label>
                 <input
                   type="email"
                   value={email}
@@ -121,7 +123,7 @@ export default function LoginPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Şifrə</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('password')}</label>
                 <input
                   type="password"
                   value={password}
@@ -136,13 +138,13 @@ export default function LoginPage() {
                 disabled={isLoading}
                 className="w-full bg-gradient-to-r from-violet-700 to-indigo-700 text-white py-2.5 rounded-lg font-semibold shadow-lg shadow-violet-500/20 hover:from-violet-600 hover:to-indigo-600 hover:-translate-y-0.5 disabled:opacity-50 transition-all text-sm"
               >
-                {isLoading ? 'Giriş edilir...' : 'Daxil ol'}
+                {isLoading ? t('loggingIn') : t('signIn')}
               </button>
             </form>
           ) : (
             <form onSubmit={handleVerify} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">E-poçt</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('email')}</label>
                 <input
                   type="email"
                   value={email}
@@ -155,7 +157,7 @@ export default function LoginPage() {
 
               {codeSent && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Giriş kodu</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('loginCode')}</label>
                   <input
                     type="text"
                     inputMode="numeric"
@@ -176,7 +178,7 @@ export default function LoginPage() {
                   disabled={isLoading}
                   className="w-full bg-gradient-to-r from-violet-700 to-indigo-700 text-white py-2.5 rounded-lg font-semibold shadow-lg shadow-violet-500/20 hover:from-violet-600 hover:to-indigo-600 hover:-translate-y-0.5 disabled:opacity-50 transition-all text-sm"
                 >
-                  {isLoading ? 'Göndərilir...' : 'Kod göndər'}
+                  {isLoading ? t('sendingCode') : t('sendCode')}
                 </button>
               ) : (
                 <>
@@ -185,7 +187,7 @@ export default function LoginPage() {
                     disabled={isLoading}
                     className="w-full bg-gradient-to-r from-violet-700 to-indigo-700 text-white py-2.5 rounded-lg font-semibold shadow-lg shadow-violet-500/20 hover:from-violet-600 hover:to-indigo-600 hover:-translate-y-0.5 disabled:opacity-50 transition-all text-sm"
                   >
-                    {isLoading ? 'Yoxlanılır...' : 'Daxil ol'}
+                    {isLoading ? t('verifyingCode') : t('signIn')}
                   </button>
                   <button
                     type="button"
@@ -193,7 +195,7 @@ export default function LoginPage() {
                     disabled={isLoading}
                     className="w-full text-violet-700 text-sm font-medium hover:underline disabled:opacity-50"
                   >
-                    Kodu yenidən göndər
+                    {t('resendCode')}
                   </button>
                 </>
               )}
@@ -205,7 +207,7 @@ export default function LoginPage() {
               <div className="w-full border-t border-gray-200" />
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-white px-3 text-xs text-gray-400">və ya</span>
+              <span className="bg-white px-3 text-xs text-gray-400">{t('or')}</span>
             </div>
           </div>
 
@@ -216,7 +218,7 @@ export default function LoginPage() {
               <div className="w-full border-t border-gray-200" />
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-white px-3 text-xs text-gray-400">və ya</span>
+              <span className="bg-white px-3 text-xs text-gray-400">{t('or')}</span>
             </div>
           </div>
 
@@ -228,19 +230,19 @@ export default function LoginPage() {
             }}
             className="w-full bg-gray-100 text-gray-600 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
           >
-            Demo istifadəçi kimi davam et
+            {t('demoContinue')}
           </button>
         </div>
 
         <p className="text-sm text-center mt-4 text-gray-500">
           <Link href="/forgot-password" className="text-violet-800 font-medium hover:underline">
-            Şifrəni unutdum
+            {t('forgotPassword')}
           </Link>
         </p>
         <p className="text-sm text-center mt-2 text-gray-500">
-          Hesabınız yoxdur?{' '}
+          {t('noAccount')}{' '}
           <Link href="/register" className="text-violet-800 font-medium hover:underline">
-            Qeydiyyatdan keç
+            {t('signUpLink')}
           </Link>
         </p>
       </div>

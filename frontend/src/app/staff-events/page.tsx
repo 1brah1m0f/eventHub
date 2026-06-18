@@ -4,10 +4,12 @@ import { useAuthStore } from '@/store/auth.store';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { EventCard } from '@/components/EventCard';
+import { useT } from '@/lib/i18n';
 
 export default function StaffEventsPage() {
   const { user, _hasHydrated } = useAuthStore();
   const router = useRouter();
+  const t = useT();
   const { data: events, isLoading } = useMyStaffEvents();
 
   useEffect(() => {
@@ -19,8 +21,8 @@ export default function StaffEventsPage() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="mb-6">
-        <h1 className="text-xl font-bold text-gray-900">Staff Events</h1>
-        <p className="text-sm text-gray-400 mt-0.5">Events where you are a staff member</p>
+        <h1 className="text-xl font-bold text-gray-900">{t('staffEventsTitle')}</h1>
+        <p className="text-sm text-gray-400 mt-0.5">{t('staffEventsDesc')}</p>
       </div>
 
       {isLoading ? (
@@ -29,7 +31,7 @@ export default function StaffEventsPage() {
         </div>
       ) : events?.length === 0 ? (
         <div className="text-center py-20 text-gray-400">
-          <p>Not a staff member on any events</p>
+          <p>{t('notStaffMember')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useAuthStore } from '@/store/auth.store';
 import { useSettingsStore } from '@/store/settings.store';
 import { useT } from '@/lib/i18n';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { useRouter } from 'next/navigation';
 import {
   LogOut, Plus, Calendar, Menu, X,
@@ -39,7 +40,7 @@ const navLinkCls = 'text-sm text-violet-300 hover:text-white px-3 py-1.5 rounded
 
 export function Navbar() {
   const { user, logout } = useAuthStore();
-  const { darkMode, toggleDarkMode, language, setLanguage } = useSettingsStore();
+  const { darkMode, toggleDarkMode } = useSettingsStore();
   const t = useT();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -75,7 +76,7 @@ export function Navbar() {
           <div className="hidden sm:flex items-center gap-1">
             <button
               onClick={toggleDarkMode}
-              aria-label="Toggle dark mode"
+              aria-label={t('toggleDarkMode')}
               className="flex items-center justify-center w-8 h-8 rounded-md text-violet-300 hover:text-white hover:bg-violet-800/50 transition-colors"
             >
               {darkMode ? <Sun size={16} /> : <Moon size={16} />}
@@ -85,7 +86,7 @@ export function Navbar() {
               <>
                 <Link href="/events" className={navLinkCls}>{t('home')}</Link>
                 <Link href="/map" className={`${navLinkCls} flex items-center gap-1.5`}>
-                  <Map size={14} /> Map
+                  <Map size={14} /> {t('map')}
                 </Link>
 
                 {/* Organizations dropdown */}
@@ -117,7 +118,7 @@ export function Navbar() {
                     </Link>
                     <div className="border-t border-gray-100 my-1" />
                     <Link href="/teams" onClick={close} className={linkCls}>
-                      <Shield size={15} className="text-violet-500" /> My Teams
+                      <Shield size={15} className="text-violet-500" /> {t('myTeams')}
                     </Link>
                   </div>
                 </div>
@@ -139,7 +140,7 @@ export function Navbar() {
                   {profileDropdown.open && (
                     <div className="absolute top-full mt-1.5 right-0 w-52 bg-white rounded-xl shadow-lg border border-gray-100 py-1.5 z-50">
                       <Link href={`/users/${user.user_id}`} onClick={close} className={linkCls}>
-                        <Award size={15} className="text-amber-500" /> My Profile
+                        <Award size={15} className="text-amber-500" /> {t('myProfile')}
                       </Link>
                       <Link href="/registered-events" onClick={close} className={linkCls}>
                         <ClipboardList size={15} className="text-violet-700" /> {t('registeredEvents')}
@@ -159,16 +160,7 @@ export function Navbar() {
                             <Globe size={13} className="text-gray-500" />
                             {t('language')}
                           </span>
-                          <div className="flex gap-1">
-                            <button
-                              onClick={() => setLanguage('en')}
-                              className={`text-xs px-2 py-0.5 rounded font-medium transition-colors ${language === 'en' ? 'bg-violet-800 text-white' : 'text-gray-500 hover:bg-gray-100'}`}
-                            >EN</button>
-                            <button
-                              onClick={() => setLanguage('az')}
-                              className={`text-xs px-2 py-0.5 rounded font-medium transition-colors ${language === 'az' ? 'bg-violet-800 text-white' : 'text-gray-500 hover:bg-gray-100'}`}
-                            >AZ</button>
-                          </div>
+                          <LanguageSwitcher />
                         </div>
                       </div>
 
@@ -184,6 +176,7 @@ export function Navbar() {
 
             {!user && (
               <>
+                <LanguageSwitcher variant="dark" />
                 <Link href="/login" className={navLinkCls}>{t('login')}</Link>
                 <Link href="/register" className="text-sm bg-amber-400 hover:bg-amber-300 text-indigo-950 font-semibold px-3.5 py-1.5 rounded-md transition-colors ml-1">
                   {t('signUp')}
@@ -196,7 +189,7 @@ export function Navbar() {
           <button
             className="sm:hidden text-violet-300 hover:text-white p-1.5 rounded-md hover:bg-violet-800/50 transition-colors"
             onClick={() => setMobileOpen(o => !o)}
-            aria-label="Toggle menu"
+            aria-label={t('toggleMenu')}
           >
             {mobileOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
@@ -216,7 +209,7 @@ export function Navbar() {
                   {t('home')}
                 </Link>
                 <Link href="/map" onClick={close} className="flex items-center gap-2 text-sm text-violet-300 hover:text-white px-3 py-2.5 rounded-md hover:bg-violet-800/50 transition-colors">
-                  <Map size={14} /> Map
+                  <Map size={14} /> {t('map')}
                 </Link>
 
                 <div className="text-xs text-violet-600 font-semibold uppercase tracking-wider px-3 pt-2 pb-1">{t('organizations')}</div>
@@ -233,12 +226,12 @@ export function Navbar() {
                   <Users size={14} /> {t('staffEvents')}
                 </Link>
                 <Link href="/teams" onClick={close} className="flex items-center gap-2 text-sm text-violet-300 hover:text-white px-3 py-2.5 rounded-md hover:bg-violet-800/50 transition-colors">
-                  <Shield size={14} /> My Teams
+                  <Shield size={14} /> {t('myTeams')}
                 </Link>
 
                 <div className="text-xs text-violet-600 font-semibold uppercase tracking-wider px-3 pt-3 pb-1">{user.name}</div>
                 <Link href={`/users/${user.user_id}`} onClick={close} className="flex items-center gap-2 text-sm text-violet-300 hover:text-white px-3 py-2.5 rounded-md hover:bg-violet-800/50 transition-colors">
-                  <Award size={14} className="text-amber-400" /> My Profile
+                  <Award size={14} className="text-amber-400" /> {t('myProfile')}
                 </Link>
                 <Link href="/registered-events" onClick={close} className="flex items-center gap-2 text-sm text-violet-300 hover:text-white px-3 py-2.5 rounded-md hover:bg-violet-800/50 transition-colors">
                   <ClipboardList size={14} /> {t('registeredEvents')}
@@ -265,10 +258,7 @@ export function Navbar() {
                   <span className="flex items-center gap-2 text-sm text-violet-300">
                     <Globe size={14} /> {t('language')}
                   </span>
-                  <div className="flex gap-1">
-                    <button onClick={() => setLanguage('en')} className={`text-xs px-2 py-0.5 rounded font-medium ${language === 'en' ? 'bg-violet-600 text-white' : 'text-violet-400 hover:bg-violet-800'}`}>EN</button>
-                    <button onClick={() => setLanguage('az')} className={`text-xs px-2 py-0.5 rounded font-medium ${language === 'az' ? 'bg-violet-600 text-white' : 'text-violet-400 hover:bg-violet-800'}`}>AZ</button>
-                  </div>
+                  <LanguageSwitcher variant="dark" />
                 </div>
 
                 <button onClick={handleLogout} className="flex items-center gap-2 w-full text-sm text-red-400 hover:text-red-300 px-3 py-2.5 rounded-md hover:bg-violet-800/50 transition-colors">
@@ -277,6 +267,12 @@ export function Navbar() {
               </>
             ) : (
               <>
+                <div className="flex items-center justify-between px-3 py-2">
+                  <span className="flex items-center gap-2 text-sm text-violet-300">
+                    <Globe size={14} /> {t('language')}
+                  </span>
+                  <LanguageSwitcher variant="dark" />
+                </div>
                 <Link href="/login" onClick={close} className="block text-sm text-violet-300 hover:text-white px-3 py-2.5 rounded-md hover:bg-violet-800/50 transition-colors">
                   {t('login')}
                 </Link>
